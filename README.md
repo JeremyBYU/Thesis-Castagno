@@ -1,7 +1,3 @@
-% Definition of any abbreviations used.
-\abbreviations{
- \acro{TWCA}{Blah Blah}
- \acro{UAS}{Unmanned Aircraft Systems}
-}
+# My Thesis
 
-
+This is contains all the source files for my completed thesis.
