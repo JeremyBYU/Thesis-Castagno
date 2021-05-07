@@ -305,7 +305,7 @@
    % More rubber space
    \vfill %
    % Text from guidelines
-   A thesis proposal submitted in partial fulfillment \\ %
+   A dissertation submitted in partial fulfillment \\ %
    of the requirements for the degree of \\ %
    % Name of degree
    \insertdegree \\ %
@@ -1228,7 +1228,7 @@
  % Use lower-case roman numerals.
  \renewcommand{\thepage}{\roman{page}} %
  % Insert the copyright page if there is one.
-%  \if@umich@copyright\copyrightpage\fi
+ \if@umich@copyright\copyrightpage\fi
  % Initialize page numbers.
  \setcounter{page}{1} %
  % Insert a dedication if there is one.
@@ -1242,7 +1242,7 @@
  % Insert the prologue if there is one.
  \if@umich@prologue\prologuepage\fi %
  % Insert the table of contents.
-%  \tableofcontents %
+ \tableofcontents %
  % Insert the list of figures.
  \if@umich@listoffigures\listoffigures\fi %
  % Insert the list of tables.

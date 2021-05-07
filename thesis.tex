@@ -8,8 +8,20 @@
 \usepackage{subcaption}
 \usepackage{enumitem}
 \usepackage{amsmath}
+\usepackage{amsthm}
 \usepackage{mathtools}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+\usepackage{multirow}
+
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+% \usepackage{caption,subcaption}% http://ctan.org/pkg/{caption,subcaption}
+% \captionsetup{compatibility=false}
+
 \DeclareMathOperator*{\argminA}{arg\,min}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
 
 \title{Mapping and Real-time Navigation \\ with application to Small UAS Urgent Landing}
 
@@ -28,9 +40,9 @@
 %   This manual is dedicated to my family.
 % }
 
-% \acknowledgments{
-%   .
-% }
+\acknowledgments{
+  \input{misc/acknowledgments}
+}
 
 % \preface{
 %   This disseration is a sample document using the \texttt{thesis-umich.cls}
@@ -46,22 +58,22 @@
 
 \input{misc/acronyms_list}
 % Commands to hide or show lists of figures, tables, etc.
-%\showlistoffigures
-%\showlistoftables
-%\showlistofmaps
-%\showlistofillustrations
-% \showlistofappendices
+\showlistoffigures
+\showlistoftables
+% \showlistofmaps
+% \showlistofillustrations
+\showlistofappendices
 % \showlistofabbreviations
-% \showlistofacronyms
-%\showlistofsymbos
+\showlistofacronyms
+% \showlistofsymbols
 % OR
-\hidelistoffigures
-\hidelistoftables
+% \hidelistoffigures
+% \hidelistoftables
 \hidelistofmaps
 \hidelistofillustrations
-\hidelistofappendices
+% \hidelistofappendices
 \hidelistofabbreviations
-\hidelistofacronyms
+% \hidelistofacronyms
 \hidelistofsymbols
 
 % Definition of any abbreviations used.
@@ -71,9 +83,9 @@
 
 
 % Some abstract text
-% \abstract{
-%   Write abstract here
-% }
+\abstract{
+  \input{abstract/abstract}
+}
 
 \begin{document}
 
@@ -82,17 +94,17 @@
 
 \chapter{Introduction}
  \label{ch:introduction}
- \input{chapter_1_intro/main}
+ \input{chapter_1_intro/main_updated}
 
  
 \chapter{Polygons from 2D Point Sets}
  \label{ch:polylidar}
- \input{chapter_2_polylidar/main}
+ \input{chapter_2_polylidar/main_updated}
  
  
 \chapter{Polygons from 3D Data}
  \label{ch:polylidar3d}
- \input{chapter_3_polylidar3d/main}
+ \input{chapter_3_polylidar3d/main_updated}
  
  
 \chapter{Roof Shape Classification from Satellite Images and LiDAR Data  }
@@ -101,7 +113,7 @@
  
 \chapter{Map-Based Planning for Small UAS Rooftop Landing }
  \label{ch:maplanding}
- \input{chapter_5_mapping/main}
+ \input{chapter_5_mapping/main_updated}
  
 \chapter{Experimental Results for Real-time Landing Site Identification and Selection (Proposed)}
  \label{ch:experiments}

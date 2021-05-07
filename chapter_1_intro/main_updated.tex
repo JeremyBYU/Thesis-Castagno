@@ -1,5 +1,5 @@
 
-\paragraph{Motivation}
+\section{Motivation}
 
 \acf{UAS} are expected to proliferate in low-altitude airspace over the coming decade. Drones with vertical takeoff and landing (VTOL) capability have been proposed to offer fast package delivery, monitor and secure assets, perform inspections, and entertain.
 % The \acf{FAA} estimates over 1.25 million \acf{sUAS} were flown in 2018 \cite{federal_aviation_administration_unmanned_2019}, far exceeding the number of registered manned aircraft in the USA.  Many \ac{sUAS} are  configured for \acf{VTOL} because of requirements for minimal area for ingress and egress in cities.  
@@ -10,6 +10,22 @@ A primary safety concern is ensuring a robust urgent landing capability \cite{wi
 % For example, Refs.  \cite{atkins_emergency_2006, meuleau_emergency_2009}  and \cite{sankararaman_towards_2017} utilize airborne flight risk models to build emergency landing plans for fixed-wing and urban flight operations, respectively. We call such a decision making framework a map-based planner.
 
 Conventional fixed-wing emergency landing sites such as open fields and roadways are either extremely rare or highly populated in and around cities. Consider the satellite image in Figure \ref{fig:ch1_challenge_urban} which shows the typical sparsity of conventional landing zones in the city Witten, Germany. However, these images show a multitude of unoccupied flat rooftops that may provide nearby landing sites for small lightweight UAS. Obstacles such as air conditioning units, skylights, and rooftop entrances on these surfaces may be present and must be explicitly modeled and avoided during an urgent landing. Polygons can accurately and simply represent these flat surfaces as well as obstacles embedded on them per Figure \ref{fig:ch1_roof_shape_obstacle}. Archived data can be processed such that rooftop landing sites substantially augment existing conventional landing site databases.
+
+
+
+\section{UAS Emergency Landing Background}
+
+\section{Data Background}
+
+\subsection{Geographic Information System Background}
+
+\subsection{Sensor Background}
+
+
+
+
+
+
 
 
 
@@ -28,7 +44,7 @@ Conventional fixed-wing emergency landing sites such as open fields and roadways
 % \end{figure}
 
 
-\begin{figure}[ht]
+\begin{figure}[t]
     \centering
   \begin{subfigure}{.45\linewidth}
     \centering
@@ -47,7 +63,7 @@ Conventional fixed-wing emergency landing sites such as open fields and roadways
 
 
 
-\paragraph{Problem Statement}
+\section{Problem Statement}
 
 This dissertation aims to address the following challenges:
 
@@ -62,7 +78,7 @@ This dissertation aims to address the following challenges:
 Previous research has proposed the use of public Geographic Information Systems (GIS) datasets such as satellite images, airborne LiDAR point clouds, digital elevation maps, census data, and building outlines for terrain-based landing site identification, risk assessment, and path planning \cite{meuleau_emergency_2009, di_donato_evaluating_2017, patterson_timely_2014, bleier_risk_2015}.  However increased use of sUAS in urban cities motivates this work to additionally consider building rooftops as landing sites. To our knowledge this dissertation is the first work to explicitly use GIS data to automatically identify flat rooftop buildings, isolate flat surfaces, and find risk-minimum touchdown points that maximize distance to obstacles. 
 
 % These conventional landing sites are often risk evaluated by terrain type and size \cite{di_donato_evaluating_2017}. 
-\paragraph{Research Approach}
+\section{Research Approach and Thesis Outline}
 
 % Map data is widely available in vector form, such as polygons, which describes features such as fields, parks, and building outlines \cite{openstreetmap_contributors_planet_2017}.  Such polygons can be efficiently stored and indexed such that spatial queries may efficiently computed in an embedded database \cite{furieri_spatialite_2017}. 
 
@@ -179,7 +195,7 @@ A small UAS should utilize available sensors to verify a safe touchdown point up
 An alternative to operating over a discretized image space is modelling the 3D mesh of the roof. Polylidar3D can be used to rapidly construct a surface mesh and extract polygonal representations of all flat surfaces while accounting for obstacles. Afterward the largest inscribed circle in each polygon is defined. For the final dissertation,  flight experiments with small multicopter UAS carrying LiDAR sensors will be conducted to demonstrate and evaluate real-time map generation for landing site safety validation (in areas with small UAS landing site maps) or real-time landing identification and selection (in areas without small UAS landing site maps). Tests will be conducted in the M-Air netted flight facility where motion capture can provide ground truth data to be compared with UAS-generated landing site maps and decisions. 
 
 
-\paragraph{Contributions and Innovations \\}
+\section{Contributions and Innovations}
 % \vspace{1.5cm}
 Specific contributions of this dissertation include: % things that have taken time / effort
 
@@ -221,7 +237,8 @@ Specific innovations of this dissertation are: % things that have taken time / e
 % \end{itemize}
 
 
-\paragraph{Products}
+\section{Products}
+
 Publications, software, and datasets connected to this dissertation are:
 \vspace{0.2cm}
 

@@ -1,0 +1,704 @@
+\section{Introduction}
+
+Talk about need for 2D point set to convex polygons. Connection to multiple fields!
+
+This chapter presents Polylidar, an efficient algorithm to transform 2D point sets into simplified non-convex (i.e., concave) polygons with holes. Polylidar begins by triangulating the point set and filtering triangles given user-specified parameters such as maximum triangle edge length. Once filtering is complete, edge-connected triangles are combined into regions creating a set of triangular meshes representing the shape of the point set. Next, Polylidar converts each mesh region to a polygon through a novel boundary following method which accounts for holes. Figure \ref{fig:ch2_convex_concave}b shows Polylidar applied to a 2D point set while (c) shows Polylidar used on a plane segmented point cloud from an RGBD image.
+
+
+\begin{figure}[t]
+    \centering
+  \begin{subfigure}{.25\linewidth}
+    \centering
+    \includegraphics[clip, trim=0.0cm 0.1cm 0.0cm 0.25cm, width=0.99\linewidth]{chapter_2_polylidar/imgs/concave_vs_convex_0.pdf}
+    \caption{}
+    \label{fig:ch2_convex}
+  \end{subfigure}
+  \begin{subfigure}{.25\linewidth}
+    \centering
+    \includegraphics[clip, trim=0.0cm 0.1cm 0.0cm 0.25cm, width=.99\linewidth]{chapter_2_polylidar/imgs/concave_vs_convex_2.pdf}
+    \caption{}
+    \label{fig:ch2_concave}
+  \end{subfigure}
+  \begin{subfigure}{.25\linewidth}
+    \centering
+    \includegraphics[width=0.99\linewidth]{chapter_2_polylidar/imgs/RealSensePictures-cropped_aspect.pdf}
+    \caption{}
+    \label{fig:ch2_realsense}
+  \end{subfigure}
+  \caption[Demonstration of Polylidar]{(a) Convex hull of a point set (red); (b) MultiPolygon extraction using Polylidar (green).
+  (c) Polygon extraction from a plane segmented point cloud from an Intel RealSense RGBD camera capturing paper towel rolls on a basement floor. 
+  Note that Polylidar also identifies holes (orange).}
+  \label{fig:ch2_convex_concave} 
+\end{figure}
+
+
+
+We show that the Polylidar algorithm is approximately 4 times faster than leading open source approaches for concave polygon extraction. Polylidar's speed is attributed to rapidly identifying boundary edges (shell and holes) and then performing  boundary following to ensure a valid polygon is returned. 
+
+
+Contributions of this chapter are:
+\begin{itemize}
+  \item A faster open source \cite{Castagno_Github_Polylidar} concave (multi)polygon extraction algorithm from 2D point sets.
+  \item A benchmark comparison of leading concave polygon extraction techniques in terms of accuracy and speed.
+%   \item Real-world validation of Polylidar on 3D point data.
+\end{itemize}
+% Please refer to \cite{DBLP:journals/corr/abs-1903-03829} for Polylidars technique for planar mesh extraction from 3D points.
+
+Below, Sections \ref{sec:ch2_background} and \ref{sec:ch2_prelim} provide background on non-convex shape generation and mathematical preliminaries, respectively. Section \ref{sec:ch2_methods} describes Polylidar algorithms, while Section \ref{sec:ch2_results} shows benchmark test results of Polylidar versus other methods.  Section \ref{sec:ch2_random_polygons_test} describes test results. Sections  \ref{sec:ch2_discussion} and \ref{sec:ch2_conclusion} provide discussion and conclusions.
+
+
+
+\section{Background}\label{sec:ch2_background}
+
+Characterizing the shape of a set of 2D points $\mathcal{P}$ has been a long-term focus of computational geometry research. A convex hull is defined as the smallest convex polygon that fully encapsulates all points in a set $\mathcal{P}$.  Although widely used to estimate shape, point sets with non-convex distributions are poorly characterized by a convex hull \cite{duckham_efficient_2008}.  Convex hull over-estimation can be a serious issue when the points represent physical objects, e.g., obstacle free navigable areas. Several algorithms have been developed to construct shapes that ``fit'' or ``cover'' point sets more closely. 
+
+Figure \ref{fig:ch2_convex_concave} compares convex and concave hulls. Figure \ref{fig:ch2_convex_concave}b is the multipolygon output of Polylidar described below.
+%One may argue that the red convex hull does not conform well to the point distribution but the green concave hull captures the shape of the letters more precisely. 
+While there is a unique convex hull, there is no true or unique concave hull.  Concave hull algorithm implementations can also have different output types.  Some return only an unordered set of edges while others return a single polygon.  Some algorithms return multiple disconnected polygons (multipolygon), and some can generate holes inside a polygon.
+
+The $\alpha$-shape algorithm is an early strategy to generate a family of shapes ranging from a convex hull to a point set  \cite{edelsbrunner_shape_1983}. The parameter $\alpha$ dictates the radius of a closed disk used to prune/remove area in the convex hull. This disk is allowed to move freely shaving off the excess shape until it finds points. When disk radius is large, ideally infinite, the convex hull is produced; when disk radius is infinitesimally small only the points remain. A common implementation of $\alpha$-shape organizes points using Delaunay triangulation and filters triangles whose circumcircle radius is less than $\alpha$.  The final shape is represented by the remaining edges and triangles.  Note that the $\alpha$-shape method creates multiple non-intersecting shapes with the possibility of holes. 
+
+The algorithm in \cite{duckham_efficient_2008} produces polygons from point sets called $\chi$-shapes. Like some $\alpha$-shape implementations, the $\chi$-shape approach begins with Delaunay triangulation to order and spatially connect data points.  The algorithm differs by iteratively removing the longest exterior edges from triangulation based on a specified maximum length parameter $l$. A corner case occurs  when edge removal results in a non-simple polygon, i.e., the polygon wraps into itself; in this case edge removal is skipped.  The $\chi$-shape produced is a single polygon with no possibility of holes.
+
+The geospatial software library Spatialite \cite{furieri_spatialite_2017}, an extension to SQLite \cite{hipp_sqlite_2020}, contains a concave hull extraction procedure. The algorithm again starts with Delaunay triangulation then analyzes the distribution of each triangle's edge length to determine mean $\mu_l$ and standard deviation $\sigma_l$. Any triangle with edge length greater than $C \cdot \sigma_l  + \mu_l$ is removed, where $C$ is a user-defined parameter. The final geometry returned is the union of all triangles computed with GEOS, a high performance open source geometry engine. The output may be a multipolygon (i.e., multiple disjoint polygons) with the possibility of holes inside each. 
+
+PostGIS is a geospatial database of computational geometry routines such as the concave hull method in \cite{open_source_geospatial_foundation_postgis_2019}. This algorithm first calculates the convex hull and then shrinks the hull by adjusting vertex connections to closer points which ``cave in'' the hull.  This process recursively shrinks a boundary until a user-specified percent reduction in area from the convex hull is achieved. The resulting shape is a single polygon with the possibility of holes. 
+
+\begin{table}[ht]
+\centering
+\caption{Concave Hull Extraction Methods}
+\label{table:ch2_compare_alg}
+\begin{tabular}{ccc}
+\hline
+Algorithm                                                   & Output                                                           & Holes? \\ \hline
+\begin{tabular}[c]{@{}c@{}}CGAL $\alpha$-shape\end{tabular}   & \begin{tabular}[c]{@{}c@{}}unordered\\ set of edges\end{tabular} & Yes    \\
+$\chi$-shapes                                             & \begin{tabular}[c]{@{}c@{}}Unordered\\ Set of Edges\end{tabular} & No     \\
+Spatialite                                                 & (multi)polygon                                                   & Yes    \\
+PostGIS                                                       & polygon                                                          & Yes    \\
+Polylidar (new)                                                   & (multi)polygon                                                   & Yes    \\ \hline
+\end{tabular}
+\end{table}
+
+Table \ref{table:ch2_compare_alg} provides a summary  of the concave hull algorithms discussed above. The Computational Geometry Algorithms Library (CGAL) is  used as the implementation of the $\alpha$-shape method \cite{the_cgal_project_cgal_2019}. Note that the time complexity of all algorithm implementations, with the exception of PostGIS, is $\mathcal{O}(n\log{}n)$.  Our paper contributes a procedure to more rapidly compute (multi)polygon output with the possibility of holes.  Though this is a complex output to generate, we show through benchmarks that our algorithm and implementation outperforms other available approaches.
+
+\section{Preliminaries}\label{sec:ch2_prelim}
+
+A 2D \textit{point set} is an arbitrarily ordered set of two dimensional points in a Cartesian reference frame. Each point is defined by orthogonal bases $\hat{\mathbf{e}}_x$ and $\hat{\mathbf{e}}_y$  with
+\begin{equation}
+\label{eq:point}
+    \vec{{p}_{i}}=x\,\hat{\mathbf{e}}_x+y\, \hat{\mathbf{e}}_y= [x,y]
+\end{equation}
+where $x,y$ are plane coordinates.
+
+An $n$-point array $\mathcal{P} = \{ \vec{{p}_{1}}, \vec{{p}_{i}}, \ldots, \vec{{p}_{n}} \}$ contains points $\vec{{p}_{i}} \in \mathbb{R}^2$ indexed by $i$.  A triangular mesh $ \mathcal{T}$ is defined by
+\begin{equation}
+\label{eq:ch2_tri}
+    \mathcal{T} = \{ t_1, t_i, \ldots, t_{k} \}
+\end{equation}
+where each $t_i$ is a triangle with vertices defined by three point indices $\{i_1, i_2, i_3\} \in \left[1,n\right]$ referencing points in $\mathcal{P}$.
+
+We follow the Open Geospatial Consortium (OGC) standard \cite{herring_opengis_2006-1} for defining \textit{linear ring} and \textit{polygon}. A linear ring is a consecutive list of points that is both closed and simple. This requires a linear ring to have non-intersecting line segments that join to form a closed path. The key components of a valid polygon are a single exterior linear ring representing the \emph{shell} of the polygon and a set of linear rings (possibly empty) representing \emph{holes} inside the polygon. 
+
+\section{Methods}\label{sec:ch2_methods}
+
+% Polylidar generates 2D concave polygons from 2D or 3D point set inputs. The only difference between handling 3D and 2D point sets is additional triangle filtering based upon user specified planarity constraints. 
+Sections \ref{sec:ch2_tri}, \ref{sec:ch2_triangle_filtering_2d}, and \ref{sec:ch2_mesh_extraction} describe the triangulation data structures, filtering, and mesh extraction respectively.  Section \ref{sec:ch2_polygon_extraction} describes polygon extraction. %while Section \ref{sec:time_complexity} describes time complexity.
+\subsection{Triangulation with Half-Edge Decomposition} \label{sec:ch2_tri}
+
+Polylidar begins with the Delaunator library \cite{noauthor_github_2018} performing a Delaunay triangulation of point set $\mathcal{P}$. The original algorithm was written in JavaScript but a C++ port of the library is used in Polylidar \cite{noauthor_github_2018-1}. Note that we have modified Delaunator to use robust geometric predicates to ensure correctness during triangulation \cite{richard_shewchuk_adaptive_1997}. Delaunator was chosen for its ease of integration, speed, and output data structure which returns a \emph{half-edge} triangulation. A half-edge triangulation decomposes a shared edge using two half-edges A$\rightarrow$B and B$\rightarrow$A. An example of this decomposition and resulting data structures is shown in Figure \ref{fig:ch2_delaunator}. 
+
+
+% In a triangulation a triangle's edge is often shared with another triangle (except the outer edges which form the convex hull); a half-edge refers to one side of this shared edge. 
+% Some triangulation implementations refer to a shared edge as A$\leftrightarrow$B while Delaunator
+
+
+\begin{figure}[ht]
+    \centering
+  \begin{subfigure}{.25\linewidth}
+    \centering
+    \includegraphics[width=0.99\linewidth]{chapter_2_polylidar/imgs/delaunator_tri-min.pdf}
+    \caption{}
+    \label{fig:ch2_delaunator_tri}
+  \end{subfigure}
+  \begin{subfigure}{.25\linewidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{chapter_2_polylidar/imgs/DelaunatorDS.pdf}
+    \caption{}
+    \label{fig:ch2_delaunator_ds}
+  \end{subfigure}
+  \caption[Delaunay triangulation example]{(a) Triangulation of a square point set using Delaunator \cite{noauthor_github_2018} with output data structure indexed by half-edge ids in (b).  HE=half-edge, PI=point index, $t$=triangle. Grey edges show shared edges decomposed individually.}
+  \label{fig:ch2_delaunator} 
+\end{figure}
+
+
+Figure \ref{fig:ch2_delaunator}a triangulates point set $\{\text{PI0, PI1, PI2, PI3}\}$.  Triangulation produces two triangles, $t_0$ and $t_1$, with half-edges $\{\text{HE0, HE1, HE2}\}$ and $\{\text{HE3, HE4, HE5} \}$, respectively.  Each half-edge supports clockwise travel to the next half-edge in that triangle's edge set. Figure \ref{fig:ch2_delaunator}b lists the resulting $halfedges$, $triangles$, and $points$ data structures.  The $halfedges$ array is indexed by a half-edge reference id. It provides the opposite half-edge of a shared edge if it exists; otherwise -1 is returned. The $triangles$ array is also indexed by half-edge id and gives the starting point index of the associated half edge. The relationship between half-edge and triangle indices is $t = \operatorname{floor}(he / 3)$.
+
+\subsection{Triangle Filtering}\label{sec:ch2_triangle_filtering_2d}
+As with Spatialite and $\alpha$-shape methods the initial shape starts with $k$ triangles in $\mathcal{T}$ per Eqn. \ref{eq:ch2_tri} returned from Delaunay triangulation. Also similar to $\alpha$-shape and Spatialite methods, Polylidar filters triangles by configurable criteria for each triangle. Polylidar allows the user to perform triangle filtering using either the $\alpha$ parameter or maximum triangle edge length parameter $l_{max}$. The filtered triangle set is denoted $\mathcal{T}_f$. 
+
+
+
+\subsection{Triangular Mesh Region Extraction}\label{sec:ch2_mesh_extraction}
+
+An iterative plane extraction procedure inspired from \cite{cao_roof_2017} generates subsets of $\mathcal{T}_f$ that are spatially connected.  These subsets are denoted  $\mathcal{T}_r$ which represent triangular mesh \emph{regions}. A spatial connection between triangles exists when they share an edge. A random seed triangle is selected from $\mathcal{T}_f$ where a new region is created and expanded by its adjacent edge neighbors from the \emph{halfedges} data structure. Region growth halts when no more triangles in $\mathcal{T}_f$ connect to the region. The process repeats with another seed triangle until all triangles in $\mathcal{T}_f$ have been examined. 
+
+
+\begin{figure}[ht]
+    \centering
+  \begin{subfigure}{.3\linewidth}
+    \centering
+    \includegraphics[width=0.99\linewidth]{chapter_2_polylidar/imgs/plane_extraction_a-min.pdf}
+    \caption{}
+    \label{fig:ch2_plane_extraction_a}
+  \end{subfigure}
+  \begin{subfigure}{.3\linewidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{chapter_2_polylidar/imgs/plane_extraction_b-min.pdf}
+    \caption{}
+    \label{fig:ch2_plane_extraction_b}
+  \end{subfigure}
+  \caption[Region growing example from triangulation]{(a) Example of two regions extracted denoted by orange and blue. Triangles $t_0$ and $t_1$ are one region while $t_4$ and $t_5$ are another. (b) Two regions are also extracted with a shared vertex.}
+  \label{fig:ch2_plane_extraction} 
+\end{figure}
+
+
+ Figure \ref{fig:ch2_plane_extraction}a shows triangular mesh region examples. Distinct regions are shown in orange and blue; light grey edges denote triangles that have been filtered out.  
+ %  If you don't describe algorithmically or mathematically how (b) happens cleverly, then don't highlight it in the text!  --> Figure \ref{fig:plane_extraction}b shows that blue and orange regions are not spatially connected by a single vertex (1,1). 
+ The output of this step is a set of spatially connected triangular mesh regions, $\mathcal{T}_R$, where each specific region, $\mathcal{T}_{r,i}$, is a set of triangle \emph{indices}. We denote the set of $m$ triangular mesh regions as:
+
+\begin{align}
+    \mathcal{T}_R = \{ \mathcal{T}_{r,1}, \mathcal{T}_{r,i},  \ldots, \mathcal{T}_{r,m} \} \\
+    \mathcal{T}_{r,i} =  \{ t_{i}, \ldots, t_{j} \}
+\end{align}
+
+
+\subsection{2D Polygon Extraction}\label{sec:ch2_polygon_extraction}
+
+Polygon extraction has three steps: data structure initialization, concave shell extraction, and hole(s) extraction. Each of these steps is described below. Note that polygon extraction is independent of the specific triangular mesh regions $\mathcal{T}_{r,i}$, thus subsequent notation will drop the $i$ index for brevity when used in algorithms. The following steps are executed for each of the $m$ regions in $\mathcal{T}_{R}$ to generate $m$ polygons.
+
+\subsubsection{Data structure initialization}
+
+Data structure initialization is shown in Algorithm \ref{alg:ch2_boundary_edges} which produces three data structures: a boundary half-edge set, a point index hash map, and the extreme point. A visual example of these data structures is shown in Figure \ref{fig:ch2_algorithm1_visual}. Boundary half-edge set $\mathcal{HE}$ contains the half-edge indices that are on the exterior border of a region, marked in blue in Figure \ref{fig:ch2_algorithm1_visual}a.  A half-edge is marked as a boundary if it has no opposite half-edge (meaning it is on the convex hull of the full triangulated set) or if its adjacent triangle is not in $\mathcal{T}_{r,i}$. The last check is important because a half-edge may share an edge with an interior triangle that is not part of $\mathcal{T}_{r,i}$ as seen in the rightmost edge for the blue region in Figure \ref{fig:ch2_plane_extraction}a. The \emph{halfedges} data structure is fixed at triangulation and is not aware of filtered triangles or the regions discussed in Section \ref{sec:ch2_mesh_extraction}.
+
+\begin{figure}[ht]
+    \centering
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=0.99\linewidth]{chapter_2_polylidar/imgs/algorithm1_visual.pdf}
+    \caption{}
+    \label{fig:ch2_algorithm1_visual_boundary}
+  \end{subfigure}
+  \begin{subfigure}[t]{.25\linewidth}
+    \centering
+    \includegraphics[clip, trim=0cm 0cm 0.5cm 0cm,width=.99\linewidth]{chapter_2_polylidar/imgs/HashMap_PS.pdf}
+    \caption{}
+    \label{fig:ch2_hashmap}
+  \end{subfigure}
+  \caption[Representation of boundary half-edge set, extreme point, and point index hash map]{(a) The boundary half-edge set is marked in blue and point index 21 (PI21), the farthest point on the x-axis, is noted. (b) A sample of the resulting point index hash map, $PtE$ is shown. Note that the display order has been arbitrarily chosen.  }
+  \label{fig:ch2_algorithm1_visual} 
+\end{figure}
+
+The second data structure is a point index hash map, $PtE$, whose \emph{key} is a point index and \emph{value} is a \emph{list} of outgoing boundary half-edges from the keyed point index. This \emph{unordered} hash map is represented in Figure \ref{fig:ch2_algorithm1_visual}b; note the keyed point index 7 mapping to the single element list containing half-edge 84. The final data structure represents an extreme point in the triangle mesh, referring to the point farthest to the right on the $x$-axis. This point will be used as the starting point index when extracting the concave hull to help ensure extraction does not start on a hole edge. Multiple points may exist on the extreme edge;  the algorithm will track the first one found in this case. 
+
+\begin{algorithm}[ht]
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+
+    \Input{Triangular Mesh Region , $\mathcal{T}_r = \{t_i, \ldots, t_k\}$ \\
+        Shared Halfedges, $halfedges$ \\
+        Triangles Point Index, $triangles$ 
+    }
+    
+    \Output{Half Edge Set , $\mathcal{HE} = \{he_i, \ldots, he_n\}$ \\ 
+        Point Index Hash Map, $PtE$ \\
+
+        Extreme Point, $pi_{xp}$ } 
+    $\mathcal{HE} = \emptyset$ \tcp*{boundary half-edge set}
+    $PtE = \emptyset$ \tcp*{Point to half-edge hashmap}
+    $pi_{xp} = 0$ \tcp*{will be overwritten}
+    \For{$t_i \in \mathcal{T}_r$} { 
+        \For{$he_i \in t_i$} { 
+            $he_j = halfedges[he_i]$\tcp*{opposite edge}
+            $t_j = \operatorname{floor}(he_j / 3)$ \tcp*{adjacent tri}
+            \uIf{$t_j \notin \mathcal{T}_r$}{
+                $\mathcal{HE}$ = $\mathcal{HE}$ + $he_i$ \tcp*{boundary edge} 
+                $pi = triangles[he_i]$ \\
+                $pi_{xp} = \operatorname{TrackXp}(pi, pi_{xp})$ \\
+                \uIf{$pi \notin PtE$}{
+                    \tcc{create half-edge list}
+                    $PtE[pi] = [he_i]$ 
+                    % \tcc{Add new half edge list}
+                }
+                \uElse {
+                    $\operatorname{Append}(PtE[pi], he_i)$
+                }
+            }
+        }
+  
+    }
+    return $\mathcal{HE}, PtE, pi_{xp}$
+    \caption{Initialize}\label{alg:ch2_boundary_edges}
+\end{algorithm}
+
+
+\subsubsection{Concave Shell Extraction}
+Outer shell extraction begins by traversing the half-edge graph, starting with the half-edge provided by the extreme point. As the edges are traversed the point indices are recorded in a list representing the linear ring of the concave hull. Edges are removed from the half-edge set, $\mathcal{HE}$, as they are traversed.  In Figure \ref{fig:ch2_algorithm1_visual}a the extreme point index is PI21 and the starting half-edge is HE70. This starting half edge and start point index are arguments to the \texttt{ExtractLinearRing} procedure in Algorithm \ref{alg:ch2_concave_hull_shell}, with the procedure halting when edge traversal returns back to the starting point index, indicating a closed linear ring has been extracted. The hole in this shape, represented by edges (HE28, HE0, HE14, HE44), with a shared vertex at PI10, must be carefully handled as explained below. This is an example of an non-manifold mesh.
+
+The example in Figure \ref{fig:ch2_algorithm1_visual} begins with HE70 traversing to PI10. The outgoing boundary half-edges for this point index are determined from $PtE$ which provides a list of both HE28 and HE42. However HE28 is an edge for a hole in this polygon while HE42 is the correct half-edge to traverse for the outer shell. The \texttt{SelectEdge} procedure determines which of these edges to choose and is visually outlined in Figure \ref{fig:ch2_example1}a. Angles between the proposed edges and previous edge HE70 are calculated and the edge with the largest angle is chosen which guarantees the largest concave hull.  This edge cannot be a hole edge because that would imply that the hole is outside the concave shell, which is invalid.
+
+% {\color{blue}
+On rare occasions the extreme point may have more than one outgoing half edge, meaning that a hole is connected to it.  This can be handled in the same way stated above by using the \texttt{SelectEdge} procedure. The only difference is that the previous hull edge is not known (the procedure has just started), but since we know we are on the far right of the hull we can substitute the previous edge for the unit vector [0,1] per Figure \ref{fig:ch2_example1}b. This unit vector is guaranteed to provide a stable order of the angle differences which would have been provided by the actual previous hull edge.
+
+\begin{algorithm}
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+
+    \Input{Half Edge Set , $\mathcal{HE} = \{he_i, \ldots, he_n\}$ \\ 
+            Point Index Hash Map, $PtE$ \\
+            Starting half-edge, $he$ \\
+            Start point index, $startPI$ \\
+            Triangles Point Index, $triangles$
+    }
+    \Output{Linear Ring , $lr = [pi_1, \ldots, pi_k]$ } 
+    $lr = [\;]$  \tcc*{empty linear ring}
+    \While{True}{
+        $\mathcal{HE} = \mathcal{HE} \setminus he $ \\
+        $he_t = \operatorname{NextTriangleEdge}(he)$\\
+        $pi = triangles[he_t]$ \\
+        $\operatorname{Append}(lr, pi)$\\
+        \uIf{$pi \; is \; startPI$}{
+            \tcc{closed linear ring}
+            break
+            % \tcc{Add new half edge list}
+        }
+        $nextEdges = PtE[pi]$ \\
+        $he = \operatorname{SelectEdge}(he, nextEdges)$
+    }
+    return $lr$
+    \caption{ExtractLinearRing}\label{alg:ch2_concave_hull_shell}
+\end{algorithm}
+
+
+
+% \begin{figure}[ht]
+%     \centering
+%   \begin{subfigure}[t]{.35\linewidth}
+%     \centering
+%     \includegraphics[width=0.99\linewidth]{chapter_2_polylidar/imgs/example_one_hole_choice_visual.pdf}
+%     \caption{}
+%     \label{fig:ch2_example1_non_extreme}
+%   \end{subfigure}
+%   \begin{subfigure}[t]{.35\linewidth}
+%     \centering
+%      \includegraphics[width=.99\linewidth]{chapter_2_polylidar/imgs/EdgeHole.pdf}
+%     \caption{}
+%     \label{fig:ch2_example1_hole_extreme}
+%   \end{subfigure}
+%   \caption[Overview of boundary following procedure]{(a) Edge selection for Fig. \ref{fig:ch2_algorithm1_visual}a.  HE70 leads to point index PI10 during shell extraction. Half-edges HE28 and HE42 leave PI10. The correct edge to follow (HE42) has the greatest angle with HE70. (b) If the extreme point has two outgoing edges (HE1, HE2), choose the edge with largest angle difference with the unit vector [0,1]. This is edge HE2. }
+%   \label{fig:ch2_example1} 
+% \end{figure}
+
+
+\begin{figure}[ht]
+    \centering
+  \begin{subfigure}[t]{.25\linewidth}
+    \centering
+    \includegraphics[width=0.99\linewidth]{chapter_2_polylidar/imgs/example_one_hole_choice_visual.pdf}
+    \caption{}
+    \label{fig:ch2_example1_non_extreme}
+  \end{subfigure}
+  \begin{subfigure}[t]{.23\linewidth}
+    \centering
+     \includegraphics[width=.99\linewidth]{chapter_2_polylidar/imgs/EdgeHole.pdf}
+    \caption{}
+    \label{fig:ch2_example1_hole_extreme}
+  \end{subfigure}
+  \begin{subfigure}[t]{.25\linewidth}
+    \centering
+    \includegraphics[width=0.99\linewidth]{chapter_2_polylidar/imgs/example_2_all.pdf}
+    \caption{}
+    \label{fig:ch2_example2_hull}
+  \end{subfigure}
+  \begin{subfigure}[t]{.25\linewidth}
+    \centering
+     \includegraphics[width=.99\linewidth]{chapter_2_polylidar/imgs/example_2_choice.pdf}
+    \caption{}
+    \label{fig:ch2_example2_choice}
+  \end{subfigure}
+  \caption[Overview of boundary following procedure]{(a) Edge selection for Fig. \ref{fig:ch2_algorithm1_visual}a.  HE70 leads to point index PI10 during shell extraction. Half-edges HE28 and HE42 leave PI10. The correct edge to follow (HE42) has the greatest angle with HE70. (b) If the extreme point has two outgoing edges (HE1, HE2), choose the edge with largest angle difference with the unit vector [0,1]. This is edge HE2. (c) Edge case of two holes sharing the same vertex at PI16. The outer shell (green) is already extracted. (d) When traversing from HE19 to point index PI16, two outgoing edges (HE0 and HE29) are found. Edge HE29  with the largest angle difference from HE19 is chosen. }
+  \label{fig:ch2_example1} 
+\end{figure}
+
+
+\subsubsection{Hole(s) Extraction}
+
+After the outer shell of the concave hull has been determined, only the holes remain to be found (if any holes exist). Any edges that remains inside $\mathcal{HE}$ are hole edges and will be extracted using Algorithm \ref{alg:ch2_hole_extraction}.  A half-edge is randomly chosen from $\mathcal{HE}$ for which the same \texttt{ExtractLinearRing} procedure is run. Figure \ref{fig:ch2_example1}c shows a corner case of a non-manifold mesh that must be handled if two holes share the same vertex. The previously extracted concave shell is displayed in green while the remaining half-edges to be processed are in blue; note the shared vertex at PI16.  Figure \ref{fig:ch2_example1}d shows the event when HE19 is randomly chosen for hole extraction leading to PI16. HE0 or HE29 is chosen in the manner previously discussed: the edge with largest angle guarantees the smallest hole thus is chosen.  If the other edge was chosen this would indicate a hole inside a hole which is invalid.
+
+
+\begin{algorithm}[ht]
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+
+    \Input{Half Edge Set , $\mathcal{HE} = \{he_i, \ldots, he_n\}$ \\ 
+            Point Index Hash Map, $PtE$ \\
+            Triangles Point Index, $triangles$
+    }
+    \Output{Set of Linear Ring Holes , $\mathcal{HR} = \{lr_1, \ldots, lr_k\}$ } 
+    $\mathcal{HR} = \emptyset$  \tcc*{empty hole set}
+
+    \While{$\mathcal{HE}$ is not empty}{
+
+        $he= \operatorname{RandomChoice}(\mathcal{HE})$ \\
+        $pi = triangles[he]$\\
+        $lr = \operatorname{ExtractLinearRing}(\mathcal{HE}, PtE, he, pi, triangles)$ \\
+    
+        $\mathcal{HR} = \mathcal{HR} + lr$ 
+    }
+    return $\mathcal{HR}$
+    \caption{Extract Holes}\label{alg:ch2_hole_extraction}
+\end{algorithm}
+
+
+% \begin{figure}[ht] 
+%     \centering
+%   \subfloat[]{%
+%       \includegraphics[width=0.45\linewidth]{chapter_2_polylidar/imgs/example_2_all.pdf}}
+%     \label{fig:ch2_example2_hull}\hfill
+%   \subfloat[]{%
+%   \centering
+%         \includegraphics[width=.45\linewidth]{chapter_2_polylidar/imgs/example_2_choice.pdf}}
+%     \label{fig:ch2_example2_choice}\\
+%   \caption{(a) Edge case of two holes sharing the same vertex at PI16. The outer shell (green) is already extracted. (b) When traversing from HE19 to point index PI16, two outgoing edges (HE0 and HE29) are found. Edge HE29  with the largest angle difference from HE19 is chosen. }
+%   \label{fig:ch2_example2} 
+% \end{figure}
+
+
+% \begin{figure}[ht]
+%     \centering
+%   \begin{subfigure}[t]{.25\linewidth}
+%     \centering
+%     \includegraphics[width=0.99\linewidth]{chapter_2_polylidar/imgs/example_2_all.pdf}
+%     \caption{}
+%     \label{fig:ch2_example2_hull}
+%   \end{subfigure}
+%   \begin{subfigure}[t]{.25\linewidth}
+%     \centering
+%      \includegraphics[width=.99\linewidth]{chapter_2_polylidar/imgs/example_2_choice.pdf}
+%     \caption{}
+%     \label{fig:ch2_example2_choice}
+%   \end{subfigure}
+%   \caption[Extracting a hole with a shared vertex]{(a) Edge case of two holes sharing the same vertex at PI16. The outer shell (green) is already extracted. (b) When traversing from HE19 to point index PI16, two outgoing edges (HE0 and HE29) are found. Edge HE29  with the largest angle difference from HE19 is chosen.}
+%   \label{fig:ch2_example2} 
+% \end{figure}
+
+
+
+
+
+% % \subsection{Time Complexity}\label{sec:time_complexity}
+% % This section describes the time complexity of Polylidar.
+% % %, shown to be $\mathcal{O}(n\log{}n)$ where $n$ is the number of point cloud values in the point set.  
+% % The Delaunay triangulation is first computed in $\mathcal{O}(n\log{}n)$ \cite{de2008delaunay}. Region extraction from Section \ref{sec:mesh_extraction} is $\mathcal{O}(n)$:
+
+% % \begin{itemize}
+% %     \item At most $t = 2n - 2$ triangles are returned from Delaunay triangulation by Euler's formula so $t$ is linear in $n$.
+% %     \item The maximum of $2*t$ iterations occurs. One loop filters triangles; worst case no triangles are removed. A second loop occurs over remaining connected triangles.
+% %     \item Determining shared edges for expansion requires an $\mathcal{O}(1)$ lookup in the $halfedges$ array.
+% %     \item Output generation $\mathcal{T}_{r}$ is $\mathcal{O}(1)$ for each insertion.
+% % \end{itemize}
+
+% % Polygon extraction is also $\mathcal{O}(n)$. The initialization procedure in Algorithm \ref{alg:boundary_edges} is $\mathcal{O}(n)$ per the following analysis:
+% % \begin{itemize}
+% %     \item Assuming the worst case, the algorithm loops through every edge of every triangle, providing a maximum number of iterations of $3 \cdot t$. Therefore the number of iterations is linear with $n$.
+% %     \item Determining if an edge is a boundary edge is an $\mathcal{O}(1)$ operation. Line 6 is $\mathcal{O}(1)$ lookup in halfedges array. Line 8 is $\mathcal{O}(1)$ lookup in the input triangle set.
+% %     \item Output generation, the half-edge set and point index hash map, is $\mathcal{O}(1)$ for each insertion.
+% % \end{itemize}
+
+% % Algorithm \ref{alg:concave_hull_shell} is linear in $n$ for similar reasons:
+% % \begin{itemize}
+% %     \item The number of iterations is the number of boundary edges computed, a subset of the iterations in Alg. \ref{alg:boundary_edges}.
+% %     \item The output linear ring is $\mathcal{O}(1)$ for each insertion.
+% %     \item The \texttt{SelectEdge} procedure is $\mathcal{O}(1)$ with no loops.
+% % \end{itemize}
+
+% % Finally Algorithm \ref{alg:hole_extraction} is also linear with respect to $n$. It is executed as many times as there are holes in a polygon. A hole contains a minimum of one triangle; we have shown previously that $t$ grows linearly with $n$. Selecting a random half-edge, Line 3, is an $\mathcal{O}(1)$ operation. Overall, Polylidar has complexity $\mathcal{O}(n\log{}n)$ from the initial triangulation.
+
+\section{Benchmarking Comparisons}\label{sec:ch2_results}
+
+This section benchmarks Polylidar against other common concave hull extraction methods which also extract holes; all code is open source\footnote{https://github.com/JeremyBYU/concavehull-evaluation}. Three other implementations are tested: CGAL's Alpha Shape function and the ST\_ConcaveHull function from PostGIS and Spatialite. For uniformity, Polylidar and CGAL are set to use the same $\alpha$ parameter to guarantee exact shape reproduction. Note that CGAL's Alpha Shape returns an unordered set of boundary edges; it does not convert these edges into a valid (multi)polygon. These edges produce the same shape as Polylidar when drawn on a canvas, but lack the desired polygon semantic data structure. PostGIS's concave hull implementation only returns single polygons, so MultiPolygon test cases are not evaluated against it. Both PostGIS and Spatialite are databases which require upload of the point set prior to algorithm execution; benchmark timing does not include data upload time. 
+% Polylidar is configured to use fast adaptive precision floating point arithmetic for robust geometric predicates using \cite{shewchuk1997adaptive}.
+
+% {\color{blue}
+Section \ref{sec:ch2_rgbd} provides a benchmark from plane segmented point clouds produced by an RGBD camera. Section \ref{sec:ch2_state_shapes} generates synthetic 2D point sets from the state shapes of California (CA) and Hawaii (HI) to explore how the algorithms scale with respect to point size.  Section \ref{sec:ch2_alphabet_shapes} shows a similar benchmark but with the English alphabet. All utilize ground truth (multi)polygon shape $GT$ to evaluate shape accuracy. 
+% Section \ref{sec:alphabet_shapes} comprehensively evaluates each algorithm for the 26 letters in the English alphabet (transformed to polygons), similarly to \cite{Duckham2008}.
+% }
+% Both sections use the test case as a ground truth (multi)polygon shape, $GT$, from which a 2D point set is uniformly sampled. 
+Each implementation takes as input a point set and produces a concave shape, $CS$, which is similar to the ground truth polygon.  The $L^2$ error norm, the area of the symmetric difference between $GT$ and $CS$, is computed to enable evaluation of shape error $\frac{area((GT-CS) \cup (CS-GT))}{area(CS)}$. 
+% provide good results, i.e.,
+
+Each implementation contains its own parameter(s) modified to minimize $L^2$ error. Shape accuracy is therefore subject to parameter selection. Table \ref{table:ch2_params} displays the parameters chosen and used for all test cases (RGBD, CA, HI, Alphabet). Rows with two parameters separated by a semicolon indicate parameters for use with non-hole and hole cases.  Polylidar and CGAL use the same $\alpha$ parameter adjusted on a case by case basis. For each case we calculate point density $p_d$ and compute parameter $\alpha$ as $2p^{-1}_d$.  This gives reasonable but not necessarily optimal results.  Spatialite's concave hull implementation has  parameter $C$ which at its default value ($C=3$) produces excellent results. $C$ is adjusted as needed (for CA, HI) to further reduce error.  PostGIS' \emph{target percent} is set to provide the optimal accuracy based on  percent area reduction required. The most important takeaway when interpreting accuracy is thus trends in accuracy, not small numerical differences.
+
+
+\begin{table}[ht]
+\centering
+\caption{Parameters for Test Cases}
+\label{table:ch2_params}
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+Algorithm      & Parameter     & RGBD &       CA          & HI  &  Alph.                  \\ \midrule
+CGAL/Polylidar & $\alpha$           & $2p^{-1}_d$  &$2p^{-1}_d$ & $2p^{-1}_d$ & $2p^{-1}_d$   \\ \addlinespace[1mm]
+Spatialite     & $C$                & 3.0  &            2.0           & 2.0;1.3 & 3           \\
+\addlinespace[1mm]
+PostGIS        & $target$ \%  & Varies     & 0.76;0.72   & -         & Varies  \\ \bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Plane Segmented Point Clouds from RGBD Images}\label{sec:ch2_rgbd}
+
+Point clouds were generated with an Intel RealSense D435i camera at 424X240 resolution from eleven different scenes. Ten scenes were taken with the camera 1.5m above ground level pointing directly downward as shown in the top of Figure \ref{fig:ch2_realsense_benchmark}. Floor obstacle positions and orientations were changed in each scene.  The camera was placed higher and angled for the eleventh scene shown in the bottom of Figure \ref{fig:ch2_realsense_benchmark}. The floor can be quickly segmented using planar segmentation techniques \cite{feng_fast_2014, pham_geometrically_2016-1}. However for this experiment the floor was manually segmented, rotated to align with the XY image plane, and subsequently projected. This creates a 2D point set of the floors 3D point cloud. The ground truth polygon of each segmented point cloud was labeled by hand to provide accuracy scores.  The average size of the eleven segmented point clouds is 83,184 points. Table \ref{table:ch2_rgbd_results} displays the aggregate execution timings and accuracy results of all eleven points clouds for each algorithm. Polylidar is fastest. Polylidar, CGAL, and Spatialite have similar accuracies. Note that Polylidar and CGAL are configured to produce the same shape and therefore have the same $L^2$ error values.
+
+
+\begin{table}[!ht]
+\centering
+\caption{RGBD Plane Segmented Point Clouds}
+\label{table:ch2_rgbd_results}
+\begin{tabular}{lcccccc}
+\toprule
+{} & \multicolumn{3}{c}{$L^2$ error \%} & \multicolumn{3}{c}{Time (ms)} \\
+{Algorithm} &    mean & std &  max &      mean &     std &     max \\
+% Algorithm        &         &     &      &           &         &         \\
+\midrule
+Polylidar  &           2.2   &   1.5 &      6.4 & 47.9 & 4.3 & 50.9  \\
+CGAL       &           2.2 &    1.5 &      6.4 & 248.3 & 25.0 & 267.7        \\
+PostGIS    &           7.5 & 1.6 & 9.9   & 2734.7 & 249.3 & 2939.9     \\
+Spatialite &           2.2 & 1.5 & 6.3 &  13333.0 & 2486.6  &   16386.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[ht] 
+    \centering
+      \includegraphics[width=0.80\linewidth]{chapter_2_polylidar/imgs/RealSensePictures-scene_08_stack.pdf}
+      \includegraphics[width=0.80\linewidth]{chapter_2_polylidar/imgs/RealSensePictures-scene_11_stack.pdf}
+  \caption[Extracting a polygon from a plane-segmented RGBD point cloud]{Two example scenes (top/bottom) from RGBD benchmark. A point cloud is generated from depth image (right) and manually segmented to include only the ground floor. The polygonal output of Polylidar is shown in the RGB image (left). Green is the hull, orange represents holes. }
+  \label{fig:ch2_realsense_benchmark} 
+\end{figure}
+
+\subsection{State Shapes}\label{sec:ch2_state_shapes}
+
+Figure \ref{fig:ch2_compare_algs_all} shows CA and HI test case geometries (first column), execution times (second column), and error results (third column). Each state shape is processed with and without random holes
+%to verify each implementation's ability to handle hole extraction.
+; dashed lines indicate results where holes are included in the ground truth polygon. Point sets are randomly sampled from the state shapes. Each test was run 10 times with input point set sizes ranging from (2, 4, 8, 16, 32, 64) thousand points with mean timing and error plotted. Confidence intervals are provided for execution timing, however they are almost imperceptible because the variance is low at this scale. Polylidar and CGAL are significantly faster than the other methods, with Spatialite having the slowest implementation. An inset (zoomed) box that focuses solely on CGAL and Polylidar is shown in the second column, showing that on average Polylidar is $\sim4$ times faster than CGAL. 
+% Spatialite's slow speed is attributed to unioning triangles to determine final polygon shape as determined through profiling \cite{pprof}.
+The presence of holes affected each method differently: decreased time in Spatialite (fewer triangles to union), increased time for PostGIS (a decrease in \emph{target percent} increases run-time). No significant changes were noted for CGAL and Polylidar.  
+
+%$L^2$ error (Figure \ref{fig:compare_algs_all}c,f,i. 
+%Polylidar and CGAL are configured to produce the same shape and therefore have the same $L^2$ error. 
+Spatialite produced shapes with the least error, followed by Polylidar/CGAL and then PostGIS.  Spatialite has the lowest error because it incorporates triangle edge length statistics into its triangle filtering which better handles random sampling. In contrast, Polylidar/CGAL offer comparable accuracies with RGBD data due to the more uniform point distribution in top-down RGBD imagery. PostGIS error increased markedly with holes since it did not accurately reproduce them. 
+%Though technically possible, it seems difficult for PostGIS to reproduce holes in dense point sets. 
+Figure \ref{fig:ch2_ca_output} shows a visual comparison of CA concave polygon outputs for each algorithm. 
+% The figure caption already says this --> when run on a 4000 point set sampled from CA in Figure \ref{fig:compare_algs_all}d. 
+
+
+\begin{figure}[ht]
+    \centering
+  \begin{subfigure}[t]{.28\linewidth}
+    \centering
+    \includegraphics[clip, trim=1.5cm 0cm 1.5cm 0cm, width=0.99\linewidth]{chapter_2_polylidar/imgs/caholes.pdf}
+    \caption{}
+    \label{fig:ch2_ca_holes}
+  \end{subfigure}
+  \begin{subfigure}[t]{.36\linewidth}
+    \centering
+     \includegraphics[width=.99\linewidth]{chapter_2_polylidar/imgs/compare_algs_time_inset_ca.pdf}
+    \caption{}
+    \label{fig:ch2_ca_tim}
+  \end{subfigure}
+  \begin{subfigure}[t]{.33\linewidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{chapter_2_polylidar/imgs/compare_algs_accuracy_ca-min.pdf}
+    \caption{}
+    \label{fig:ch2_ca_acc}
+  \end{subfigure}
+  \begin{subfigure}[t]{.28\linewidth}
+    \centering
+    \includegraphics[clip, trim=1.5cm 0cm 1.0cm 0cm, width=0.99\linewidth]{chapter_2_polylidar/imgs/hiholes.pdf}
+    \caption{}
+    \label{fig:ch2_hi_holes}
+  \end{subfigure}
+  \begin{subfigure}[t]{.36\linewidth}
+    \centering
+     \includegraphics[width=.99\linewidth]{chapter_2_polylidar/imgs/compare_algs_time_inset_hi.pdf}
+    \caption{}
+    \label{fig:ch2_hi_tim}
+  \end{subfigure}
+  \begin{subfigure}[t]{.33\linewidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{chapter_2_polylidar/imgs/compare_algs_accuracy_hi-min.pdf}
+    \caption{}
+    \label{fig:ch2_hi_acc}
+  \end{subfigure}
+  \caption[Execution and accuracy results from state shape benchmark]{Concave hull extraction results. Rows from top to bottom correspond to outlines of California (CA) (a, b, c), and Hawaii (HI) (d, e, f) with random holes inserted. The first column shows ground truth polygons with circular holes in orange. The second column shows execution time as a function of number of 2D points provided. The third column shows shape error as a function of number of 2D points provided. Dashed lines show results where holes were placed inside the polygon outline, while solid lines show results with no holes. PostGIS cannot handle MultiPolygons thus was not tested for HI.}
+  \label{fig:ch2_compare_algs_all} 
+\end{figure}
+
+\begin{figure}[!ht] 
+    \centering
+      \includegraphics[clip, trim=0.5cm 1.2cm 0.0cm 0.0cm, width=0.25\linewidth]{chapter_2_polylidar/imgs/ouput_ca.pdf}
+  \caption[Visual comparison of different polygon extraction methods]{Concave polygon output from Polylidar/CGAL (left), Spatialite (center), and PostGIS (right).  Input to each algorithm was a 4000 point set sampled from the California (CA) polygon with holes per Figure \ref{fig:ch2_compare_algs_all}a.}
+  \label{fig:ch2_ca_output} 
+\end{figure}
+
+
+
+
+
+\subsection{Alphabet Shapes}\label{sec:ch2_alphabet_shapes}
+
+% {\color{blue}
+Polygons from 26 capital letters of the English alphabet were generated and 2000 points randomly sampled inside.
+%Some polygon letters naturally have holes such as ``A'', however no capital letters are MultiPolygons. Each letter was uniformly sampled to generate a 2000 point set and run through each algorithm. 
+The ``A'' in Figure \ref{fig:ch2_convex_concave}b shows an example capital letter with the output of Polylidar's concave hull. Table \ref{table:ch2_alphabet_tests} provides aggregate statistics of all 26 test cases. Polylidar continues to lead in speed. Spatialite leads in accuracy by a marginal amount. The alphabet shapes are significantly more concave than previous benchmarks. Documentation of PostGIS indicates that the run time grows quadratically as concavity increases leading to the high execution times observed \cite{open_source_geospatial_foundation_postgis_2019}.
+
+%However PostGIS shape error and time are significantly higher than previously seen. This is because the alphabet shapes are significantly more concave then the tested state shapes, requiring a much smaller \emph{target percent} parameter for PostGIS (on average 0.38). Documentation of PostGIS indicates that the run time grows quadratically when reducing this parameter and at ``small'' values may fail to produce a concave shape \cite{postgis}.  PostGIS failed to produce any shape for the letters ``J'', ``L'', and ``M''. All other algorithms provided valid results for all test cases.
+%  (reduced to 1000 points for visual clarity)
+
+%  Polylidar continues to lead in speed, about 4.5 times faster than the next leading algorithm CGAL (shape error remains the same because of same $\alpha$ used). Spatialite continues to lead in accuracy by a marginal amount for the same reasons discussed previously. However PostGIS shape error and time are significantly higher than previously seen. This is because the alphabet shapes are significantly more concave then the tested state shapes, requiring a much smaller \emph{target percent} parameter for PostGIS (on average 0.38). 
+% Documentation of PostGIS indicates that the run time grows quadratically when reducing this parameter and at ``small'' values may fail to produce a concave shape \cite{postgis}.  PostGIS failed to produce any shape for the letters ``J'', ``L'', and ``M''. All other algorithms provided valid results for all test cases.
+% }
+ 
+\begin{table}[!ht]
+\centering
+\caption{Alphabet Letter Results, 26 Shapes}
+\label{table:ch2_alphabet_tests}
+\begin{tabular}{lcccccc}
+\toprule
+{} & \multicolumn{3}{c}{$L^2$ error \%} & \multicolumn{3}{c}{Time (ms)} \\
+{Algorithm} &    mean & std &  max &      mean &     std &     max \\
+% Algorithm        &         &     &      &           &         &         \\
+\midrule
+% polylidar  &    12.8 & 1.8 & 16.8 &       1.8 &     0.3 &     2.9 \\
+% cgal       &    12.8 & 1.8 & 16.8 &       6.8 &     0.8 &     9.8 \\
+% postgis    &    36.5 & 9.9 & 53.7 &   18973.3 & 10786.2 & 39587.8 \\
+% spatialite &    11.2 & 4.5 & 22.1 &     330.4 &    33.8 &   438.1 \\
+Polylidar  &           12.8 & 1.8 & 16.8 &       1.2 &    0.3 &     2.4 \\
+CGAL       &           12.8 & 1.8 & 16.8 &       5.4 &    0.9 &     7.2 \\
+PostGIS    &           36.5 & 9.9 & 53.7 &   13091.8 & 7500.6 & 28451.0 \\
+Spatialite &           11.2 & 4.5 & 22.1 &     230.2 &    6.3 &   242.9 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Random Polygon Tests}\label{sec:ch2_random_polygons_test}
+More than 19,600 polygons were randomly generated to test Polylidar. Half the test cases had random holes.  Polygon complexity is characterized by convexity metric $$CV = \frac{Area(P)}{Area(CH(P))}$$
+\noindent where $P$ is the polygon and $CH()$ is the convex hull function. A convexity of 1 indicates the sample polygon is its convex hull.
+% Point sets of size 2,000 and 8,000 were randomly sampled for each polygon and input to Polylidar with the $\alpha$ parameter from Table
+8,000 points were randomly sampled for each polygon and input to Polylidar with the $\alpha$ parameter from Table
+\ref{table:ch2_params}.  Execution time and accuracy are summarized in Table \ref{table:ch2_random_tests}. The table is partitioned into high, medium, and low ground truth polygon convexity defined by $CV \geq 0.75$, $0.75 < CV \geq 0.55$, and $CV < 0.55$ respectively. 
+%Figure \ref{fig:convexity} illustrates the impact of $CV$ value on polygon shape. Note that the CA polygon has a  $CV=0.74$.
+Every polygon produced by Polylidar was confirmed valid independently by the GEOS geometry library.
+% In all examples we find that greater point density improves Polylidar accuracy.  
+As polygon convexity ($CV$) decreases Polylidar shape estimation accuracy also decreases. Polygons in our ``low'' convexity class have extremely non-convex shapes, the lowest with $CV=0.26$ per Figure \ref{fig:ch2_convexity}.
+
+\begin{table}[ht!]
+\centering
+\caption{Random Tests; $CV$ = Convexity Metric}
+\label{table:ch2_random_tests}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+    &    \multicolumn{3}{c}{$L^2$ error \%} & \multicolumn{3}{c}{Time (ms)} \\
+$CV$  &    mean & std &  max &      mean & std &  max \\
+% $CV$ & points &         &     &      &           &     &      \\
+\midrule
+% hi & 2000 &     8.4 & 1.0 & 11.6 &       1.1 & 0.0 & 1.5 \\
+%     & 8000 &     4.4 & 0.5 &  6.1 &       4.6 & 0.1 & 5.0 \\
+% mid & 2000 &    15.1 & 2.0 & 23.7 &       1.1 & 0.0 & 1.7 \\
+%     & 8000 &     8.0 & 1.1 & 13.0 &       4.6 & 0.1 & 8.1 \\
+% low & 2000 &    28.3 & 5.1 & 43.6 &       1.1 & 0.0 & 1.3 \\
+%     & 8000 &    15.5 & 3.0 & 25.0 &       4.7 & 0.2 & 9.9 \\
+% hi & 2000 &     8.4 & 1.0 & 11.6 &       1.1 & 0.0 & 1.5 \\
+
+hi    &     4.4 & 0.5 &  6.1 &       4.6 & 0.1 & 5.0 \\
+mid   &     8.0 & 1.1 & 13.0 &       4.6 & 0.1 & 8.1 \\
+low   &    15.5 & 3.0 & 25.0 &       4.7 & 0.2 & 9.9 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% \begin{figure}[!ht] 
+%     \centering
+%   \subfloat[]{%
+%       \includegraphics[width=0.38\linewidth]{chapter_2_polylidar/imgs/hi_convexity.pdf}}
+%     \label{fig:ch2_hi_convexity}\hfill
+%   \subfloat[]{%
+%         \includegraphics[width=.38\linewidth]{chapter_2_polylidar/imgs/low_convexity.pdf}}
+%     \label{fig:ch2_low_convexity}\\
+%   \caption{(a) Example of a high convexity polygon; CV = 86.1\% (b)  and a low convexity polygon; CV = 26.2\%}
+%   \label{fig:ch2_convexity} 
+% \end{figure}
+
+\begin{figure}[ht]
+    \centering
+  \begin{subfigure}[t]{.25\linewidth}
+    \centering
+    \includegraphics[width=0.99\linewidth]{chapter_2_polylidar/imgs/hi_convexity.pdf}
+    \caption{}
+    \label{fig:ch2_hi_convexity}
+  \end{subfigure}
+  \begin{subfigure}[t]{.26\linewidth}
+    \centering
+     \includegraphics[width=.99\linewidth]{chapter_2_polylidar/imgs/low_convexity.pdf}
+    \caption{}
+    \label{fig:ch2_low_convexity}
+  \end{subfigure}
+  \caption[Example of high and low convexity polygons]{(a) Example of a high convexity polygon; CV = 86.1\% (b)  and a low convexity polygon; CV = 26.2\%}
+  \label{fig:ch2_convexity} 
+\end{figure}
+
+
+\section{Discussion}\label{sec:ch2_discussion}
+The benchmarks above indicate that Polylidar is the faster concave (multi)polygon extraction algorithm with the possibility of holes. This section discusses why Polylidar was faster in comparison to others. We specifically analyze the execution time of the major steps in Polylidar in comparison to other triangulation-based methods, namely CGAL and Spatialite. The three major steps are:
+
+\begin{enumerate}
+    \item Triangulation - The point set is triangulated creating a mesh of faces, edges, and vertices.
+    \item Shape Extraction - Mesh simplices are removed based upon the $\alpha$ parameter or edge length. Remaining triangles, edges, and vertices represent the ``shape".
+    \item Polygon Extraction - The ``shape" is converted to a (multi)polygon with the possibility of holes.
+\end{enumerate}
+
+\textbf{Triangulation} All perform Delaunay triangulation using robust geometric predicates but use different libraries to do so. Polylidar uses Delaunator, CGAL uses its own 2D triangulation, and Spatialite uses GEOS. 
+
+\textbf{Shape Extraction} Polylidar and Spatialite are most similar, focusing only on filtering triangles in the mesh. However Polylidar goes further with region growing (Section \ref{sec:ch2_mesh_extraction}) that isolates disconnected regions in the mesh. For memory efficiency and speed we represent the filtered triangle set $\mathcal{T}_f$ as a bit array with 1/0 indicating in/out of set. This allows rapid triangle filtering and region growing which was previously profiled to be slower when using hashmaps. On the other hand CGAL first creates ``interval hashmaps'' for its simplices, including triangles, edges, and vertices.  These hashmaps store data detailing at what $\alpha$-interval a specific simplex would be in the $\alpha$-complex. These ordered hashmaps give the ability to more quickly compute a \emph{family} of $\alpha$-shapes from a point set. These data structures are implemented as C++ multimaps with $\mathcal{O}(\log{}n)$ for insertion/look-up in comparison to unordered maps having $\mathcal{O}(1)$. This design choice leads to shape extraction having an $\mathcal{O}(n \log{}n)$ complexity for CGAL. By creating hash maps for edges and vertices CGAL can also return the \emph{singular} points and edges which are isolated and not attached to any triangle in the $\alpha$-complex (e.g., a single point far removed from all others). Polylidar need not do this because singular points and edges cannot be polygons thus are not required steps in shape extraction.
+
+\textbf{Polygon Extraction} Polylidar independently converts each region into a polygon. Algorithm 2 quickly identifies all border edges and uses efficient unordered contiguous memory hashmaps to store this information in $\mathcal{HE}$ and $PtE$. The essence of Algorithms 3 and 4 are entirely border-edge based leading to a significant speed up compared to triangle based methods (i.e., perimeter vs. area).  Spatialite uses GEOS to take the union of all unfiltered triangles to generate a valid multipolygon. CGAL's Alpha Shape produces an unordered list of the boundary edges of the $\alpha$-shape. However CGAL does not provide any explicit function to convert this list to a valid (multi)polygon. 
+% These algorithms perform boundary following to properly extract the LinearRing(s) of the outer shell and hole(s).
+%The authors are unaware of any other polygon extraction methods performing boundary following (while handling holes) as outlined in Algorithms 3 and 4.
+
+% , i.e., the quantity of border edges is generally significantly lower than the number of interior triangles.
+
+
+\begin{table}[ht]
+\centering
+\caption{Algorithm Timings - Mean of 30 runs in milliseconds}
+\label{table:ch2_disc_subtimings}
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+\multirow{2}{*}{Algorithm} & \multirow{2}{*}{triangulation} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}shape\\ extraction\end{tabular}} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}polygon\\ extraction\end{tabular}} & \multirow{2}{*}{total} \\
+                          &                                &                                                                             &                                                                               &                        \\ \midrule
+Polylidar                  & 36.0                           & 4.4                                                                         & 1.0                                                                           & 41.4                   \\
+CGAL                       & 44.5                           & 154.0                                                                       & --                                                                            & 198.5                  \\
+Spatialite                 & 234.2                          & 135.3                                                                       & 10788.7                                                                       & 11158.1                \\ \bottomrule
+\end{tabular}
+\end{table}
+
+
+Table \ref{table:ch2_disc_subtimings} summarizes mean execution timings for each of the main steps for Polylidar, CGAL, and Spatialite. The 64,000 point set in the shape of California (with holes) is used, with each algorithm executed 30 times with the mean presented.  Relative execution times with other point sets are similar.  Delaunator in Polylidar triangulated this specific point set fastest with CGAL a close second. Polylidar achieves a more significant speed-up in shape extraction for which Polylidar is 35 and 32 times faster than CGAL and Spatialite, respectively. Also, Polylidar's polygon extraction is about four orders of magnitude faster than Spatialite whereas CGAL does not extract polygons. CGAL instead offers a general purpose $\alpha$-shape construction routine to compute a family of shapes from different $\alpha$-values. %Polylidar is focused entirely on the end goal of generating \emph{polygons} given user parameters and a point set. It only uses boundary-edges for polygonizaton of the extracted shape, whereas Spatialite uses triangles. 
+
+%  } %blue color 
+
+
+% Primary Datastructures: Triangle Set is represented as an array of bits, 1/0 = in/not-in set
+
+\section{Conclusion}\label{sec:ch2_conclusion}
+
+This paper has introduced Polylidar, an efficient 2D concave hull extraction algorithm which produces (multi)polygon output with holes. Comparison benchmarks of numerous test sets, similarly done in \cite{duckham_efficient_2008}, show Polylidar is faster than competing approaches with comparable or better accuracy. Additionally we perform random polygon tests that confirm every polygon produced by Polylidar is valid. In future work we will extend Polylidar to operate directly on 3D point cloud data by performing both planar segmentation and polygon extraction. We will remove Polylidar's reliance on Delaunay triangulation when used with organized point clouds (e.g., range images) similar to \cite{lee_fast_2013}. Triangulation can be performed in $\mathcal{O}(n)$ time by exploiting the spatial relationship inherit in range images. The OpenMP library will be used to parallelize iteration independent loops such as triangle filtering. Additionally we will explore task-based parallelization by making use of the data independence between polygons, i.e., spawning polygon extraction tasks immediately after a plane is segmented \cite{huang_cpp-taskflow_2019}. 
