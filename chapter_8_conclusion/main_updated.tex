@@ -1,0 +1,49 @@
+Unmanned Aircraft Vehicles can potentially make substantial improvements in our society through fast delivery, disaster response, and increased security. However, robust urgent landing capabilities are needed to ensure the safety of overflown populations. Urgent landing requires available landing sites, yet city centers lack traditional landing zones such as open fields. This dissertation proposes augmenting traditional emergency landing site databases with flat rooftop buildings. To identify and quantify the risk of landing sites we present methods integrating a multitude of data sources through novel computation geometry algorithms and deep learning. 
+
+\section{Contributions}
+
+The contributions of this dissertation include:
+
+\begin{itemize}
+    \item In Chapter 2, we proposed our algorithm Polylidar to extract non-convex polygons with interior holes from \textbf{2D} point sets. The point set is firstly triangulated where the shape is extracted using efficient region growing of triangle simplices. Unlike other methods which extract polygons by taking the union of triangle sets, Polylidar carefully walks the boundary of the set while accounting for interior holes. We benchmark our proposed algorithm on several state-of-the art algorithms showing more than 4X speed improvement and comparable accuracy.  
+    \item In Chapter 3, we extended Polylidar to extract polygons representing flat surfaces from a variety of \textbf{3D} data sources such as unorganized 3D point clouds, organized 3D point clouds, and user-defined meshes. As part of this work we present a novel fast Gaussian Accumulator that can quickly identify dominant plane normals within a 3D scene. Flat surfaces of non-connected surfaces are extracted independently though our parallel region growing and polygon extraction routines. We evaluate our methods on five separate datasets showing the speed and versatility of our methods.
+    \item In Chapter 4, we proposed a method for identifying the roof shape of buildings using deep learning from airborne LiDAR point clouds, satellite images, and bulding outline data. A prepossessing routine takes raw data and generates both an RGB and depth image for each rooftop. Over 4500 building roofs spanning three cities were manually classified and archived. This was the largest dataset for roof shape identification at the time of publication. A combination of a \ac{CNN} for feature extraction and a random forest for classification gave the best results with an accuracy of 86\% on test data sets.  We show that confidence thresholding can lead to greater than 98\% precision in labeling flat roofs.
+    \item In Chapter 5, we proposed a framework for assimilating \ac{GIS} data to identity and evaluate risk for emergency landing sites, uniquely including building rooftops. Our work not only identifies flat rooftops, but isolates obstacle-free flat surfaces on them and quantifies the \emph{usable} landing space thereon for risk evaluation. We presented a multi-goal planner that efficiently selected the landing site/path pair guaranteed to minimize a weighted total risk function. Several case studies and Monte Carlo simulations are conducted showing that our planner finds risk-optimal landing sites in  less than 50ms for 95\% cases.
+    \item In Chapter 6, we proposed a suite of computational geometry and deep neural network algorithms to identify and select safe rooftop landing zones in real-time using a combination of LiDAR and camera sensors. For testing, we created a high-fidelity simulated city in the Unreal game engine with particular attention given to creating a statistically accurate representation of rooftop obstacles. Results showed that our fusion of geometric and semantic information improved landing site identification accuracy over 4\%.
+    \item In Chapter 7, we successfully evaluated our proposed methods for touchdown point selection with a drone platform. We used on-board solid state LiDAR and 6DOF tracking sensors to create full environmental meshes of an indoor flight environment. Obstacle-free flat surfaces were extracted with Polylidar3D and optimal touchdown points selected for autonomous landing. In all three flights a landing site was found and the drone landed successfully.
+\end{itemize}
+    % \item In Chapter 6, we proposed fusing Polylidar3D with with semantic segmentation for use in real-time landing site identification and selection
+\section{Future Work}
+
+Although this dissertation has presented many contributions in computational geometry and urgent landing for \ac{sUAS}, there still remains many challenges to improve reliability of autonomous urgent landing in cities.
+
+\subsection{Robustly Segmenting Rooftop Point Clouds}
+
+Chapter 4 proposed a general framework for identifying rooftop shapes through RGBD and Depth images using CNNs. However, recently there have been many advances in deep learning which can operate more directly on 3D data \cite{qi_pointnet_2017-1, xu_spidercnn_2018, liu_dynamic_2019}. These neural network architectures sample from the point cloud and directly learn global and local geometric features of the point cloud surface. These methods have been shown to be successful in shape classification, object detection and tracking, and point cloud segmentation \cite{guo_deep_2020}. Our methods on rooftop landing site detection could be greatly improved if aerial LiDAR point clouds could be properly segmented and classified before being given to Polylidar3D. Polylidar3D could then be modified to take advantage of these segmentation classes to provide a more robust estimate of landing areas.
+
+% \subsection{Beyond Dominant Plane Normals for Polylidar3D}
+\subsection{Improving Polylidar3D}
+
+Polylidar3D is currently designed for extracting dominant planes within scenes such as floors and walls. This focus allows Polylidar3D to be extremely fast at grouping triangles that may belong to the same continuous surface and performing region growing of disparate regions in parallel. However, this limits Polylidar3D's use in applications that require detailed extraction of smaller surfaces within a 3D scene. Future work should investigate integrating new techniques that use Spherical Convex Hulls that iteratively refines a surface normal estimate during region growing \cite{mols_highly_2020}. There is a potential of combining our proposed Gaussian Accumulator for an initial estimate of planes and the Spherical Convex Hull for refinement and extracting the remaining small surfaces. 
+
+Additionally, Polylidar3D was designed to be a versatile framework to take as input many forms of 3D input.  This versatility expands its applicability, but creates a challenge for creating unified and optimized software. For example, there are many ways to further increase and parallelize Polylidar3D when working with range images. The structure of a range image allows neighbor information to be implicitly computed and does not need require explicit neighborhood datastructures such as the half-edge neighbors of triangles. Optimized routines for each data input will allow further speedup and possibly improved accuracy with new techniques.
+
+% Finally, semantic integration into Polylidar3D is currently quick, sufficient, yet quite rudimentary. Future work should investigate the possibility of using likelihood maximisation 
+
+\subsection{Creating a More Complete Picture of Risk}
+
+A complete quantification of the risk \ac{UAS} pose to themselves, property, and people can never be fully calculated. But the efforts in this dissertation have opened up hundreds of safe alternative landing zones by utilizing rooftops. However, whether a rooftop is truly unoccupied or not \emph{at the time of landing} is the most important aspect in determining the danger to people. Yet, high resolution temporal population information is missing from public datasets. Large corporations, such as Google and Apple, have access to this data through location tracking on mobile devices. The transformation and packaging of this and other personal data becomes the corporations property and is either used internally or sold to business partners. This is an example of a centralized tracking program.
+
+However, the recent COVID-19 pandemic has shown that a decentralized, user-friendly, and anonymous location tracking program is not only possible but beneficial for public health \cite{cohen_digital_2020, lee_benefits_2021}. These opt-in applications have been used successfully during the COVID-19 pandemic to allow more rapid contact tracing during outbreaks. This same technology can be used to enable real-tme anonymized population density information within cities to inform decision making for autonomous safety systems.
+
+% Finally, any autonomous algorithm that decides an action which may effect human lives poses serious ethical questions. 
+
+% tions similar to the questions currently under consideration for other autonomoussystems such as car
+
+
+% https://apnews.com/article/north-america-science-technology-business-ap-top-news-828aefab64d4411bac257a07c1af0ecb
+
+% \subsection{General Purpose Mapping with Polygons}
+
+
+

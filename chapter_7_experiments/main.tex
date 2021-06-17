@@ -1,8 +1,10 @@
-% \section{Introduction}
+\section{Introduction}
+
+In the even of an emergency, \acf{sUAS}
+
 
 This chapter will extend offline landing site identification and selection methods described previously to support real-time operation using on-board sensors. Small UAS carrying LiDAR, RGBD cameras, or monocular cameras using Structure from Motion (SfM) can generate 3D point clouds of nearby landing sites. Polylidar3D can transform these dense point clouds to polygonal representations of flat-surfaces in real-time while accounting for obstacles.  Alternatively, many point cloud scans may be integrated into a larger cohesive mesh in which noise is reduced. The final mesh can then be sent to Polylidar3D for polygon extraction. In either case a previously-defined final touchdown site can be validated as obstacle-free or a new site defined as the largest inscribed circle within the polygon can be identified.
 In the coming months, we propose to conduct a series of experiments in which a flying UAS hovers over obstacle-laden flat surfaces in the M-Air netted facility. Our landing site selection procedure can then be tested in real-time. M-Air offers a motion capture system to provide ground truth of the environment to allow accuracy assessment. Multiple LiDAR/camera combinations will be evaluated.
-
 
 \paragraph{Preliminary Results}
 

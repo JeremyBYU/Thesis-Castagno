@@ -66,6 +66,7 @@
 \newif\if@umich@report
 \newif\if@umich@listoffigures
 \newif\if@umich@listoftables
+\newif\if@umich@listofalgorithms
 \newif\if@umich@listofmaps
 \newif\if@umich@listofillustrations
 \newif\if@umich@listofappendices
@@ -85,6 +86,7 @@
 \@umich@thesistrue
 \@umich@listoffigurestrue
 \@umich@listoftablestrue
+\@umich@listofalgorithmstrue
 \@umich@copyrighttrue
 
 % This makes an option for bibliography backrefs.
@@ -650,6 +652,7 @@
 % Commands to show each of the lists
 \newcommand{\showlistoffigures}{\@umich@listoffigurestrue}
 \newcommand{\showlistoftables}{\@umich@listoftablestrue}
+\newcommand{\showlistofalgorithms}{\@umich@listofalgorithmstrue}
 \newcommand{\showlistofmaps}{\@umich@listofmapstrue}
 \newcommand{\showlistofillustrations}{\@umich@listofillustrationstrue}
 \newcommand{\showlistofappendices}{\@umich@listofappendicestrue}
@@ -660,6 +663,7 @@
 % Commands to hide each of the lists
 \newcommand{\hidelistoffigures}{\@umich@listoffiguresfalse}
 \newcommand{\hidelistoftables}{\@umich@listoftablesfalse}
+\newcommand{\hidelistofalgorithms}{\@umich@listofalgorithmsfalse}
 \newcommand{\hidelistofmaps}{\@umich@listofmapsfalse}
 \newcommand{\hidelistofillustrations}{\@umich@listofillustrationsfalse}
 \newcommand{\hidelistofappendices}{\@umich@listofappendicesfalse}
@@ -773,6 +777,37 @@
 }
 
 
+%% ---- LIST OF ALGORITHMS ------------------------------------------------
+% This sets the formatting for the various entry types.
+\newcommand*{\l@algorithm}{\@dottedtocline{1}{0em}{2.5em}}
+
+% This sets the formatting of the list of figures page.
+\newcommand*{\listofalgorithmstemp}{%
+ % Move to new page.
+ \newpage %
+ % Add this page to the table of contents.
+ \phantomsection\addcontentsline{toc}{chapter}{List of Algorithms} %
+ % Use front page styling.
+ \frntpg %
+ % Larger upper margin for first page of table (thesis only)
+ \if@umich@thesis %
+  \begin{minipage}{0.8\textwidth} \vspace{1in} \end{minipage} \\ %
+ \fi %
+ % Add the title
+ \centerline{\large\bf LIST OF ALGORITHMS}
+ % Add some space after the title.
+ \vspace{2em} %
+ \ \\
+ % Start the automatic table of contents features.
+ \noindent ALGORITHM
+ \begin{singlespace} %
+  \@starttoc{loa}\if@restonecol\twocolumn\fi %
+ \end{singlespace} %
+}
+
+
+
+
 %% ---- LIST OF MAPS ---------------------------------------------------
 % Command to generate the 'map' environment.
 \newfloat{map}{tbp}{lom}[chapter]
@@ -862,7 +897,7 @@
  \vspace{1ex} %
  % Start the automatic table of contents features.
  \begin{singlespace} %
-  \@starttoc{loa}\if@restonecol\twocolumn\fi %
+  \@starttoc{loap}\if@restonecol\twocolumn\fi %
  \end{singlespace} %
 }
 
@@ -874,12 +909,14 @@
  \renewcommand*{\thechapter}{\Alph{chapter}} %
  % Start over the chapter counter.
  \setcounter{chapter}{0} %
+ % Start over the section counter.
+ \setcounter{section}{0} %
  % Add a pdf anchor.
  \phantomsection %
  % Add the page to the table of contents.
  \addcontentsline{toc}{chapter}{Appendices}
  % Stop adding sections to the table of contents.
- \addtocontents{toc}{\protect\setcounter{tocdepth}{1}} %
+ \addtocontents{toc}{\protect\setcounter{tocdepth}{2}} %
  % Header for appendices.
  \renewcommand{\@chapapp}{APPENDIX} %
  % Renew the chapter and section labels.
@@ -897,7 +934,7 @@
  % Add a bookmark manually.
  \pdfbookmark[0]{#1}{#2} %
  % Add to the list of appendices rather than toc.
- \addcontentsline{loa}{chapter}{\protect\numberline{\thechapter}#1} %
+ \addcontentsline{lal}{chapter}{\protect\numberline{\thechapter}#1} %
  % Save the chapter number.
  \chaptermark{#1} %
  % Add extra space to the lists of figures and tables and maps.
@@ -1247,6 +1284,8 @@
  \if@umich@listoffigures\listoffigures\fi %
  % Insert the list of tables.
  \if@umich@listoftables\listoftables\fi %
+  % Insert the list of algorithms.
+ \if@umich@listofalgorithms\listofalgorithmstemp\fi %
  % Insert the list of maps.
  \if@umich@listofmaps\listofmaps\fi %
  % Insert the list of illustrations.

@@ -1,23 +1,23 @@
 \section{Introduction}
-Flat surfaces are pervasive in engineered structures and also occur in natural terrain. For~example, structures such as walls, floors, rooftops, and~roadways are often flat or "flat-like". Similarly, home~and office furnishings are typically composed of multiple flat surfaces. Sensors such as LiDAR and RGBD cameras generate dense 3D point clouds of these predominately flat surface environments. This observation has been exploited for tasks in localization and mapping~\cite{pathak_online_2010}, digital preservation with Photogrammetry and laser scanning \cite{malihi_3d_2016, lerma_terrestrial_2010, balsa-barreiro_generation_2018}, and~point cloud registration~\cite{rusinkiewicz_efficient_2001}. Planar~segmentation techniques are often used to group points together belonging to a flat surface~\cite{feng_fast_2014, pham_geometrically_2016-1, schaefer_maximum_2019}. However~points clouds are dense incurring a high computational cost when used directly in higher level tasks.~Planar~point clouds can be converted to lower dimensional representations such as polygons.~Polygons~reduce map size, accelerate matching for localization~\cite{lee_indoor_2012-1}, and~support model reconstruction and object detection~\cite{cao_roof_2017}. 
+Flat surfaces are pervasive in engineered structures and also occur in natural terrain. For~example, structures such as walls, floors, rooftops, and~roadways are often flat or ``flat-like''. Similarly, home~and office furnishings are typically composed of multiple flat surfaces. Sensors such as LiDAR and \ac{RGBD} cameras generate dense 3D point clouds of these predominately flat surface environments. This observation has been exploited for tasks in localization and mapping~\cite{pathak_online_2010}, digital preservation with Photogrammetry and laser scanning \cite{malihi_3d_2016, lerma_terrestrial_2010, balsa-barreiro_generation_2018}, and~point cloud registration~\cite{rusinkiewicz_efficient_2001}. Planar~segmentation techniques are often used to group points together belonging to a flat surface~\cite{feng_fast_2014, pham_geometrically_2016-1, schaefer_maximum_2019}. However~points clouds are dense incurring a high computational cost when used directly in higher level tasks.~Planar~point clouds can be converted to lower dimensional representations such as polygons.~Polygons~reduce map size, accelerate matching for localization~\cite{lee_indoor_2012-1}, and~support model reconstruction and object detection~\cite{cao_roof_2017}. 
 
 Planar points clouds may be converted to convex polygons~\cite{biswas_planar_2012}. Convex polygons are simple and efficient to generate but often do not represent the true shape of a point set. Non-convex polygons may be generated using techniques such as $\alpha$-shapes but operate strictly on 2D data, requiring the projection of each 3D planar point cloud and expensive triangulation~\cite{lee_fast_2013, edelsbrunner_shape_1983}. Pixel-level boundary following of organized point clouds can be used to extract non-convex polygons but often only captures the exterior shell of the polygon~\cite{lee_indoor_2012-1}. These methods are not able to capture \emph{interior} holes in a polygon representing the shape of obstacles on flat surfaces. Finally, speed is an important consideration for many of the applications mentioned previously. Parallel algorithms written for multi-core CPUs and GPUs should be used to reduce~latency. 
 
 % JC_Author: It's important that this figure is not too small. The edit of changing to "width=0.7" makes the text not legible. It should be a minimum of 0.85 as it is now.
 \begin{figure}[t]
     \centering
-    \includegraphics[width=0.85\linewidth]{chapter_3_polylidar3d/imgs/Polylidar3DArchitecture-SimplifedV4.pdf}
-    \caption{Overview of Polylidar3D. Input data can be 2D point sets, unorganized/organized 3D point clouds, or~user-provided meshes. Polylidar3D's front-end transforms input data to a half-edge triangulation structure. The~back-end is responsible for mesh smoothing, dominant plane normal~estimation, planar segmentation, and~polygon extraction. Polylidar3D outputs both planes (sets of spatially connected triangles) and corresponding polygonal representations. An~example output of color-coded extracted planes from organized point clouds is shown (top right). An~example of extracted polygons from a user-provided mesh is shown (bottom right). The~green line represents the concave hull; orange lines show interior holes representing obstacles.} %Note that only one planar direction can be extracted for unorganized 3D point clouds. This is suitable for airborne LiDAR point~clouds. }
+    \includegraphics[width=0.95\linewidth]{chapter_3_polylidar3d/imgs/Polylidar3DArchitecture-SimplifedV4.pdf}
+    \caption[Overview of Polylidar3D's data input, algorithms, and output]{Overview of Polylidar3D. Input data can be 2D point sets, unorganized/organized 3D point clouds, or~user-provided meshes. Polylidar3D's front-end transforms input data to a half-edge triangulation structure. The~back-end is responsible for mesh smoothing, dominant plane normal~estimation, planar segmentation, and~polygon extraction. Polylidar3D outputs both planes (sets of spatially connected triangles) and corresponding polygonal representations. An~example output of color-coded extracted planes from organized point clouds is shown (top right). An~example of extracted polygons from a user-provided mesh is shown (bottom right). The~green line represents the concave hull; orange lines show interior holes representing obstacles.} %Note that only one planar direction can be extracted for unorganized 3D point clouds. This is suitable for airborne LiDAR point~clouds. }
     \label{fig:ch3_polylidar_overview}
 \end{figure}
 
-We present Polylidar3D, a~non-convex polygon extraction algorithm which takes as input either unorganized 3D point clouds (e.g., airborne LiDAR point clouds), organized point clouds (e.g.,~range~images), or~user provided meshes. The~non-convex polygons extracted represent flat surfaces in an environment, while interior holes represent obstacles on these surfaces.~Figure~\ref{fig:ch3_polylidar_overview}~provides an overview of Polylidar3D's data input, front-end, back-end, and~output.  Currently only one planar direction can be extracted from unorganized 3D point clouds while all other 3D data inputs do not have this limitation. The~front-end transforms input data into a half-edge triangular mesh.  This~representation provides a common level of abstraction offering increased efficiency for back-end operations. The~back-end is composed of four core algorithms: mesh smoothing, dominant plane normal estimation, planar segment extraction, and~polygon extraction.  Polylidar3D outputs planar triangular segments, sets of flat connected triangles, and~their polygonal representations. Polylidar3D~is extremely fast, typically executing in a few milliseconds. It makes use of CPU multi-threading and GPU acceleration when available. Polylidar3D is a substantial extension to Polylidar, the~authors' 2D algorithm that transforms 2D point sets into polygons~\cite{castagno_polylidar_2020}. Our previous Polylidar algorithm only operated on 2D point sets and offered no parallelism. 
-The primary contributions of this paper are:
+This chapter presents Polylidar3D, a~non-convex polygon extraction algorithm which takes as input either unorganized 3D point clouds (e.g., airborne LiDAR point clouds), organized point clouds (e.g.,~range~images), or~user provided meshes. The~non-convex polygons extracted represent flat surfaces in an environment, while interior holes represent obstacles on these surfaces.~Figure~\ref{fig:ch3_polylidar_overview}~provides an overview of Polylidar3D's data input, front-end, back-end, and~output.  Currently only one planar direction can be extracted from unorganized 3D point clouds while all other 3D data inputs do not have this limitation. The~front-end transforms input data into a half-edge triangular mesh.  This~representation provides a common level of abstraction offering increased efficiency for back-end operations. The~back-end is composed of four core algorithms: mesh smoothing, dominant plane normal estimation, planar segment extraction, and~polygon extraction.  Polylidar3D outputs planar triangular segments, sets of flat connected triangles, and~their polygonal representations. Polylidar3D~is extremely fast, typically executing in a few milliseconds. It makes use of CPU multi-threading and GPU acceleration when available. Polylidar3D is a substantial extension to Polylidar, the~authors' 2D algorithm that transforms 2D point sets into polygons~\cite{castagno_polylidar_2020}. Our previous Polylidar algorithm only operated on 2D point sets and offered no parallelism. 
+The primary contributions of this chapter are:
 
 \begin{itemize}
   \item An efficient and versatile open source~\cite{Castagno_Github_Polylidar} framework for concave (multi)polygon extraction for 3D data. Input can be unorganized/organized 3D point clouds or user-provided meshes.
   \item A fast open source~\cite{Castagno_Github_fastga} dominant plane normal estimation procedure using a Gaussian Accumulator that can also be used as a stand-alone algorithm.
-  \item Multiple diverse open source experiments showing qualitative and quantitative benchmark results from data sources including LiDAR and RGBD cameras~\cite{Castagno_Github_Polylidar3D_Kitti, Castagno_Github_Polylidar3D_RealSense, Castagno_Github_Polylidar_Synpeb}.
+  \item Multiple diverse open source experiments showing qualitative and quantitative benchmark results from data sources including LiDAR and \ac{RGBD} cameras~\cite{Castagno_Github_Polylidar3D_Kitti, Castagno_Github_Polylidar3D_RealSense, Castagno_Github_Polylidar_Synpeb}.
   \item Improved half-edge triangulation efficiency for organized point clouds; CPU multi-threaded and GPU accelerated mesh smoothing~\cite{Castagno_Github_opf}. 
   \item Planar segmentation and polygon extraction performed in tandem using task-based parallelism to reduce latency for time-critical applications. 
 \end{itemize}
@@ -88,16 +88,16 @@ Representing planar surfaces as point sets has the disadvantage of high memory a
     \centering\includegraphics[width=.8\linewidth]{chapter_3_polylidar3d/imgs/concave_vs_convex_lettera_3.pdf}
     \caption{\label{fig:ch3_convex_concave_4}Non-convex with~holes}\vspace{6pt}
   \end{subfigure}
-  \caption{Example polygons that can be generated from plane segmented point clouds. (\textbf{a})~2D~point set representation of a floor diagram with interior offices;  (\textbf{b})~Convex~polygon; (\textbf{c})~non-convex~polygon; (\textbf{d})~and~non-convex polygon with holes.~The~exterior hull (green) and interior holes (orange) are~indicated. }\label{fig:ch3_convex_concave}
+  \caption[Example polygons that can be generated from plane segmented point clouds]{Example polygons that can be generated from plane segmented point clouds. (\textbf{a})~2D~point set representation of a floor diagram with interior offices;  (\textbf{b})~Convex~polygon; (\textbf{c})~non-convex~polygon; (\textbf{d})~and~non-convex polygon with holes.~The~exterior hull (green) and interior holes (orange) are~indicated. }\label{fig:ch3_convex_concave}
 \end{figure}
 
 
-Biswas et al.~\cite{biswas_planar_2012} represents flat surfaces as convex polygons extracted from range images. First, points~are randomly sampled in the image with nearby pixel neighbors used for fast RANSAC plane fitting. This returns numerous sparse point subsets which may be coplanar.~The~convex hull is computed for each of these subsets generating many convex polygons in the scene. Polygons belonging to the same surface are then merged with GPU accelerated correspondence matching. The~sparse random sampling of the point cloud and efficient generation of convex hulls allows the algorithm to run in real-time (less than 2 ms). However, convex hulls ignore boundary concavities, overestimate the area of the enclosed point set, and~do no not account for holes per Figure~\ref{fig:ch3_convex_concave}b. Poppinga et al.~\cite{poppinga_fast_2008} outlines a  method to convert plane segmented range images into convex polygons. 
+Biswas et al.~\cite{biswas_planar_2012} represents flat surfaces as convex polygons extracted from range images. First, points~are randomly sampled in the image with nearby pixel neighbors used for fast RANSAC plane fitting. This returns numerous sparse point subsets which may be coplanar.~The~convex hull is computed for each of these subsets generating many convex polygons in the scene. Polygons belonging to the same surface are then merged with \ac{GPU} accelerated correspondence matching. The~sparse random sampling of the point cloud and efficient generation of convex hulls allows the algorithm to run in real-time (less than 2 ms). However, convex hulls ignore boundary concavities, overestimate the area of the enclosed point set, and~do no not account for holes per Figure~\ref{fig:ch3_convex_concave}b. Poppinga et al.~\cite{poppinga_fast_2008} outlines a  method to convert plane segmented range images into convex polygons. 
 %First, region growing is performed to generate planar segments. 
 Each plane segment is decomposed into  a set of convex polygons. Each polygon is progressively built through scan-lines; a new polygon is generated when convexity constraints are not met. This allows a concave plane to be represented by multiple convex polygons. 
 Lee et al.~\cite{lee_indoor_2012-1} generates non-convex polygons from range images. The~range image is first planar-segmented using an eight-way flood fill algorithm. This involves region growing which accounts for the normal vector to each point. Each of the planar segments is then converted to a non-convex polygon. Exterior boundary pixels of a plane segment are sampled and neighboring samples connected to create a non-convex polygon. However interior holes in the plane segments are not explicitly captured as shown in Figure ~\ref{fig:ch3_convex_concave}c. Trevor et al.~\cite{trevor2013efficient} performs a similar polygon extraction procedure through boundary tracing of the exterior~hull. 
 
-Non-convex polygons with holes may be generated through a variety of methods, many under the name of concave hulls~\cite{edelsbrunner_shape_1983, furieri_spatialite_2017, open_source_geospatial_foundation_postgis_2019}. Many of these methods strictly operate on 2D data, requiring~the 3D planar point cloud segments be projected to the best fit geometric plane to produce 2D point sets. Holz et al.~\cite{lee_fast_2013} proposes this technique and the use of $\alpha$-shapes to extract such polygons~\cite{edelsbrunner_shape_1983}.  We~developed a faster open source polygon extraction algorithm, Polylidar, which extracts non-convex polygons with holes from 2D point sets~\cite{castagno_polylidar_2020}. The point set is converted to a 2D mesh through Delaunay triangulation, and~triangles are subsequently filtered by edge length creating the ``shape'' of the point set. This~filtered mesh is then converted to a polygon through boundary following while accounting for holes. Benchmarks demonstrate that our algorithm is a minimum of four times faster than leading methods~\cite{polylidar_benchmark_concave}. This paper extends Polylidar to operate directly on 3D data, performing planar segmentation and polygon extraction in parallel. This integration allows Polylidar3D to skip expensive Delaunay triangulation previously required for organized point clouds as shown in Section ~\ref{sec:ch3_methods_mesh_opc}.  Planar segments represented as non-convex polygons with holes gives the following advantages:
+Non-convex polygons with holes may be generated through a variety of methods, many under the name of concave hulls~\cite{edelsbrunner_shape_1983, furieri_spatialite_2017, open_source_geospatial_foundation_postgis_2019}. Many of these methods strictly operate on 2D data, requiring~the 3D planar point cloud segments be projected to the best fit geometric plane to produce 2D point sets. Holz et al.~\cite{lee_fast_2013} proposes this technique and the use of $\alpha$-shapes to extract such polygons~\cite{edelsbrunner_shape_1983}.  We~developed a faster open source polygon extraction algorithm, Polylidar, which extracts non-convex polygons with holes from 2D point sets~\cite{castagno_polylidar_2020}. The point set is converted to a 2D mesh through Delaunay triangulation, and~triangles are subsequently filtered by edge length creating the ``shape'' of the point set. This~filtered mesh is then converted to a polygon through boundary following while accounting for holes. Benchmarks demonstrate that our algorithm is a minimum of four times faster than leading methods~\cite{polylidar_benchmark_concave}. This chapter extends Polylidar to operate directly on 3D data, performing planar segmentation and polygon extraction in parallel. This integration allows Polylidar3D to skip expensive Delaunay triangulation previously required for organized point clouds as shown in Section ~\ref{sec:ch3_methods_mesh_opc}.  Planar segments represented as non-convex polygons with holes gives the following advantages:
 
 \begin{enumerate}
     \item Significantly reduced memory requirements, on~the order of square root (perimeter vs area).
@@ -169,7 +169,7 @@ Borrmann et al.~\cite{borrmann_3d_2011} and Limberger et al.~\cite{limberger_rea
     \centering\includegraphics[trim=0.1cm 0cm 0.99cm 0.6cm,width=.99\linewidth]{chapter_3_polylidar3d/imgs/ref_ga/strips_histogram.pdf}
     \caption{Ball Sphere, Histogram\label{fig:ch3_bg_ga_f}}\vspace{6pt}
   \end{subfigure}
-  \caption{Examples of integrating normals from two identically ``noisy'' planes (red arrows, Gaussian~distributed) into a UV Sphere (\textbf{a},\textbf{b}) and Ball Sphere (\textbf{c},\textbf{d}). Note the anisotropic property of sphere cells caused by unequal area and shape; (\textbf{e}) The UV Sphere histogram is unable to detect the peak at the pole; (\textbf{f}) The Ball sphere is able to detect both peaks, but~the north pole cell is significantly larger
+  \caption[Example of integrating surface normals into Gaussian Accumulators]{Examples of integrating normals from two identically ``noisy'' planes (red arrows, Gaussian~distributed) into a UV Sphere (\textbf{a},\textbf{b}) and Ball Sphere (\textbf{c},\textbf{d}). Note the anisotropic property of sphere cells caused by unequal area and shape; (\textbf{e}) The UV Sphere histogram is unable to detect the peak at the pole; (\textbf{f}) The Ball sphere is able to detect both peaks, but~the north pole cell is significantly larger
   leading to an incorrectly higher value than the equator cell.}\label{fig:ch3_bg_ga}
 \end{figure}
 
@@ -180,7 +180,7 @@ Borrmann et al.~\cite{borrmann_3d_2011} and Limberger et al.~\cite{limberger_rea
 % Review of accumulators
 Toony et al.~\cite{toony_describing_2015} proposes unit sphere tessellation into 1996 equilateral triangle cells.~This approach gives near uniform cells in area and shape, resolving previous issues with unequal weighting, pole~singularities, and~non-equivariant kernels. The~process of integrating a unit normal into the histogram is no longer an indexing scheme. They propose to use a $K$-$D$ tree to spatially index each cell using its triangle normal.  A~nearest neighbor search must be conducted for every unit normal integrated into the histogram. Peak detection is not performed, instead the sorted histogram distribution is analyzed to predict the shape of the object being integrated (e.g., circle, plane, or~torus). 
 
-In Polylidar3D we tessellate the unit sphere with triangles by recursively subdividing the primary faces of an icosahedron. The~recursion level dictates the approximation of the unit sphere. Our search strategy does not rely upon $K$-$D$ trees but instead uses a global index from space filling curves followed by local neighborhood search. We unfold the icosahedron into a 2D image in a particular way that guarantees equivariant kernels as outlined in~\cite{cohen_gauge_2019}. Standard 2D image peak detection is performed with nearby peaks clustered using~AHC.
+In Polylidar3D we tessellate the unit sphere with triangles by recursively subdividing the primary faces of an icosahedron. The~recursion level dictates the approximation of the unit sphere. Our search strategy does not rely upon $K$-$D$ trees but instead uses a global index from space filling curves followed by local neighborhood search. We unfold the icosahedron into a 2D image in a particular way that guarantees equivariant kernels as outlined in~\cite{cohen_gauge_2019}. Standard 2D image peak detection is performed with nearby peaks clustered using \ac{AHC}.
 
 % Simple Array
 
@@ -207,9 +207,9 @@ In Polylidar3D we tessellate the unit sphere with triangles by recursively subdi
 %     \item Polygon Extraction
 % \end{enumerate}
 
-% The algorithm begins by first applying Delaunay triangulation to a 2D point set and filtering triangles by user configurable parameters such as triangle edge length. Afterwards, triangles which share edges are extracted into triangular mesh regions that represent the shape of the point set. Finally each region is rapidly transformed into valid concave polygon. The major contribution to Polylidar's speed is in efficiently transforming each triangular region into a concave polygon. This is done by rapidly identifying boundary edges, walking the hull of the mesh, and handling edge cases to ensure a valid polygon is returned. We encourage the readers to read the original paper to see details of the algorithm and benchmarks~\cite{}.
+% The algorithm begins by first applying Delaunay triangulation to a 2D point set and filtering triangles by user configurable parameters such as triangle edge length. Afterwards, triangles which share edges are extracted into triangular mesh regions that represent the shape of the point set. Finally each region is rapidly transformed into valid concave polygon. The major contribution to Polylidar's speed is in efficiently transforming each triangular region into a concave polygon. This is done by rapidly identifying boundary edges, walking the hull of the mesh, and handling edge cases to ensure a valid polygon is returned. We encourage the readers to read the original chapter to see details of the algorithm and benchmarks~\cite{}.
 
-% This paper will outline our 3D extension to Polylidar where input 3D point clouds are transformed to polygons representing flat surfaces. We also present methods to filter and simplify returned polygons generated.
+% This chapter will outline our 3D extension to Polylidar where input 3D point clouds are transformed to polygons representing flat surfaces. We also present methods to filter and simplify returned polygons generated.
 
 \section{Preliminaries}\label{sec:ch3_prelim}
 
@@ -230,7 +230,7 @@ Note that the 2D indices can be collapsed to a 1D stacked array by $i = u \cdot 
 \label{eq:ch3_tri}
     \mathcal{T} = \{ t_0, t_i, \ldots, t_{k-1} \}
 \end{equation}
-where each $t_i$ is a triangle with vertices defined by three point indices $\{i_1, i_2, i_3\} \in \left[0,n-1\right]$ referencing points in $\mathcal{P}$. A~half-edge triangulation further decomposes each triangle into three individual half-edges. Specifically each edge in the mesh is split into two oriented half-edges, often called twin or opposite edges~\cite{paris_modified_2013}. Each half-edge is represented by a unique id $he_j$ in triangle $t_i = \operatorname{floor}(he_j/3)$. An~ordered array $\mathcal{HE}$ is created to find corresponding twin edges. Specifically the twin edge of $he_i$ can be found at index $i$ in $\mathcal{HE}$. If~no twin exists, i.e.,~the edge is on a border, then -1 is~returned.
+where each $t_i$ is a triangle with vertices defined by three point indices $\{i_0, i_1, i_2\} \in \left[0,n-1\right]$ referencing points in $\mathcal{P}$. A~half-edge triangulation further decomposes each triangle into three individual half-edges. Specifically each edge in the mesh is split into two oriented half-edges, often called twin or opposite edges~\cite{paris_modified_2013}. Each half-edge is represented by a unique id $he_j$ in triangle $t_i = \operatorname{floor}(he_j/3)$. An~ordered array $\mathcal{HE}$ is created to find corresponding twin edges. Specifically the twin edge of $he_i$ can be found at index $i$ in $\mathcal{HE}$. If~no twin exists, i.e.,~the edge is on a border, then -1 is~returned.
 
 % A geometric plane, in point-normal form, is defined by a normal $\hat{\mathbf{n}}$ and position $\hat{p}$ 
 % \begin{equation}
@@ -238,7 +238,7 @@ where each $t_i$ is a triangle with vertices defined by three point indices $\{i
 % \end{equation}
 % where $\hat{r}$ denotes any point on the plane.
 
-The Open Geospatial Consortium (OGC) standard~\cite{herring_opengis_2006-1} defines a \textit{linear ring} as a consecutive list of points that is both closed and simple. This mandates the linear ring to have non-intersecting line segments that join to form a closed path. A~valid \textit{polygon} must have a single exterior linear ring representing the hull of the polygon and a set of linear rings (possibly empty) representing holes inside the~polygon. 
+% The Open Geospatial Consortium (OGC) standard~\cite{herring_opengis_2006-1} defines a \textit{linear ring} as a consecutive list of points that is both closed and simple. This mandates the linear ring to have non-intersecting line segments that join to form a closed path. A~valid \textit{polygon} must have a single exterior linear ring representing the hull of the polygon and a set of linear rings (possibly empty) representing holes inside the~polygon. 
 
 % \section{Polylidar3d} \label{sec:ch3_methods_polylidar}
 
@@ -262,7 +262,7 @@ We convert an unorganized 3D point cloud $\mathcal{P}$ into a 3D triangular mesh
     \centering\includegraphics[width=.65\linewidth]{chapter_3_polylidar3d/imgs/Basic25DAlgorithm_mesh.pdf}
     \caption{\label{fig:ch3_25DMesh}2D and 3D~Mesh}\vspace{6pt}
   \end{subfigure}
-  \caption{Example conversion of an unorganized 3D point cloud to a 3D triangular mesh. (\textbf{a})~Synthetic~point cloud of a  rooftop scene generated from an overhead laser scanner. A~single wall is captured because the scanner is slightly angled; (\textbf{b}) The point cloud is projected to the $xy$ plane and triangulated, generating the dual 3D mesh. Only planes aligned with the $xy$ plane can be~captured.  }\label{fig:ch3_25DMeshCreation}
+  \caption[Converting an unorganized 3D point cloud to a 3D triangular mesh]{Example conversion of an unorganized 3D point cloud to a 3D triangular mesh. (\textbf{a})~Synthetic~point cloud of a  rooftop scene generated from an overhead laser scanner. A~single wall is captured because the scanner is slightly angled; (\textbf{b}) The point cloud is projected to the $xy$ plane and triangulated, generating the dual 3D mesh. Only planes aligned with the $xy$ plane can be~captured.  }\label{fig:ch3_25DMeshCreation}
 \end{figure}
 
 Plane normals may not be aligned with the inertial $xy$ plane, e.g.,~3D laser scanner rigidly mounted on an automobile. The~point cloud, generated in the sensor frame, must then be rotated such that desired plane to be extracted is aligned with $xy$ plane. This requires a priori knowledge of the plane normal and rigid body transformation necessary to align the sensor frame point cloud as demonstrated in Section~\ref{sec:ch3_results_kitti} where the ground plane (road) is extracted from point clouds generated by a spinning LiDAR sensor mounted on a~car.
@@ -290,9 +290,9 @@ Half-edge triangulation of an M $\times$ N organized point cloud can be quickly 
      \centering\includegraphics[width=.95\linewidth]{chapter_3_polylidar3d/imgs/OPCHalfEdge-OPC-Mesh_actual_V2.pdf}
     \caption{\label{fig:ch3_OPC_Mesh} Final Mesh, $\mathcal{T}$ }\vspace{6pt}
   \end{subfigure}
-  \caption{Example conversion of a 7 $\times$ 7 Organized Point Cloud (OPC) to a half-edge triangular mesh.~Points are represented by circles; red indicates an invalid value (e.g.,~0~depth~measurement). (\textbf{a})~Implicit~mesh of OPC with right cut triangles, $\mathcal{T}_{FC}$.~A unique global id $GID = 2 \cdot (u \cdot (N-1) + v) + k$ is shown inside each triangle;  (\textbf{b}) Indexing scheme to define $GID$s for triangles in $\mathcal{T}_{FC}$; (\textbf{c}) Final mesh $\mathcal{T}$ with triangles created if and only if all vertices are valid. Unique indices into $\mathcal{T}$  are marked.  $\mathcal{T}_{map}$ maps between $GID$s in $\mathcal{T}_{FC}$ to $\mathcal{T}$. }\label{fig:ch3_OPC_Mesh_all}
+  \caption[Converting an organized point cloud into a 3D triangular mesh]{Example conversion of a 7 $\times$ 7 Organized Point Cloud (OPC) to a half-edge triangular mesh.~Points are represented by circles; red indicates an invalid value (e.g.,~0~depth~measurement). (\textbf{a})~Implicit~mesh of \ac{OPC} with right cut triangles, $\mathcal{T}_{FC}$.~A unique global id $GID = 2 \cdot (u \cdot (N-1) + v) + k$ is shown inside each triangle;  (\textbf{b}) Indexing scheme to define $GID$s for triangles in $\mathcal{T}_{FC}$; (\textbf{c}) Final mesh $\mathcal{T}$ with triangles created if and only if all vertices are valid. Unique indices into $\mathcal{T}$  are marked.  $\mathcal{T}_{map}$ maps between $GID$s in $\mathcal{T}_{FC}$ to $\mathcal{T}$. }\label{fig:ch3_OPC_Mesh_all}
 \end{figure}
-First, any invalid data in the point cloud is set to an NaN floating point value.~This keeps the point cloud organized and prompts removal of invalid triangles in the mesh.~An~implicit fully-connected right-cut mesh triangulates all points, including invalid points marked red in Figure~\ref{fig:ch3_OPC_Mesh_all}a and denoted~$\mathcal{T}_{FC}$.  Each 2 $\times$ 2 grid in the OPC creates two triangles, which we denote first and second as shown in Figure~\ref{fig:ch3_OPC_Mesh_all}b. Each triangle in $\mathcal{T}_{FC}$ is indexed by $t_{u,v,k}$ where  $k \in \{0,1\}$ represents the first or second triangle, respectively. A~unique global id $GID = 2 \cdot (u \cdot (N-1) + v) + k$ is shown inside each triangle in Figure~\ref{fig:ch3_OPC_Mesh_all}a. This $GID$ represents the triangle order within $\mathcal{T}_{FC}$.  The~final mesh returned $\mathcal{T}$ is shown in Figure~\ref{fig:ch3_OPC_Mesh_all}c with construction outlined in Algorithm \ref{alg:ch3_opc_mesh_creation}. The~data structure $\mathcal{T}_{map}$ defines a mapping of global ids in $\mathcal{T}_{FC}$ to their index positions in $\mathcal{T}$ (if they exist, else  $-$1) which is used later in half-edge extraction. Algorithm \ref{alg:ch3_opc_mesh_creation} begins by iterating over all 2 $\times$ 2 point grids and constructs the first and second triangle for each. These respective triangles are only added to $\mathcal{T}$ if all three points are valid. Triangle point indices are added counter-clockwise with the three half-edges implicitly defined by the ordered traversal of point indices, e.g.,~the first triangle's half-edges are [PI3 $\rightarrow$ PI2, PI2 $\rightarrow$ PI1, PI1 $\rightarrow$ PI3]. 
+First, any invalid data in the point cloud is set to an NaN floating point value.~This keeps the point cloud organized and prompts removal of invalid triangles in the mesh.~An~implicit fully-connected right-cut mesh triangulates all points, including invalid points marked red in Figure~\ref{fig:ch3_OPC_Mesh_all}a and denoted~$\mathcal{T}_{FC}$.  Each 2 $\times$ 2 grid in the \ac{OPC} creates two triangles, which we denote first and second as shown in Figure~\ref{fig:ch3_OPC_Mesh_all}b. Each triangle in $\mathcal{T}_{FC}$ is indexed by $t_{u,v,k}$ where  $k \in \{0,1\}$ represents the first or second triangle, respectively. A~unique global id $GID = 2 \cdot (u \cdot (N-1) + v) + k$ is shown inside each triangle in Figure~\ref{fig:ch3_OPC_Mesh_all}a. This $GID$ represents the triangle order within $\mathcal{T}_{FC}$.  The~final mesh returned $\mathcal{T}$ is shown in Figure~\ref{fig:ch3_OPC_Mesh_all}c with construction outlined in Algorithm \ref{alg:ch3_opc_mesh_creation}. The~data structure $\mathcal{T}_{map}$ defines a mapping of global ids in $\mathcal{T}_{FC}$ to their index positions in $\mathcal{T}$ (if they exist, else  $-$1) which is used later in half-edge extraction. Algorithm \ref{alg:ch3_opc_mesh_creation} begins by iterating over all 2 $\times$ 2 point grids and constructs the first and second triangle for each. These respective triangles are only added to $\mathcal{T}$ if all three points are valid. Triangle point indices are added counter-clockwise with the three half-edges implicitly defined by the ordered traversal of point indices, e.g.,~the first triangle's half-edges are [PI3 $\rightarrow$ PI2, PI2 $\rightarrow$ PI1, PI1 $\rightarrow$ PI3]. 
 
 
 % Note that $\mathcal{T}_{FC}$ is never actually created, it only exists as a construct to give neighboring relationships between triangles and provide global id's (GID) to every possible triangle. 
@@ -305,8 +305,9 @@ First, any invalid data in the point cloud is set to an NaN floating point value
 % l that $\mathcal{HE}$ is a flat array indexed by half-edge ID which provides its twin/opposite half-edge ID or -1 if none exists. As before we loop through every 2X2 grid, examining the first and second triangles formed. The first, second, top, right, bottom, and left triangles IDs are determined by mapping $\mathcal{T}_{FC}$ $GID$s with $\mathcal{T}_{map}$.  If these triangles are in $\mathcal{T}$, determined by checking for a  sentinel value in $\mathcal{T}_{map}$, their associated half-edges are mapped to the correct shared half-edge in $\mathcal{HE}$. 
 %Note that Algorithm \ref{alg:ch3_opc_halfedge_creation} is simplified 
 
-\vspace{6pt}
+% \vspace{6pt}
 
+% \begin{singlespace}
 \begin{algorithm}[H]
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
@@ -348,15 +349,16 @@ First, any invalid data in the point cloud is set to an NaN floating point value
         }
     }
     return $\mathcal{T}, \mathcal{T}_{map}$
-    \caption{Extract Triangles from~OPC}
+    \caption{Extract Triangles from~\ac{OPC}}
     \label{alg:ch3_opc_mesh_creation}
 \end{algorithm}
-\vspace{6pt}
+% \end{singlespace}
+% \vspace{6pt}
 The half-edge array $\mathcal{HE}$ is constructed 
 %in Algorithm \ref{alg:ch3_opc_halfedge_creation}
-using the previously calculated $\mathcal{T}_{map}$ and is shown in Algorithm \ref{alg:ch3_opc_halfedge_creation}. The~algorithm begins at Line 3 by setting all half-edges in $\mathcal{HE}$ to the default sentinel value of $-$1 indicating no shared edge.  Line 4 and 5 then begin iterating through every 2 $\times$ 2 grid in the OPC inspecting the first and second triangles in $\mathcal{T}_{FC}$. Line 6 and 7 retrieve the index of these triangles in $\mathcal{T}$ using $\mathcal{T}_{map}$ if they exist. If~these triangles exist then their neighboring triangles may be assigned in Lines 9 and 18, respectively. For~example in Line 13 if the right triangle neighbor exists then its first edge corresponding to a half-edge id of $3 \cdot Right_{idx}$ will be linked to the first half-edge of the first~triangle.
+using the previously calculated $\mathcal{T}_{map}$ and is shown in Algorithm \ref{alg:ch3_opc_halfedge_creation}. The~algorithm begins at Line 3 by setting all half-edges in $\mathcal{HE}$ to the default sentinel value of $-$1 indicating no shared edge.  Line 4 and 5 then begin iterating through every 2 $\times$ 2 grid in the \ac{OPC} inspecting the first and second triangles in $\mathcal{T}_{FC}$. Line 6 and 7 retrieve the index of these triangles in $\mathcal{T}$ using $\mathcal{T}_{map}$ if they exist. If~these triangles exist then their neighboring triangles may be assigned in Lines 9 and 18, respectively. For~example in Line 13 if the right triangle neighbor exists then its first edge corresponding to a half-edge id of $3 \cdot Right_{idx}$ will be linked to the first half-edge of the first~triangle.
 
-\vspace{6pt}
+% \begin{singlespace}
 \begin{algorithm}[H]
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
@@ -411,9 +413,10 @@ using the previously calculated $\mathcal{T}_{map}$ and is shown in Algorithm \r
         }
     }
     return $\mathcal{T}, \mathcal{T}_{map}$
-    \caption{Extract Half-Edges from~OPC}
+    \caption{Extract Half-Edges from~\ac{OPC}}
     \label{alg:ch3_opc_halfedge_creation}
 \end{algorithm}
+% \end{singlespace}
 
 
 \subsection{User Provided~Meshes}\label{sec:ch3_methods_mesh_user}
@@ -426,7 +429,7 @@ Certain forms of non-manifold meshes must be explicitly handled. We focus on a s
     \item Every edge is shared by one or two triangles.
 \end{enumerate}
 
-Figure~\ref{fig:ch3_NonMainifoldCond1} shows examples of non-manifold meshes where condition (1) is violated. Polylidar3D~handles violations of (1)  using methods from our previous work~\cite{castagno_polylidar_2020}. The~missing triangles (shown as white) are explicitly captured as holes inside a polygon for Figure {\ref{fig:ch3_NonMainifoldCond1}}a--c, while the mesh is split into two polygons for (Figure~\ref{fig:ch3_NonMainifoldCond1}d). Figure~\ref{fig:ch3_NonMainifoldCond2} shows cases of non-manifold meshes that violate condition (2). No~mesh generated per Sections~\ref{sec:ch3_methods_mesh_upc} and \ref{sec:ch3_methods_mesh_opc} will violate (2)  because triangulation occurs in 2D space so all edges share at most two triangles. However a user-provided 3D mesh may not satisfy condition (2).
+Figure~\ref{fig:ch3_NonMainifoldCond1} shows examples of non-manifold meshes where condition (1) is violated. Polylidar3D~handles violations of (1)  using methods from our previous work~\cite{castagno_polylidar_2020}. The~missing triangles (shown as white) are explicitly captured as holes inside a polygon for Figure {\ref{fig:ch3_NonMainifoldCond1}}a--c, while the mesh is split into two polygons for Figure~\ref{fig:ch3_NonMainifoldCond1}d. Figure~\ref{fig:ch3_NonMainifoldCond2} shows cases of non-manifold meshes that violate condition (2). No~mesh generated per Sections~\ref{sec:ch3_methods_mesh_upc} and \ref{sec:ch3_methods_mesh_opc} will violate (2)  because triangulation occurs in 2D space so all edges share at most two triangles. However a user-provided 3D mesh may not satisfy condition (2).
 
 
 The half-edge array $\mathcal{HE}$ used for neighbor expansion during planar segment extraction in Section~\ref{sec:ch3_methods_polylidar_plane_extraction} only maps twin half-edges, making condition (2) mesh violations problematic. Three~options can handle cases when more than two shared edges exist:
@@ -438,7 +441,7 @@ The half-edge array $\mathcal{HE}$ used for neighbor expansion during planar seg
 \end{enumerate}
 
 
-\begin{figure}[H]
+\begin{figure}[ht]
 \centering
   \begin{subfigure}{.24\linewidth}
     \centering\includegraphics[width=.9\linewidth]{chapter_3_polylidar3d/imgs/OPCHalfEdge-ManifoldMeshA.pdf}
@@ -456,7 +459,7 @@ The half-edge array $\mathcal{HE}$ used for neighbor expansion during planar seg
     \centering\includegraphics[width=.9\linewidth]{chapter_3_polylidar3d/imgs/OPCHalfEdge-ManifoldMeshD.pdf}
     \caption{\label{fig:ch3_NonMainifoldCond1D}}\vspace{6pt}
   \end{subfigure}
-  \caption{Example non-manifold meshes that exhibit condition (1) violations. Red vertices specifically show examples where the vertex triangle set is not fully edge-connected. (\textbf{a}--\textbf{c}) will extract any missing triangles as holes from the blue triangular segment;  (\textbf{d}) The missing triangles in this mesh also cause condition (1) violations but will \emph{not} be captured as holes. They cause the green and blue portion of the mesh to not be edge-connected for region growing in Section~\ref{sec:ch3_methods_polylidar_plane_extraction}. They will be extracted as two separate segments with no holes in their respective interiors}. \label{fig:ch3_NonMainifoldCond1}
+  \caption[Example non-manifold meshes with condition one violations]{Example non-manifold meshes that exhibit condition (1) violations. Red vertices specifically show examples where the vertex triangle set is not fully edge-connected. (\textbf{a}--\textbf{c}) will extract any missing triangles as holes from the blue triangular segment;  (\textbf{d}) The missing triangles in this mesh also cause condition (1) violations but will \emph{not} be captured as holes. They cause the green and blue portion of the mesh to not be edge-connected for region growing in Section~\ref{sec:ch3_methods_polylidar_plane_extraction}. They will be extracted as two separate segments with no holes in their respective interiors}. \label{fig:ch3_NonMainifoldCond1}
 \end{figure}
 
 \vspace{-6pt}
@@ -479,7 +482,7 @@ Option one is advantageous in speed and will generally have minimal consequences
     \centering\includegraphics[clip,trim=1.1cm 5.1cm 9.1cm 5.1cm,width=.95\linewidth]{chapter_3_polylidar3d/imgs/manifold3d_three.pdf}
     \caption{Three shared~edges\label{fig:ch3_NonMainifoldCond2C}}\vspace{6pt}
   \end{subfigure}
-  \caption{Examples of non-manifold meshes where an edge is shared by more than two triangles. This~common edge is shared by green and orange triangles. The~green triangles form a two-manifold mesh with the blue triangles while the orange triangle(s) do not. The~orange triangles in (Figure~\ref{fig:ch3_NonMainifoldCond2}a,b) have sufficiently different normals such the green triangles half-edges can be easily linked. However~all triangles in (Figure~\ref{fig:ch3_NonMainifoldCond2}c) have nearly equal normals making this~impossible.}\label{fig:ch3_NonMainifoldCond2}
+  \caption[Example non-manifold meshes with condition two violations]{Examples of non-manifold meshes where an edge is shared by more than two triangles. This~common edge is shared by green and orange triangles. The~green triangles form a two-manifold mesh with the blue triangles while the orange triangle(s) do not. The~orange triangles in (Figure~\ref{fig:ch3_NonMainifoldCond2}a,b) have sufficiently different normals such the green triangles half-edges can be easily linked. However~all triangles in (Figure~\ref{fig:ch3_NonMainifoldCond2}c) have nearly equal normals making this~impossible.}\label{fig:ch3_NonMainifoldCond2}
 \end{figure}
 \unskip
 
@@ -513,7 +516,7 @@ The algorithm partitions triangle smoothing in image space coordinates, smoothin
 \begin{figure}[H]
     \centering
     \includegraphics[width=.60\linewidth]{chapter_3_polylidar3d/imgs/OPCHalfEdge-BilateralFilter.pdf}
-    \caption{Visualization of a triangle's neighborhood during bilateral filtering of an organized point~cloud.  Each 2 $\times$ 2 point group forms two triangles creating a mesh. Each triangle's neighbors are defined by the kernel size. For~example a kernel size of five includes all blue and red~triangles.}
+    \caption[Visualization of a triangle's neighborhood during bilateral filtering]{Visualization of a triangle's neighborhood during bilateral filtering of an organized point~cloud.  Each 2 $\times$ 2 point group forms two triangles creating a mesh. Each triangle's neighbors are defined by the kernel size. For~example a kernel size of five includes all blue and red~triangles.}
     \label{fig:ch3_smooth_bilateral}
 \end{figure}
 
@@ -529,19 +532,19 @@ The following subsections describe the process to approximate a sphere using an 
 
 \subsubsection{Refined~Icosahedron}\label{sec:ch3_methods_fastga_ico}
 
-A geodesic polyhedron is first constructed by using an icosahedron as the base model approximation of a unit sphere. The~icosahedron is composed of 12 vertices and 20 faces and can be seen on the far left in Figure~\ref{fig:ch3_fastga_refinement}. This polyhedron is refined by recursively dividing each face into four equilateral triangles and then projecting the new vertices onto the surface of a sphere. The~number of iterations or levels of recursion is user configurable with higher levels better approximating a sphere. The~Class I geodesic polyhedron is defined with the Schläfli symbol $\{3,5+\}_{1,0}$ with frequency doubling at each level~\cite{wenninger_spherical_1999}. Figure~\ref{fig:ch3_fastga_refinement} shows refinement up to level four while Table~\ref{table:fastga_refinement} displays the change in number of vertices, triangles, and~approximate angular separation between each triangle. We denote each triangle as the cell or bucket of the histogram of S2. The~number of cells, $n$, and~their properties described below are  fixed once a refinement level is~chosen.
+A geodesic polyhedron is first constructed by using an icosahedron as the base model approximation of a unit sphere. The~icosahedron is composed of 12 vertices and 20 faces and can be seen on the far left in Figure~\ref{fig:ch3_fastga_refinement}. This polyhedron is refined by recursively dividing each face into four equilateral triangles and then projecting the new vertices onto the surface of a sphere. The~number of iterations or levels of recursion is user configurable with higher levels better approximating a sphere. The~Class I geodesic polyhedron is defined with the Schläfli symbol $\{3,5+\}_{1,0}$ with frequency doubling at each level~\cite{wenninger_spherical_1999}. Figure~\ref{fig:ch3_fastga_refinement} shows refinement up to level four while Table~\ref{table:ch3_fastga_refinement} displays the change in number of vertices, triangles, and~approximate angular separation between each triangle. We denote each triangle as the cell or bucket of the histogram of S2. The~number of cells, $n$, and~their properties described below are  fixed once a refinement level is~chosen.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=.60\linewidth]{chapter_3_polylidar3d/imgs/fastga_ico_refinement_v2.png}
-    \caption{Approximation of the unit sphere with an icosahedron. The~level 0 icosahedron is shown on the  left with increasing refinements to the right.  Triangle cells become buckets of a histogram on~S2. }
+    \caption[Approximation of the unit sphere with an icosahedron]{Approximation of the unit sphere with an icosahedron. The~level 0 icosahedron is shown on the  left with increasing refinements to the right.  Triangle cells become buckets of a histogram on~S2. }
     \label{fig:ch3_fastga_refinement}
 \end{figure}
 \unskip
 
 \begin{table}[H]
 \centering
-\caption{Levels of Refinement for an~Icosahedron.}\label{table:fastga_refinement}
+\caption{Levels of Refinement for an~Icosahedron.}\label{table:ch3_fastga_refinement}
 \begin{tabular}{@{}cccc@{}}
 \toprule
 \textbf{Level} & \textbf{\# Vertices} & \textbf{\# Triangles }& \textbf{Separation} \\ \midrule
@@ -563,7 +566,7 @@ A space-filling curve (SFC) maps a multi‐dimensional space into a one‐dimens
 \begin{figure}[H]
     \centering
     \includegraphics[width=.20\linewidth]{chapter_3_polylidar3d/imgs/fastga_ico_hilbert_v3.png}
-    \caption{Space filling curve (SFC) of a level 4 icosahedron generated using the S2 Geometry Library. Each cell's surface normal is mapped to an integer creating a linear ordering for a curve. The~curve is colored according to this mapping and traverses each~cell.   }
+    \caption[Space filling curve (SFC) of a level four refined icosahedron]{Space filling curve (SFC) of a level 4 icosahedron generated using the S2 Geometry Library. Each cell's surface normal is mapped to an integer creating a linear ordering for a curve. The~curve is colored according to this mapping and traverses each~cell.   }
     \label{fig:ch3_fastga_hilbert}
 \end{figure}
 
@@ -575,10 +578,11 @@ Integrating a list of $k$ unit normals $\mathcal{N} = \{\hat{n}_0, \ldots, \hat{
 %i.e., $ c_{j^*} = \argminA_{ c_j \; \in \; Cells}\; || \hat{n}_i-\hat{n}^{c}_j ||$.
 Instead of a $K$-$D$ tree search we propose combining a sorted integer search with a local neighborhood search. Though~similar, there are nontrivial differences and optimizations that make our method faster.  The~main components of the search are as follows: map $\hat{n}_i$ to an integer $s2id$, perform sorted integer interpolation search to reduce search bounds, perform~branchless binary search within these bounds in the $Cells$ array, then  perform local neighborhood search to find the correct cell. Algorithm \ref{alg:ch3_find_cell_index} outlines this search routine and is explained~below.
 
-There exist several methods for sorted integer search such as interpolation and binary search. Interpolation search works by predicting the index of a value in sorted array by interpolating  between the first and last value of the sorted array (thus computing a slope). The~process continues iteratively, each time reducing the search window and recomputing a new line for improved prediction. Interpolation search is best used for linear data but still often underperforms in comparison to binary search in practice due to its use of repeated computationally expensive calculations of slope~\cite{van_sandt_efficiently_2019}.
+There exist several methods for sorted integer search such as interpolation and binary search. Interpolation search works by predicting the index of a value in a sorted array by interpolating  between the first and last value of the sorted array (thus computing a slope). The~process continues iteratively, each time reducing the search window and recomputing a new line for improved prediction. Interpolation search is best used for linear data but still often underperforms in comparison to binary search in practice due to its use of repeated computationally expensive calculations of slope~\cite{van_sandt_efficiently_2019}.
 
 % Interpolation search has superior average asymptotic complexity in comparison to binary search,  $\mathcal{O}(\log{} \log{} n)$ vs  $\mathcal{O}(\log{}n)$ respectively. However interpolation search has a worst case complexity of $\mathcal{O}(n)$  when the integers are exponentially distributed, meaning interpolation should not be used with non-linear data.  Additionally, interpolation search often underperforms in comparison to binary search in practice due to its use of repeated computationally expensive calculations of slope~\cite{van_sandt_efficiently_2019}.
-\vspace{6pt}
+
+% \begin{singlespace}
 \begin{algorithm}[ht]
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
@@ -621,9 +625,10 @@ There exist several methods for sorted integer search such as interpolation and 
     \caption{Find Cell~Index}
     \label{alg:ch3_find_cell_index}
 \end{algorithm}
-\vspace{6pt}
+% \end{singlespace}
+% \vspace{6pt}
 Figure~\ref{fig:ch3_linear_interp}a shows a graph of cells in the Gaussian Accumulator where the $x$-axis is the $s2id$ and the $y$-axis is the corresponding index into the sorted $Cells$ array. %To be clear the domain is in the range $[0, 2^{64} -1]$ and the range is $[0, n]$ where n is the number of cells in the Gaussian Accumulator. 
-We use least squares regression to fit a line to the data shown in Figure~\ref{fig:ch3_linear_interp}a, in~contrast to only using the first and last values typical of interpolation search. Figure~\ref{fig:ch3_linear_interp}a shows this regressed line (green) accurately fits the data overall. In~a zoomed plot (Figure \ref{fig:ch3_linear_interp}b), model error, the~difference between actual and predicted cell array index, is~shown as the red line with values on the right vertical axis. Since the model/data domain and range are ordered and finite we can compute the negative and positive error bounds which is fixed once GA refinement level is chosen. This is significant because one can reliably predict the correct index position of a cell with small known error bounds. This means that one does not need to perform a full binary search through the array of histogram cells but only a small subset of it. For~example, refinement level four with 5120 histogram cells has maximal error bounds of $-$16 and +16 from any predicted position, thereby reducing the search from 5120 to 32 cells. This technique brings the benefits of linear interpolation search without excess computational overhead because the model can be computed at compile~time.
+We use least squares regression to fit a line to the data shown in Figure~\ref{fig:ch3_linear_interp}a, in~contrast to only using the first and last values typical of interpolation search. Figure~\ref{fig:ch3_linear_interp}a shows this regressed line (green) accurately fits the data overall. In~a zoomed plot (Figure \ref{fig:ch3_linear_interp}b), model error, the~difference between actual and predicted cell array index, is~shown as the red line with values on the right vertical axis. Since the model/data domain and range are ordered and finite we can compute the negative and positive error bounds which is fixed once the GA refinement level is chosen. This is significant because one can reliably predict the correct index position of a cell with small known error bounds. This means that one does not need to perform a full binary search through the array of histogram cells but only a small subset of it. For~example, refinement level four with 5120 histogram cells has maximal error bounds of $-$16 and +16 from any predicted position, thereby reducing the search from 5120 to 32 cells. This technique brings the benefits of linear interpolation search without excess computational overhead because the model can be computed at compile~time.
 \vspace{-6pt}
 \begin{figure}[H]
         \centering
@@ -646,7 +651,7 @@ We use least squares regression to fit a line to the data shown in Figure~\ref{f
     \includegraphics[width=\linewidth]{chapter_3_polylidar3d/imgs/ga_linear_interp_2.pdf}
     \caption{\label{fig:ch3_linear_interp_2}}
   \end{subfigure}
-  \caption{Linear prediction model for a level four Gaussian Accumulator (GA). The~5120 GA cells are sorted in an array ($Cells$) by their corresponding spatial index $s2id$;  (\textbf{a}) Plot relating cell $s2id$ and index position in the $Cells$ array with a regressed line (green) to the data; (\textbf{b})  Zoomed-in view showing model error (red line) indicating  difference between predicted and actual index for each $s2id$.  
+  \caption[Linear prediction model for space filling curve indices on a Gaussian Accumulator]{Linear prediction model for a level four Gaussian Accumulator (GA). The~5120 GA cells are sorted in an array ($Cells$) by their corresponding spatial index $s2id$;  (\textbf{a}) Plot relating cell $s2id$ and index position in the $Cells$ array with a regressed line (green) to the data; (\textbf{b})  Zoomed-in view showing model error (red line) indicating  difference between predicted and actual index for each $s2id$.  
   }\label{fig:ch3_linear_interp}
 \end{figure}
 
@@ -670,17 +675,15 @@ The histogram of the Gaussian Accumulator is normalized between the range [0--25
 %     \label{fig:ch3_ico_chart_process}
 % \end{figure}
 
-We use a standard 2D peak detector algorithm to find local peaks in the image. A~peak is in the center of a 3X3 pixel group if it is the maximum in the group and its value is higher than a user-configurable $v_{min}$. Once a peak is detected in the 2D image it is converted to its corresponding surface normal on the GA. Duplicate peaks may be detected near chart borders because of copy padding discussed above, or~two peaks may be close together. In~either case it is desirable to collapse them into a single peak.  Agglomerative hierarchical clustering (AHC) is used to merge these peaks and take their weighted average. AHC will only merge peaks whose Euclidean distance is less than~$d_{peak}$. 
-
 \begin{figure}[H]
 \centering
  \captionsetup[subfigure]{justification=centering}
-  \begin{subfigure}[t]{.40\linewidth}
+  \begin{subfigure}[t]{.35\linewidth}
     \centering\includegraphics[clip,trim=0.1cm 0cm 0.99cm 0.6cm, width=.80\linewidth]{chapter_3_polylidar3d/imgs/basement_mesh_v2.pdf}
     \caption{3D mesh of~basement\label{fig:ch3_basement_mesh}}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[t]{.40\linewidth}
+  \begin{subfigure}[t]{.35\linewidth}
     \centering\includegraphics[clip,trim=0.1cm 0cm 0.99cm 0.40cm,width=.80\linewidth]{chapter_3_polylidar3d/imgs/basement_ga.pdf}
     \caption{Colorized Gaussian~Accumulator\label{fig:ch3_basement_ga}}
   \end{subfigure}
@@ -696,9 +699,13 @@ We use a standard 2D peak detector algorithm to find local peaks in the image. A
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.95\linewidth]{chapter_3_polylidar3d/imgs/ga_examples-ga_basement_unwrapped_v2.pdf}
     \caption{Unwrapped GA, rotated \label{fig:ch3_basement_unwrapped}}\vspace{6pt}
   \end{subfigure}
-  \caption{(\textbf{a})~Example basement scene mesh;~(\textbf{b})~Mesh triangle normals are integrated into the Gaussian Accumulator and colorized showing peaks for the floor and walls;~(\textbf{c})~Overview of unwrapping a refined icosahedron into a 2D image. Five overlapping charts are stitched together to create a grid. Padding between charts is accomplished by copying adjoining chart neighbors using the unwrapping process and its illustration from~\cite{cohen_gauge_2019};~(\textbf{d})~Unwrapped Gaussian Accumulator creating a 2D image used for peak detection.  White boxes indicate detected peaks. Duplicate peaks are merged (1 \& 5) with agglomerative hierarchical clustering. 
+  \caption[Example using Fast Gaussian Accumulator on a triangular mesh]{(\textbf{a})~Example basement scene mesh;~(\textbf{b})~Mesh triangle normals are integrated into the Gaussian Accumulator and colorized showing peaks for the floor and walls;~(\textbf{c})~Overview of unwrapping a refined icosahedron into a 2D image. Five overlapping charts are stitched together to create a grid. Padding between charts is accomplished by copying adjoining chart neighbors using the unwrapping process and its illustration from~\cite{cohen_gauge_2019};~(\textbf{d})~Unwrapped Gaussian Accumulator creating a 2D image used for peak detection.  White boxes indicate detected peaks. Duplicate peaks are merged (1 \& 5) with agglomerative hierarchical clustering. 
   }\label{fig:ch3_peak_detection}
 \end{figure}
+
+We use a standard 2D peak detector algorithm to find local peaks in the image. A~peak is in the center of a 3X3 pixel group if it is the maximum in the group and its value is higher than a user-configurable $v_{min}$. Once a peak is detected in the 2D image it is converted to its corresponding surface normal on the GA. Duplicate peaks may be detected near chart borders because of copy padding discussed above, or~two peaks may be close together. In~either case it is desirable to collapse them into a single peak.  \ac{AHC} is used to merge these peaks and take their weighted average. \ac{AHC} will only merge peaks whose Euclidean distance is less than~$d_{peak}$. 
+
+
 
 % https://github.com/mlresearch/v97/blob/gh-pages/permissions/cohen19dPermission.pdf
 % http://proceedings.mlr.press/pmlr-license-agreement.pdf
@@ -723,9 +730,9 @@ The main input for planar segmentation is the half-edge triangular mesh, compose
 
 We first create triangle group array $\mathcal{G}$ to store group labels for each of the $k$ triangles in $\mathcal{T}$. Algorithm \ref{alg:ch3_group_assignment} outlines this procedure and begins with iterating through all triangles (Line 4). $\mathcal{G}$ is composed of 8-bit unsigned integers [0--255] with 255 being a reserved sentinel value indicating a triangle does not belong to any planar segment. The~following steps filter unused triangles and cluster triangles by normal orientation. The~first geometric predicate (Line 5) removes triangles whose edge length exceeds a user-specified value.  Lines 9--15 iterate though all dominant plane normals finding the one most similar to the triangle's surface normal $\hat{n}_t$. Line 16 performs a check to ensure the triangle normal is within an angular tolerance of its nearest dominant plane normal. If~a triangle is assigned the group 255 it will not participate in subsequent region growing. Using 8-bit integers limits the maximum number of dominant plane normals extracted to 254. This procedure is iteration-independent and is parallelized by OpenMP~\cite{dagum_openmp_1998}.  Figure~\ref{fig:ch3_planar_segmenti}a,b show an example input mesh and color-coded group assignments, respectively. In~this example the floor (blue) and the wall (red) are the two dominant plane normals to be extracted. Note that the seat of the chair is assigned the same group label as the floor, and~that superfluous triangles are also assigned in the top left of Figure~\ref{fig:ch3_planar_segmenti}b. 
 
-\vspace{6pt}
+% \vspace{6pt}
 
-\begin{algorithm}[H]
+\begin{algorithm}[t]
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
     \SetStartEndCondition{ }{}{}%
@@ -767,7 +774,7 @@ We first create triangle group array $\mathcal{G}$ to store group labels for eac
     \caption{Group~Assignment}
     \label{alg:ch3_group_assignment}
 \end{algorithm}
-\vspace{6pt}
+% \vspace{6pt}
 
 % Both of these issues are resolved after region growing.
 
@@ -775,9 +782,9 @@ Region growing is decomposed using \emph{task-based} parallelism, where $l$ domi
 %  (e.g., extracting the chair after the floor in Figure~\ref{fig:ch3_planar_seg_c})
 
 
-\vspace{6pt}
-
-\begin{algorithm}[H]
+% \vspace{6pt}
+% \begin{singlespace}
+\begin{algorithm}[ht]
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
     \SetStartEndCondition{ }{}{}%
@@ -809,10 +816,11 @@ Region growing is decomposed using \emph{task-based} parallelism, where $l$ domi
     }
     $\operatorname{WaitForTasks}$\\
     return $\mathcal{T}^g, \mathcal{PL}^g$
-    \caption{Region Growing~Task}
+    \caption{Region Growing Task}
     \label{alg:ch3_region_growing}
 \end{algorithm}
-\vspace{6pt}
+% \end{singlespace}
+% \vspace{6pt}
 
 
 %  Each subset is denoted $\mathcal{T}^g_{i}$ which represent a triangular planar segments from the $g^{th}$ group.
@@ -820,7 +828,7 @@ Region growing is decomposed using \emph{task-based} parallelism, where $l$ domi
 
 % A  random  seed  triangle  is  selected  fromTfwherea  new  region  is  created  and  expanded  by  its  adjacent  edgeneighbors  from  thehalfedgesdata  structure.  Region  growthhalts when no more triangles inTfconnect to the region. Theprocess repeats with another seed triangle until all triangles inTfhave been examined.
 \vspace{-12pt}
-\begin{figure}[H]
+\begin{figure}[!ht]
 \centering
   \begin{subfigure}[t]{.22\linewidth}
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm, width=.99\linewidth]{chapter_3_polylidar3d/imgs/meshes/planar_segment-region_a_v2.pdf}
@@ -843,7 +851,7 @@ Region growing is decomposed using \emph{task-based} parallelism, where $l$ domi
     \caption{Extracted~Polygons\label{fig:ch3_planar_seg_d}}\vspace{6pt}
   \end{subfigure}
 
-  \caption{(\textbf{a}) An example mesh to demonstrate planar segmentation and polygon extraction using two dominant plane normals, represented by the floor and wall;
+  \caption[Demonstration of Polylidar3D extracting planes and their polygonal representations]{(\textbf{a}) An example mesh to demonstrate planar segmentation and polygon extraction using two dominant plane normals, represented by the floor and wall;
   (\textbf{b}) Every triangle is inspected for filtering and clustered through group assignment. Blue and red triangles meet triangle edge length constraints and are within an angular tolerance of the floor and wall surface normals, respectively; (\textbf{c}) Region growing is performed in parallel for the blue and red triangles. The~top chair surface and floor are distinct planar segments;  (\textbf{d}) Polygonal representations for each planar segment are shown. The~green line represents the concave hull; the orange line depicts any interior holes. Note that small segments and small interior holes are filtered. 
   }\label{fig:ch3_planar_segmenti}
 \end{figure}
@@ -898,7 +906,7 @@ Given noisy and dense planar mesh segments, border edges may cross during projec
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_3_polylidar3d/imgs/polygon/PolygonExtraction_b2.pdf}
     \caption{\label{fig:ch3_polygon_extraction_c}}
   \end{subfigure}
-  \caption{(\textbf{a}) Example extracted planar triangular segment $\mathcal{T}^{g}_i$. Note the four holes in the mesh; (\textbf{b})~Projection of a triangle segment to a geometric plane. Only border edges (purple) are actually needed for projection; (\textbf{c}) A polygon is extracted from border edges with a concave hull (green) and multiple interior holes (orange). }\label{fig:ch3_polygon_extraction}
+  \caption[Example polygon extraction from a planar triangular segment]{(\textbf{a}) Example extracted planar triangular segment $\mathcal{T}^{g}_i$. Note the four holes in the mesh; (\textbf{b})~Projection of a triangle segment to a geometric plane. Only border edges (purple) are actually needed for projection; (\textbf{c}) A polygon is extracted from border edges with a concave hull (green) and multiple interior holes (orange). }\label{fig:ch3_polygon_extraction}
 \end{figure}
 
 
@@ -923,7 +931,7 @@ The polygons returned by Polylidar3D can be further processed to improve visuali
 The simplification algorithm is used to remove redundant vertices and ``smooth'' the polygon~\cite{douglas_algorithms_1973}. The~$\alpha$ parameter indicates the maximum distance between any point in the new polygon from the original. This reduction of superfluous vertices also decreases the computational demand for subsequent buffering. The~buffering process is defined as the Minkowski difference of the polygon with a circle of radius equal to a buffer distance $\beta$ \cite{agarwal2002polygon}. A~positive buffer will expand a polygon and may fill in holes, while a negative buffer enlarges holes and recedes the concave hull.  A~positive buffer will fix any small self-intersections that may have occurred during the projection. Small polygons and/or interior holes are then filtered by area. Currently all of these steps are single threaded and handled in Python using the geometry processing library Shapely which binds to the C++ GEOS library~\cite{gillies_github_2020}. An~example of the first three steps of this process are shown in Figure~\ref{fig:ch3_polygon_post}.
 
 
-\begin{figure}[H]
+\begin{figure}[!ht]
   \begin{subfigure}[t]{.30\linewidth}
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm, width=.99\linewidth]{chapter_3_polylidar3d/imgs/polygon/PolygonExtraction_c.pdf}
     \caption{\label{fig:ch3_polygon_post_a}}
@@ -938,7 +946,7 @@ The simplification algorithm is used to remove redundant vertices and ``smooth''
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_3_polylidar3d/imgs/polygon/PolygonExtraction_e.pdf}
     \caption{\label{fig:ch3_polygon_post_c}}
   \end{subfigure}
-  \caption{An example of polygon post processing. The~shaded blue polygon is the original polygon extracted (see Figure~\ref{fig:ch3_polygon_extraction}c). All dashed lines indicate a new polygon generated from a step of post processing. (\textbf{a}) The polygon is simplified; (\textbf{b}) The polygon is applied a positive buffer. Two small holes have been ``filled'' in; (\textbf{c}) The polygon is applied a negative buffer; only two holes~remain. }\label{fig:ch3_polygon_post}
+  \caption[Example of polygon post processing]{An example of polygon post processing. The~shaded blue polygon is the original polygon extracted (see Figure~\ref{fig:ch3_polygon_extraction}c). All dashed lines indicate a new polygon generated from a step of post processing. (\textbf{a}) The polygon is simplified; (\textbf{b}) The polygon is applied a positive buffer. Two small holes have been ``filled'' in; (\textbf{c}) The polygon is applied a negative buffer; only two holes~remain. }\label{fig:ch3_polygon_post}
 \end{figure}
 \unskip
 
@@ -1001,7 +1009,7 @@ The simplification algorithm is used to remove redundant vertices and ``smooth''
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}\label{sec:ch3_results}
 
-We present several examples of our methods applied to real-world and synthetic 3D data. Section~\ref{sec:ch3_results_dominant} provides execution time benchmarks evaluating the speed of our proposed Fast Gaussian Accumulator. Section~\ref{sec:ch3_results_unorganized} shows examples of Polylidar3D applied to unorganized 3D points including airborne LiDAR point clouds and point clouds generated on a moving vehicle.  Section~\ref{sec:ch3_results_orgnaized} shows Polylidar3D applied to organized point clouds including RGBD cameras as well as a challenging synthetic benchmark set. Finally Section~\ref{sec:ch3_results_meshes_parallel} presents Polylidar3D applied to 3D meshes and explores how polygon extraction scales with additional CPU~cores. 
+We present several examples of our methods applied to real-world and synthetic 3D data. Section~\ref{sec:ch3_results_dominant} provides execution time benchmarks evaluating the speed of our proposed Fast Gaussian Accumulator. Section~\ref{sec:ch3_results_unorganized} shows examples of Polylidar3D applied to unorganized 3D points including airborne LiDAR point clouds and point clouds generated on a moving vehicle.  Section~\ref{sec:ch3_results_orgnaized} shows Polylidar3D applied to organized point clouds including \ac{RGBD} cameras as well as a challenging synthetic benchmark set. Finally Section~\ref{sec:ch3_results_meshes_parallel} presents Polylidar3D applied to 3D meshes and explores how polygon extraction scales with additional CPU~cores. 
 
 All experiments/benchmarks use the same consumer desktop computer. The~CPU is an AMD Ryzen 3900X 12 Core CPU with a frequency at 4.2 GHz equipped with 32 GB of RAM.  Note that all results obtained with CPU parallelization are annotated with number of threads used; the default is four. An~NVIDIA GeForce RTX 2070 Super is used for GPU~acceleration.
 
@@ -1010,16 +1018,16 @@ All experiments/benchmarks use the same consumer desktop computer. The~CPU is an
 
 This section evaluates the Fast Gaussian Accumulator (FastGA) proposed for dominant plane normal estimation. We specifically analyze CPU execution time needed to integrate a set of $k$ unit normals into the accumulator with $k$ varied over the tests. Per Section~\ref{sec:ch3_methods_fastga_ga} we use sorted integer search coupled with local neighborhood search instead of $K$-$D$ trees~\cite{toony_describing_2015}. To~allow comparison, we~created an alternative $K$-$D$ tree Gaussian Accumulator implementation that uses nanoflann, a~high performance C++ $K$-$D$ tree library~\cite{blanco_nanoflann_2014}. A~leaf size of eight is used which offers the best results for our test cases.  Results were generated on two test sets with hundreds of runs to provide statistically significant results~\cite{noauthor_github_2020-8}. All benchmark code is open source~\cite{Castagno_Github_fastga}. 
 
-A GA with refinement level four (5120 triangle cells) was used for all tests. The~first test generated 100,000 randomly distributed surface normals on the unit sphere and integrated them into the GA. The~second test integrated all 60,620 triangle normals from the basement mesh previously shown in Figure~\ref{fig:ch3_peak_detection}a. Recall that the GA is fixed once refinement level is chosen, so building the $K$-$D$ tree index is not part of execution timing. Results of integrating all $k$ normals for each test set are shown in Table~\ref{table:results_fastga}. FastGA is more than two times faster than using a $K$-$D$ tree, though~the $K$-$D$ tree implementation is also fast and could be used as an alternative method if desired.  We can conclude that exploiting the known fixed structure of triangular cells on S2 (using space filling curves and sorted integer search) outperforms a general purpose $K$-$D$ tree method. 
+A GA with refinement level four (5120 triangle cells) was used for all tests. The~first test generated 100,000 randomly distributed surface normals on the unit sphere and integrated them into the GA. The~second test integrated all 60,620 triangle normals from the basement mesh previously shown in Figure~\ref{fig:ch3_peak_detection}a. Recall that the GA is fixed once refinement level is chosen, so building the $K$-$D$ tree index is not part of execution timing. Results of integrating all $k$ normals for each test set are shown in Table~\ref{table:ch3_results_fastga}. FastGA is more than two times faster than using a $K$-$D$ tree, though~the $K$-$D$ tree implementation is also fast and could be used as an alternative method if desired.  We can conclude that exploiting the known fixed structure of triangular cells on S2 (using space filling curves and sorted integer search) outperforms a general purpose $K$-$D$ tree method. 
 %This is not really unexpected.
 
 
 \begin{table}[H]
     \centering
-    \caption{Execution Time Comparisons for Synthetic and Real World~Datasets} \label{table:results_fastga}%mdpi: please confirm the format of the table. %JC_Author: Acceptable format 
+    \caption{Execution Time Comparisons for Synthetic and Real World~Datasets} \label{table:ch3_results_fastga}%mdpi: please confirm the format of the table. %JC_Author: Acceptable format 
    
        
-       % \caption{}\label{table:results_fastga_a}
+       % \caption{}\label{table:ch3_results_fastga_a}
        \begin{tabular}{@{}ccc@{}}
         \toprule
         \textbf{Algorithm} & \textbf{Mean (ms)} & \textbf{Std (ms)} \\ \midrule
@@ -1033,7 +1041,7 @@ A GA with refinement level four (5120 triangle cells) was used for all tests. Th
   %  \end{subtable}%
   %  \begin{subtable}[t]{.5\linewidth}
     %  \centering
-      %  \caption{ }\label{table:results_fastga_b}
+      %  \caption{ }\label{table:ch3_results_fastga_b}
     %    \begin{tabular}{@{}ccc@{}}
      %   \toprule
      %   Algorithm     & Mean (ms) & Std (ms) \\ \midrule
@@ -1047,7 +1055,7 @@ Peak detection is currently implemented in Python using the \texttt{scikit-image
 
 % \begin{table}[ht]
 % \centering
-% \caption{Execution Timings for 100,000 Normals}\label{table:results_fastga_a}
+% \caption{Execution Timings for 100,000 Normals}\label{table:ch3_results_fastga_a}
 % \begin{tabular}{@{}ccc@{}}
 % \toprule
 % Algorithm & Mean (ms) & Std (ms) \\ \midrule
@@ -1097,13 +1105,13 @@ Sections~\ref{sec:ch3_results_rooftop} and \ref{sec:ch3_results_kitti} describe 
 This section presents qualitative results of Polylidar3D extracting flat rooftops in cities from airborne LiDAR point clouds of buildings. These unorganized point clouds are captured from an overhead viewpoint but are typically angled based on sensor location; wall surfaces can therefore be visible. Point cloud $xy$ components are in a planar projected coordinate system while the $z$ component represents elevation. Therefore points of a flat rooftop surface are already aligned with the $xy$ plane making them suitable for 2.5D Delaunay triangulation to create a half-edge triangular mesh.  The~mesh is smoothed with Laplacian and bilateral filtering using Open3D~\cite{zhou_open3d_2018}. Flat surfaces are then extracted as polygons and any non-flat obstacles on them become holes. Figure~\ref{fig:ch3_rooftop} shows the extracted polygons of buildings in Witten, Germany. Satellite imagery is overlaid with colorized point clouds. %ranging form dark purple to bright yellow denoting a normalized low to high elevation. 
 Each flat surface is extracted as a polygon with holes. 
 %with a green exterior hull and any interior holes shown in orange. 
-All parameters used for this dataset are shown in Table~\ref{table:rooftop_parameters}. 
+All parameters used for this dataset are shown in Table~\ref{table:ch3_rooftop_parameters}. 
 %LiDAR data and satellite images are provided from~\cite{lidar_germany} and~\cite{satellite_germany} respectively.
 
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D Parameters for Rooftop~Detection.}\label{table:rooftop_parameters}
+\caption{Polylidar3D Parameters for Rooftop~Detection.}\label{table:ch3_rooftop_parameters}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1119,7 +1127,7 @@ Figure~\ref{fig:ch3_rooftop}a shows a single building with two flat surfaces ide
 
 
 
-\begin{figure}[H]
+\begin{figure}[ht]
   \begin{subfigure}[t]{.33\linewidth}
     \centering\includegraphics[trim=5mm 5mm 5mm 5mm, clip, width=5cm]{chapter_3_polylidar3d/imgs/rooftop/74359194_satellite.pdf}
     \caption{\label{fig:ch3_rooftop_a}}
@@ -1145,7 +1153,7 @@ Figure~\ref{fig:ch3_rooftop}a shows a single building with two flat surfaces ide
     \centering\includegraphics[trim=0mm 4mm 0mm 0mm, clip, width=6cm]{chapter_3_polylidar3d/imgs/rooftop/74201616_satellite.pdf}
     \caption{\label{fig:ch3_rooftop_e}}
   \end{subfigure}
-  \caption{Polygon extraction of rooftops from unorganized 3D point clouds generated by airborne LiDAR. %There is no explanation for (a-e) in the figure. %JC_Author: Added (a,b,c,d,e) reference
+  \caption[Example of Polylidar3D used with unorganized point cloud data]{Polygon extraction of rooftops from unorganized 3D point clouds generated by airborne LiDAR. %There is no explanation for (a-e) in the figure. %JC_Author: Added (a,b,c,d,e) reference
   Each figure (\textbf{a},\textbf{b},\textbf{c},\textbf{d},\textbf{e}) shows the satellite image overlaid with the extracted polygons (green) representing flat surfaces with interior holes (orange) representing obstacles. A~colorized point cloud is also overlaid ranging from dark purple to bright yellow denoting a normalized low to high elevation. LiDAR data and satellite images are provided from~\cite{lidar_germany} and~\cite{satellite_germany} respectively. }\label{fig:ch3_rooftop}
 \end{figure}
 \unskip
@@ -1195,18 +1203,18 @@ A single beam/point is deemed an outlier and removed if its left and right neigh
 %     \centering\includegraphics[width=.95\linewidth]{chapter_3_polylidar3d/imgs/kitti/kitti_results-kitti_f.pdf}
 %     \caption{\label{fig:ch3_kitti_f}}
 %   \end{subfigure}
-  \caption{Polygon extraction from KITTI unorganized 3D point cloud data acquired on a moving vehicle~\cite{geiger_vision_2013}. Four scenes %mdpi: the subfigure b repeat, please add the subfigure c. %JC_Author:Completed
+  \caption[Example of Polylidar3D used with the KITTI autonomous driving dataset]{Polygon extraction from KITTI unorganized 3D point cloud data acquired on a moving vehicle~\cite{geiger_vision_2013}. Four scenes %mdpi: the subfigure b repeat, please add the subfigure c. %JC_Author:Completed
    (\textbf{a},\textbf{b},\textbf{c},\textbf{d}) are shown, each with two subimages. The~top subimage shows polygons projected into the color image while the bottom image shows 3D point cloud and surface polygon(s) from a bird's eye view. Obstacles on the ground such as the light and signal in (\textbf{a}) are extracted as (orange) holes. }\label{fig:ch3_kitti}
 \end{figure}
 
 
 \subsubsection{Qualitative~Results}\label{sec:ch3_results_kitti_qual}
 
-Roads are not truly flat; they often have elevation changes such as a raised center line for drainage. For~this reason we do not use the point-to-plane distance parameter in Polylidar3D to allow flexibility in capturing semi-flat ground surfaces in street environments. Table~\ref{table:kitti_parameters} shows the set of parameters used for plane/polygon extraction and filtering with KITTI. Parameter $tri_{min}$ filters out small planes, $ang_{min}$ provides the tolerance for flatness, $l_{max}$ sets the max distance between points, and~ $vertices^{hole}_{min}$ filters small holes. The~post-processing step of polygon filtering further removes spurious holes and polygons while simplifying polygons for visualization. Note that Polylidar3D is neither designed nor trained specifically to find road surfaces; it is designed to extract flat surfaces as polygons and capture obstacles as holes. The~results below thus must not be misconstrued as author intent to apply Polylidar3D for standalone road~detection. 
+Roads are not truly flat; they often have elevation changes such as a raised center line for drainage. For~this reason we do not use the point-to-plane distance parameter in Polylidar3D to allow flexibility in capturing semi-flat ground surfaces in street environments. Table~\ref{table:ch3_kitti_parameters} shows the set of parameters used for plane/polygon extraction and filtering with KITTI. Parameter $tri_{min}$ filters out small planes, $ang_{min}$ provides the tolerance for flatness, $l_{max}$ sets the max distance between points, and~ $vertices^{hole}_{min}$ filters small holes. The~post-processing step of polygon filtering further removes spurious holes and polygons while simplifying polygons for visualization. Note that Polylidar3D is neither designed nor trained specifically to find road surfaces; it is designed to extract flat surfaces as polygons and capture obstacles as holes. The~results below thus must not be misconstrued as author intent to apply Polylidar3D for standalone road~detection. 
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D Parameters for~KITTI.}\label{table:kitti_parameters}
+\caption{Polylidar3D Parameters for~KITTI.}\label{table:ch3_kitti_parameters}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1224,7 +1232,7 @@ Figure~\ref{fig:ch3_kitti}c displays the street and a slightly elevated pedestri
 
 \subsubsection{Execution~Timings}\label{sec:ch3_results_kitti_exec}
 
-Polylidar3D processed 6608 frames from 24 recorded ``drives'' from the raw KITTI dataset. Mean~execution timings for each processing step are presented in Table~\ref{table:kitti_timings}.  The~average size of the point cloud processed by Polylidar3D was 9316 points. No mesh smoothing is performed; the LiDAR is precise and has significant vertical spacing between beams such that the mesh is already sufficiently smooth. Only plane and polygon extraction are run in parallel with a maximum of four threads. The~most demanding step is the post processing of polygons through filtering and~simplification. 
+Polylidar3D processed 6608 frames from 24 recorded ``drives'' from the raw KITTI dataset. Mean~execution timings for each processing step are presented in Table~\ref{table:ch3_kitti_timings}.  The~average size of the point cloud processed by Polylidar3D was 9316 points. No mesh smoothing is performed; the LiDAR is precise and has significant vertical spacing between beams such that the mesh is already sufficiently smooth. Only plane and polygon extraction are run in parallel with a maximum of four threads. The~most demanding step is the post processing of polygons through filtering and~simplification. 
 
 % this is after outlier filtering and downsampling
 %  The naive outlier removal method is not optimized and is written in a mix of Python and C++. 
@@ -1233,7 +1241,7 @@ Polylidar3D processed 6608 frames from 24 recorded ``drives'' from the raw KITTI
 \begin{table}[H]
 \centering
 \caption{Mean Execution Timings (ms) of Polylidar3D on~KITTI}
-\label{table:kitti_timings}
+\label{table:ch3_kitti_timings}
 \begin{tabular}{@{}ccccc@{}}
 \toprule
 \textbf{Point Outlier Removal} &\textbf{ Mesh Creation} & \textbf{Plane/Poly Ext.}  & \textbf{Polygon Filtering} & \textbf{Total}   \\ \midrule
@@ -1244,15 +1252,15 @@ Polylidar3D processed 6608 frames from 24 recorded ``drives'' from the raw KITTI
 
 \subsection{Organized 3D Point~Clouds}\label{sec:ch3_results_orgnaized}
 
-Sections~\ref{sec:ch3_results_rgbd} and \ref{sec:ch3_results_synpeb} show Polylidar3D applied to RGBD imagery captured and a benchmark planar segmentation dataset, respectively.  Both datasets are stored as organized 3D point~clouds.
+Sections~\ref{sec:ch3_results_rgbd} and \ref{sec:ch3_results_synpeb} show Polylidar3D applied to \ac{RGBD} imagery captured and a benchmark planar segmentation dataset, respectively.  Both datasets are stored as organized 3D point~clouds.
 
 \subsubsection{RGBD~Cameras}\label{sec:ch3_results_rgbd} % JC_Author: Please leave RGBD capatlized. I added as an acronym for clarity.
 
-We used an Intel RealSense D435i to capture depth and RGB frames in two home environment scenes. The~D435i uses stereo infrared cameras to generate a depth map.  Depth noise grows quadratically with distance, and~empirical evidence indicates as much as four centimeter RMS error at a two meter distance~\cite{ahn_analysis_2019}. The~Intel RealSense SDK provides denoising post-processing filters including decimation (downsampling), spatial bilateral smoothing, temporal filtering, and~depth thresholding~\cite{noauthor_github_2019-1}. Parameters used for each of these filters are shown in Table~\ref{table:realsense_parameters}, and~Polylidar3D parameters used for captured RGBD data are shown in Table~\ref{table:rgbd_parameters}. Each sensor is sampled at 424 $\times$ 240 resolution in a well-lit indoor environment shielded from direct sunlight. Raw data is recorded to assure all qualitative and quantitative results can be reproduced~\cite{Castagno_Github_Polylidar3D_RealSense}.  
+We used an Intel RealSense D435i to capture depth and RGB frames in two home environment scenes. The~D435i uses stereo infrared cameras to generate a depth map.  Depth noise grows quadratically with distance, and~empirical evidence indicates as much as four centimeter RMS error at a two meter distance~\cite{ahn_analysis_2019}. The~Intel RealSense SDK provides denoising post-processing filters including decimation (downsampling), spatial bilateral smoothing, temporal filtering, and~depth thresholding~\cite{noauthor_github_2019-1}. Parameters used for each of these filters are shown in Table~\ref{table:ch3_realsense_parameters}, and~Polylidar3D parameters used for captured \ac{RGBD} data are shown in Table~\ref{table:ch3_rgbd_parameters}. Each sensor is sampled at 424 $\times$ 240 resolution in a well-lit indoor environment shielded from direct sunlight. Raw data is recorded to assure all qualitative and quantitative results can be reproduced~\cite{Castagno_Github_Polylidar3D_RealSense}.  
 
 \begin{table}[H]
 \centering
-\caption{Intel RealSense SDK Post-processing Filter~Parameters.}\label{table:realsense_parameters}
+\caption{Intel RealSense SDK Post-processing Filter~Parameters.}\label{table:ch3_realsense_parameters}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1266,7 +1274,7 @@ Threshold     & max distance = 2.5 m  \\ \bottomrule
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D Parameters for RealSense~RGBD}\label{table:rgbd_parameters}
+\caption{Polylidar3D Parameters for RealSense~\ac{RGBD}}\label{table:ch3_rgbd_parameters}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1282,7 +1290,7 @@ Poly. Filtering      & $\alpha = 0.02$ , $\beta_{neg}$ = 0.02, $\beta_{pos}$ = 0
 
 The first scene is composed of 2246 frames (74 s) with the camera traversing from one side of a basement to the other. While walking the camera is pointed in many directions including the floor, ceiling, and~walls.  Multiple dominant planar surfaces are captured at the same time.  Small surfaces are explicitly removed by filtering planes and polygons that do not meet minimum number of triangles and area constraints. Figure~\ref{fig:ch3_rgbd}a shows several image pairs for this scene. The~left image is the RGB video with overlaid 3D polygon projections; the right image is the associated filtered and colorized depth map. Image (1) shows three planar segments with a common surface normal being extracted from the ceiling. Image (2) shows three planar segments with different normals being extracted. Image~(3) shows the floor being extracted with a hole representing a bucket obstacle. The~last bottom image shows Polylidar3D incorrectly capturing items on a shelf as polygons which erroneously appear as ``planar'' surfaces. This occurs because the small gaps between the items on the shelf become smoothed and appear planar after RealSense post-processing of the depth~image. 
 
-\begin{figure}[H]
+\begin{figure}[ht]
 
   \begin{subfigure}[t]{.48\linewidth}
     \centering
@@ -1298,19 +1306,19 @@ The first scene is composed of 2246 frames (74 s) with the camera traversing fro
     \label{fig:ch3_rgbd_main_floor}
   \end{subfigure}
 
-  \caption{Real-time polygon extraction from an RGBD camera. %There is no explanation for (a-b) in the figure. %JC_Author: Added (a,b) reference
+  \caption[Example of Polylidar3D used with \ac{RGBD} cameras]{Real-time polygon extraction from an \ac{RGBD} camera. %There is no explanation for (a-b) in the figure. %JC_Author: Added (a,b) reference
  Four scenes are shown from the basement (\textbf{a}) and main floor (\textbf{b}) datasets. Color and depth frames are shown side by side for each scene. Polygons are projected onto the color image. Green denotes the exterior hull, and~orange denotes any interior holes in the~polygon.}\label{fig:ch3_rgbd}
 \end{figure}
 
 The second scene is composed of 2735 frames (91 s) with the camera moving on the main floor through dining area, kitchen, and~living room. The~camera is pointed in many directions and with many dominant planar surfaces extracted as polygons. Figure~\ref{fig:ch3_rgbd}b shows several still images captured. The~first and second images show Polylidar3D capturing three planar segments on walls and a ceiling. A~lamp and an art stand break up extracted planar segments with the polygons forming around them. For~the third image, Polylidar3D does not distinguish the wall from the chalkboard because the depth difference is too small after the RealSense post-processing filters are applied.  The~fourth image shows Polylidar3D extracting curtains and a lower portion of a wall as one flat surface which surrounds the fruit basket. The~floor is not captured because its resulting polygon did not mean minimum area constraints. The~adjacent wall to the left did not meet planarity constraints with the window forming a separate segment which in itself was too small and filtered. 
 % The wall to the left curtains is not included because the surface appeared 
 
-Table~\ref{table:rgbd_timings} summarizes mean execution timings for each step of Polylidar3D over all frames of each respective RGBD scene. Polygon filtering is most computationally demanding and includes polygon buffering and simplification routines.  Image and mesh filtering (RealSense SDK and our mesh filtering) are extremely fast because they take advantage of the organized point cloud data structure. Dominant plane normal estimation with FastGA is quick and effective. Planar segmentation and polygon extraction are both completed in less than 2ms. Note that GPU acceleration is used for Laplacian and bilateral filtering, and~four threads are used for plane/polygon extraction. All other steps are~single-threaded.
+Table~\ref{table:ch3_rgbd_timings} summarizes mean execution timings for each step of Polylidar3D over all frames of each respective \ac{RGBD} scene. Polygon filtering is most computationally demanding and includes polygon buffering and simplification routines.  Image and mesh filtering (RealSense SDK and our mesh filtering) are extremely fast because they take advantage of the organized point cloud data structure. Dominant plane normal estimation with FastGA is quick and effective. Planar segmentation and polygon extraction are both completed in less than 2ms. Note that GPU acceleration is used for Laplacian and bilateral filtering, and~four threads are used for plane/polygon extraction. All other steps are~single-threaded.
 
 \begin{table}[H]
 \centering
-\caption{Mean execution timings (ms) of Polylidar3D with RGBD data collected from indoor~settings.}
-\label{table:rgbd_timings}
+\caption{Mean execution timings (ms) of Polylidar3D with \ac{RGBD} data.}
+\label{table:ch3_rgbd_timings}
 \resizebox{\columnwidth}{!}{
 \begin{tabular}{@{}lllllllll@{}}
 \toprule
@@ -1360,41 +1368,41 @@ We also evaluated Polylidar3D on SynPEB, a~challenging benchmark dataset used to
 The illustrated example uses the highest noise level (4 mdeg tangential standard deviation) from the benchmark~set.
 
 
-\begin{figure}[H]
+\begin{figure}[ht]
 
   \begin{subfigure}[t]{.45\linewidth}
-    \centering\includegraphics[width=.5\linewidth]{chapter_3_polylidar3d/imgs/synpeb_var4_pcd_cropped_outline.png}
+    \centering\includegraphics[width=.75\linewidth]{chapter_3_polylidar3d/imgs/synpeb_var4_pcd_cropped_outline.png}
     \caption{\label{fig:ch3_synpeb_a}SynPEB Organized Point~Cloud}
   \end{subfigure}
   \hfill
   \begin{subfigure}[t]{.23\linewidth}
-    \centering\includegraphics[width=.5\linewidth]{chapter_3_polylidar3d/imgs/synpeb_var4_mesh_cropped.png}
+    \centering\includegraphics[width=.75\linewidth]{chapter_3_polylidar3d/imgs/synpeb_var4_mesh_cropped.png}
     \caption{\label{fig:ch3_synpeb_b}Generated~Mesh}
   \end{subfigure}
   \begin{subfigure}[t]{.23\linewidth}
-    \centering\includegraphics[width=.5\linewidth]{chapter_3_polylidar3d/imgs/synpeb_var4_mesh_smooth_cropped.png}
+    \centering\includegraphics[width=.75\linewidth]{chapter_3_polylidar3d/imgs/synpeb_var4_mesh_smooth_cropped.png}
     \caption{\label{fig:ch3_synpeb_c}Mesh~Smoothing}
   \end{subfigure}
   \par\bigskip
     \centering
   \begin{subfigure}[t]{.45\linewidth}
-    \centering\includegraphics[width=.5\linewidth]{chapter_3_polylidar3d/imgs/synpeb_var4_planes_cropped_change.png}
+    \centering\includegraphics[width=.75\linewidth]{chapter_3_polylidar3d/imgs/synpeb_var4_planes_cropped_change.png}
     \caption{\label{fig:ch3_synpeb_d}Polylidar3D Generated~Planes}
   \end{subfigure}
   \hspace{1cm}
   \begin{subfigure}[t]{.45\linewidth}
-    \centering\includegraphics[width=.5\linewidth]{chapter_3_polylidar3d/imgs/synpeb_var4_polygons_raw.png}
+    \centering\includegraphics[width=.75\linewidth]{chapter_3_polylidar3d/imgs/synpeb_var4_polygons_raw.png}
     \caption{\label{fig:ch3_synpeb_e}Polylidar3D Generated~Polygons}
   \end{subfigure}
-  \caption{Example SynPEB scene with the highest noise level. Point cloud, generated mesh, and~mesh  smoothed through Laplacian and bilateral filtering are shown in (\textbf{a}--\textbf{c}), respectively.  Planes and polygons generated by Polylidar3D are shown in (\textbf{d},\textbf{e}). Red, green, and~yellow blocks in (\textbf{d}) represent missed, spurious, and~oversegmented~planes.}\label{fig:ch3_synpeb_pics}
+  \caption[Example of Polylidar3D used with organized point clouds]{Example SynPEB scene with the highest noise level. Point cloud, generated mesh, and~mesh  smoothed through Laplacian and bilateral filtering are shown in (\textbf{a}--\textbf{c}), respectively.  Planes and polygons generated by Polylidar3D are shown in (\textbf{d},\textbf{e}). Red, green, and~yellow blocks in (\textbf{d}) represent missed, spurious, and~oversegmented~planes.}\label{fig:ch3_synpeb_pics}
 \end{figure}
 
-We used the training set to tune our methods parameters including mesh smoothing (Laplacian and bilateral filter), dominant plane normal estimation (FastGA), and~plane/polygon extraction. We~found that the most important parameter was the number of iterations of Laplacian smoothing needed. We trained a linear regression model to predict the most suitable number of iterations given an estimate of point cloud noise. All parameters used for test set reproduction are shown in Table~\ref{table:synpeb_parameters}. Note that the significant number of noisy distinct planes, up~to 72, required a higher than expected refinement level for FastGA and an increased focus on~smoothing.
+We used the training set to tune our methods parameters including mesh smoothing (Laplacian and bilateral filter), dominant plane normal estimation (FastGA), and~plane/polygon extraction. We~found that the most important parameter was the number of iterations of Laplacian smoothing needed. We trained a linear regression model to predict the most suitable number of iterations given an estimate of point cloud noise. All parameters used for test set reproduction are shown in Table~\ref{table:ch3_synpeb_parameters}. Note that the significant number of noisy distinct planes, up~to 72, required a higher than expected refinement level for FastGA and an increased focus on~smoothing.
 
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D parameters for the SynPEB benchmark test~set.}\label{table:synpeb_parameters}
+\caption{Polylidar3D parameters for the SynPEB benchmark test~set.}\label{table:ch3_synpeb_parameters}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1406,7 +1414,7 @@ Plane/Poly Extr.      & $tri_{min}$ = 1000, $ang_{min}$ = 0.95, $l_{max}$ = 0.1,
 \end{table}
 
 
-Table~\ref{table:synpeb_results} shows benchmark test results of Polylidar3D against other plane segmentation methods. The test set is limited to 1mdeg of tangential noise with results of other methods including timings provided by Schaefer et al.~\cite{schaefer_maximum_2019}.  Note that execution times cannot be directly compared but will give an idea of real-time capability. Polylidar3D produces both a point set and polygonal representation of identified planes, however this benchmark must be evaluated by the point set.   A~``plane'' is considered correctly identified if its point set overlaps with the ground truth plane with the standard 80\% threshold described in Hoover et al.~\cite{hoover_experimental_1996}. Key metrics are $f$ representing the percent of ground truth planes identified, $k$ indicating percent of the point cloud correctly identified, and~RMSE quantifying accuracy of each plane fit. Variables $n_o$, $n_u$, $n_m$, and~$n_s$ represent the absolute numbers of  oversegmented,  undersegmented,  missing,  and~spurious  planes, respectively,  compared  to  the  ground-truth  segmentation. See~\cite{schaefer_maximum_2019,hoover_experimental_1996} for detailed definitions of these metrics. %Red, green, and~yellow blocks in Figure~\ref{fig:ch3_synpeb_d} represent missed, spurious, and~oversegmented planes, respectively. 
+Table~\ref{table:ch3_synpeb_results} shows benchmark test results of Polylidar3D against other plane segmentation methods. The test set is limited to 1mdeg of tangential noise with results of other methods including timings provided by Schaefer et al.~\cite{schaefer_maximum_2019}.  Note that execution times cannot be directly compared but will give an idea of real-time capability. Polylidar3D produces both a point set and polygonal representation of identified planes, however this benchmark must be evaluated by the point set.   A~``plane'' is considered correctly identified if its point set overlaps with the ground truth plane with the standard 80\% threshold described in Hoover et al.~\cite{hoover_experimental_1996}. Key metrics are $f$ representing the percent of ground truth planes identified, $k$ indicating percent of the point cloud correctly identified, and~RMSE quantifying accuracy of each plane fit. Variables $n_o$, $n_u$, $n_m$, and~$n_s$ represent the absolute numbers of  oversegmented,  undersegmented,  missing,  and~spurious  planes, respectively,  compared  to  the  ground-truth  segmentation. See~\cite{schaefer_maximum_2019,hoover_experimental_1996} for detailed definitions of these metrics. %Red, green, and~yellow blocks in Figure~\ref{fig:ch3_synpeb_d} represent missed, spurious, and~oversegmented planes, respectively. 
 An $f$ metric of 47.3\% indicates that Polylidar3D did not capture most of the planes in the benchmark, however the $k$ metric of 78.3\% indicates our algorithm did well in capturing the large dominant planes comprising most of the point cloud.  Additionally there are fewer spurious, over~segmented, and~under segmented planes generated by Polylidar3D than with other methods. The~RMSE value is also the lowest, indicating the predicated planes have a good fit. Plane segmentation is accomplished in significantly less time, especially in comparison to the front runner PPE. PPE's $f$ and $k$ metrics indicate it does an excellent job of capturing the numerous small planes in the scene, but~it fails more often in capturing the large dominant planes.  Polylidar3D also uniquely generates concave polygons which provide a condensed representation of identified~planes.
 
 
@@ -1415,7 +1423,7 @@ An $f$ metric of 47.3\% indicates that Polylidar3D did not capture most of the p
 \begin{table}[H]
 \centering
 \caption{SynPEB Benchmark~Results.  }
-\label{table:synpeb_results}
+\label{table:ch3_synpeb_results}
 \begin{tabular}{@{}ccccccccc@{}}
 \toprule
 \textbf{Method}                                  & $\textbf{f}$ {\textbf{[}}\textbf{\%}{\textbf{]}} & $\textbf{k}$ {\textbf{[}}\textbf{\%}{\textbf{]}} & \textbf{RMSE} {\textbf{[}}\textbf{mm}{\textbf{]}} & $\textbf{n}_\textbf{o}$ & $\textbf{n}_\textbf{u}$ & $\textbf{n}_\textbf{m}$ & $\textbf{n}_\textbf{s}$ & \textbf{time}\\ \midrule
@@ -1440,12 +1448,12 @@ Polylidar3D (proposed)                  & 47.3         & 78.3         & 7.2     
 
 
 
-Table~\ref{table:synpeb_timings} shows mean execution timings for each Polylidar3D method applied to SynPEB.  Each~organized point cloud is 500X500 but can be efficiently downsampled by striding over rows and columns. This reduces computational complexity at the cost of reduced accuracy. Note that GPU acceleration is used for both Laplacian and bilateral filtering, while plane/polygon extraction is parallelized up to four CPU cores; all other algorithm steps are single~threaded. 
+Table~\ref{table:ch3_synpeb_timings} shows mean execution timings for each Polylidar3D method applied to SynPEB.  Each~organized point cloud is 500X500 but can be efficiently downsampled by striding over rows and columns. This reduces computational complexity at the cost of reduced accuracy. Note that GPU acceleration is used for both Laplacian and bilateral filtering, while plane/polygon extraction is parallelized up to four CPU cores; all other algorithm steps are single~threaded. 
 
 \begin{table}[H]
 \centering
 \caption{Mean Execution Timings (ms) and Accuracy of Polylidar3D on~SynPEB.}
-\label{table:synpeb_timings}
+\label{table:ch3_synpeb_timings}
 \resizebox{\columnwidth}{!}{
 \begin{tabular}{@{}cccccccc@{}}
 \toprule
@@ -1460,14 +1468,14 @@ Table~\ref{table:synpeb_timings} shows mean execution timings for each Polylidar
 
 \subsubsection{Organized Point Cloud Mesh~Smoothing}
 
-This section provides execution timing analysis of our accelerated mesh smoothing algorithms on organized point clouds (OPC) per Section~\ref{sec:ch3_methods_mesh_smoothing}. Laplacian and bilateral filtering are tested on two organized point clouds; one from a random scene in SynPEB and another random frame from our RGBD dataset.  Execution timing is most influenced by point cloud size which varies substantially for these two examples. For~example the SynPEB OPC has $499 \cdot 499 \cdot 2 = 498,002$ triangles whereas the RGBD frame has at most 50,218 triangles. For~each filter we report CPU single-threaded, CPU~multi-threaded, and~GPU accelerated timings. Only four threads are used in multi-threaded runs, and~a kernel size of three is used in all runs. We compare our filters with Open3D's general purpose triangle mesh Laplacian filter~\cite{zhou_open3d_2018}. Note that Open3D uses a general filter and does not take into account the organized structure of the mesh and must therefore create an adjacency list for each vertex to deterimine neighbors. Additional overhead occurs by returning a new triangle mesh whereas our Laplacian implementation returns only the smoothed vertices. Open3D does not have a bilateral filter implementation nor is its Laplacian filter CPU parallelized or GPU accelerated. The~smoothed meshes produced by Open3D and ours are nearly the same except for a noisy one pixel border on the boundary of our~mesh.  
+This section provides execution timing analysis of our accelerated mesh smoothing algorithms on \ac{OPC} per Section~\ref{sec:ch3_methods_mesh_smoothing}. Laplacian and bilateral filtering are tested on two organized point clouds; one from a random scene in SynPEB and another random frame from our \ac{RGBD} dataset.  Execution timing is most influenced by point cloud size which varies substantially for these two examples. For~example the SynPEB \ac{OPC} has $499 \cdot 499 \cdot 2 = 498,002$ triangles whereas the \ac{RGBD} frame has at most 50,218 triangles. For~each filter we report CPU single-threaded, CPU~multi-threaded, and~GPU accelerated timings. Only four threads are used in multi-threaded runs, and~a kernel size of three is used in all runs. We compare our filters with Open3D's general purpose triangle mesh Laplacian filter~\cite{zhou_open3d_2018}. Note that Open3D uses a general filter and does not take into account the organized structure of the mesh and must therefore create an adjacency list for each vertex to deterimine neighbors. Additional overhead occurs by returning a new triangle mesh whereas our Laplacian implementation returns only the smoothed vertices. Open3D does not have a bilateral filter implementation nor is its Laplacian filter CPU parallelized or GPU accelerated. The~smoothed meshes produced by Open3D and ours are nearly the same except for a noisy one pixel border on the boundary of our~mesh.  
 
-Table~\ref{table:results_lapalcian} shows the results of our Laplacian filter for one and five iterations with results separated by a semicolon. Our CPU single-threaded performance is faster than Open3D. This is mostly explained by not needing to compute a vertex adjacency list. Our CPU multi-threaded results nearly reach the ideal 4X speedup in most scenarios. GPU acceleration is quite fast but has substantial overhead on the first iteration of smoothing. This is because the OPC in CPU memory must be transferred to GPU memory which is an expensive operation. This penalty is only paid once no matter how many iterations of smoothing occur.  
+Table~\ref{table:ch3_results_lapalcian} shows the results of our Laplacian filter for one and five iterations with results separated by a semicolon. Our CPU single-threaded performance is faster than Open3D. This is mostly explained by not needing to compute a vertex adjacency list. Our CPU multi-threaded results nearly reach the ideal 4X speedup in most scenarios. GPU acceleration is quite fast but has substantial overhead on the first iteration of smoothing. This is because the \ac{OPC} in CPU memory must be transferred to GPU memory which is an expensive operation. This penalty is only paid once no matter how many iterations of smoothing occur.  
 % Please add the following required packages to your document preamble:
 % \usepackage{booktabs}
 \begin{table}[H]
 \centering
-\caption{Execution timing (ms) for one and five iterations of Laplacian~filtering.}\label{table:results_lapalcian}
+\caption{Execution timing (ms) for one and five iterations of Laplacian~filtering.}\label{table:ch3_results_lapalcian}
 
 \begin{tabular}{@{}ccccc@{}}
 \toprule
@@ -1480,14 +1488,14 @@ RGBD, 120 $\times$ 212   & 0.7; 3.5  & 0.2; 0.9   & 0.1; 0.2    & 14.3; 17.5   \
 \end{table}
 
 
-Table~\ref{table:results_bilateral} shows execution timing results of our bilateral filter for one and five iterations with results separated by a semicolon. This filter is substantially slower than the Laplacian filter primarily because both triangle normals and their centroids must be computed before this filter can run (included in timing). Additionally each of these data structures is nearly twice as large in memory as the input OPC ($\approx$ 2 triangles per vertex). The~weighting of neighbors in Equations~(\ref{eq:ch3_bilateral_centroid}) and \ref{eq:ch3_bilateral_normal} relies on an exponential function which is significantly slower than the floating point multiplication and division required for Laplacian filter per Equation~(\ref{eq:ch3_laplacian_weight}). Finally significantly more neighbors and data are used in Equation~(\ref{eq:ch3_bilateral}) to produce a smoothed normal. A~maximum of 16 triangle neighbors (accessing both their normals and centroids) are used for the bilateral filter whereas the Laplacian uses a max of eight vertex neighbors. The~memory transfer from CPU to GPU is significantly higher as well because 4X as much memory is~needed.
+Table~\ref{table:ch3_results_bilateral} shows execution timing results of our bilateral filter for one and five iterations with results separated by a semicolon. This filter is substantially slower than the Laplacian filter primarily because both triangle normals and their centroids must be computed before this filter can run (included in timing). Additionally each of these data structures is nearly twice as large in memory as the input \ac{OPC} ($\approx$ 2 triangles per vertex). The~weighting of neighbors in Equations~(\ref{eq:ch3_bilateral_centroid}) and \ref{eq:ch3_bilateral_normal} relies on an exponential function which is significantly slower than the floating point multiplication and division required for Laplacian filter per Equation~(\ref{eq:ch3_laplacian_weight}). Finally significantly more neighbors and data are used in Equation~(\ref{eq:ch3_bilateral}) to produce a smoothed normal. A~maximum of 16 triangle neighbors (accessing both their normals and centroids) are used for the bilateral filter whereas the Laplacian uses a max of eight vertex neighbors. The~memory transfer from CPU to GPU is significantly higher as well because 4X as much memory is~needed.
 
 % https://github.com/elgw/math_ops_speed
 % https://latkin.org/blog/2014/11/09/a-simple-benchmark-of-various-math-operations/
 
 \begin{table}[H]
 \centering
-\caption{Execution timing (ms) for one and five iterations of bilateral~filtering.}\label{table:results_bilateral}
+\caption{Execution timing (ms) for one and five iterations of bilateral~filtering.}\label{table:ch3_results_bilateral}
 \begin{tabular}{@{}cccc@{}}
 \toprule
 \textbf{Data \& Size}    & \textbf{CPU-S}       & \textbf{CPU-M}           & \textbf{GPU}      \\ \midrule
@@ -1499,10 +1507,10 @@ RGBD, 120 $\times$ 212   & 7.2; 35.0   & 1.9; 9.2        & 0.5; 0.5 \\ \bottomru
 
 
 % \begin{table}[!htb]
-%     \caption{Organized Point Cloud Mesh Filtering} \label{table:results_smooting}
+%     \caption{Organized Point Cloud Mesh Filtering} \label{table:ch3_results_smooting}
 %     \begin{subtable}[t]{.5\linewidth}
 %     \centering
-%     \caption{Laplacian Filtering}\label{table:results_lapalcian}
+%     \caption{Laplacian Filtering}\label{table:ch3_results_lapalcian}
 %         \begin{tabular}{@{}ccccc@{}}
 %         \toprule
 %                         & \multicolumn{3}{c}{Ours} & Open3D \\
@@ -1515,7 +1523,7 @@ RGBD, 120 $\times$ 212   & 7.2; 35.0   & 1.9; 9.2        & 0.5; 0.5 \\ \bottomru
 %     \end{subtable}
 %     \begin{subtable}[t]{.5\linewidth}
 %     \centering
-%     \caption{Bilateral Filtering}\label{table:results_bilateral}
+%     \caption{Bilateral Filtering}\label{table:ch3_results_bilateral}
 %         \begin{tabular}{@{}cccc@{}}
 %         \toprule
 %         Data \& Size    & CPU-S & CPU-M & GPU \\ \midrule
@@ -1528,11 +1536,11 @@ RGBD, 120 $\times$ 212   & 7.2; 35.0   & 1.9; 9.2        & 0.5; 0.5 \\ \bottomru
 
 \subsection{User-Defined~Meshes}\label{sec:ch3_results_meshes_parallel}
 
-We apply Polylidar3D on two meshes of an indoor home environment.  Both meshes were generated by gathering color and depth frames from an Intel RealSense D435i camera and integrating them into a triangular mesh using methods from Zhou et al.~\cite{zhou_dense_2013}  implemented in Open3D~\cite{zhou_open3d_2018}. The~method works by integrating the frames into a voxel grid and then performing marching cubes on the grid to create a triangular mesh. An~important parameter in this process is the voxel size which if small makes a denser mesh that may also integrate noise from the sensor. The~first mesh is of a basement and has a 5 cm voxel size leading to a smoother approximation. Note this spacing is significantly higher than the noise of the sensor. The~second mesh is of the main floor and is much larger and denser with 1~cm voxel spacing leading to significantly more noise from the RGBD camera. Only the main floor mesh is post-processed with Laplacian filtering using Open3D. The~basement mesh is composed of 60,620 triangles while the main floor mesh has 3,618,750 triangles. The~parameters for Polylidar3D for both meshes are shown in Tables~\ref{table:mesh_parameters_a} and \ref{table:mesh_parameters_b}. The~most significant difference in parameter sets is that the basement is configured to capture small surfaces (lower $tri_{min}$ and $\gamma$) in comparison to the main~floor.
+We apply Polylidar3D on two meshes of an indoor home environment.  Both meshes were generated by gathering color and depth frames from an Intel RealSense D435i camera and integrating them into a triangular mesh using methods from Zhou et al.~\cite{zhou_dense_2013}  implemented in Open3D~\cite{zhou_open3d_2018}. The~method works by integrating the frames into a voxel grid and then performing marching cubes on the grid to create a triangular mesh. An~important parameter in this process is the voxel size which if small makes a denser mesh that may also integrate noise from the sensor. The~first mesh is of a basement and has a 5 cm voxel size leading to a smoother approximation. Note this spacing is significantly higher than the noise of the sensor. The~second mesh is of the main floor and is much larger and denser with 1~cm voxel spacing leading to significantly more noise from the \ac{RGBD} camera. Only the main floor mesh is post-processed with Laplacian filtering using Open3D. The~basement mesh is composed of 60,620 triangles while the main floor mesh has 3,618,750 triangles. The~parameters for Polylidar3D for both meshes are shown in Tables~\ref{table:ch3_mesh_parameters_a} and \ref{table:ch3_mesh_parameters_b}. The~most significant difference in parameter sets is that the basement is configured to capture small surfaces (lower $tri_{min}$ and $\gamma$) in comparison to the main~floor.
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D Parameters for the Basement~Mesh.}\label{table:mesh_parameters_a}
+\caption{Polylidar3D Parameters for the Basement~Mesh.}\label{table:ch3_mesh_parameters_a}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1545,7 +1553,7 @@ Poly. Filtering      & $\alpha = 0.01$, $\beta_{neg}$ = 0.025, $\beta_{pos}$ = 0
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D Parameters for the Main Floor~Mesh.}\label{table:mesh_parameters_b}
+\caption{Polylidar3D Parameters for the Main Floor~Mesh.}\label{table:ch3_mesh_parameters_b}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1558,27 +1566,28 @@ Poly. Filtering      & $\alpha = 0.02$, $\beta_{neg}$ = 0.05, $\beta_{pos}$ = 0.
 Figure~\ref{fig:ch3_mesh_example}a,b show the polygons output from Polylidar3D on the basement mesh.  The~floor and all walls are appropriately captured as well as any obstacles on their flat surfaces. The~top surface of the chair, table top, and~monitor have also been captured. However there are several small planar segments on an occluded wall in (Figure~\ref{fig:ch3_mesh_example}b) which may not be desirable for capture. In~this same image a collection of stacked boxes are not truly flat and the polygon line segment goes ``behind`` the mesh surface.  Figure~\ref{fig:ch3_mesh_example}c,d show  polygons output for the dense first floor mesh. The~floor and most walls have been successfully captured. However some walls have too much noise thus do not meet planarity constraints, e.g.,~the far wall in (Figure~\ref{fig:ch3_mesh_example}c). The~ground floor is not extracted as one continuous polygon instead separating at the edge of the mesh in (Figure~\ref{fig:ch3_mesh_example}d).  This occurs because the floor areas have differences in height (in the mesh, not in reality); the point-to-plane distance constraint is exceeded between these two surfaces causing two extractions. This can be remedied by increasing $ptp_{max}$ by 1cm but is left here to highlight the~issue.
 
 
-\begin{figure}[H]
-  \begin{subfigure}[t]{.45\linewidth}
+\begin{figure}[!htb]
+  \centering
+  \begin{subfigure}[t]{.40\linewidth}
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_3_polylidar3d/imgs/meshes/mesh_polylidar3d_examples-mesh_basement_one.pdf}
     \caption{\label{fig:ch3_mesh_example_a}}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[t]{.45\linewidth}
+  \begin{subfigure}[t]{.40\linewidth}
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_3_polylidar3d/imgs/meshes/mesh_polylidar3d_examples-mesh_basement_two.pdf}
     \caption{\label{fig:ch3_mesh_example_b}}
   \end{subfigure}
   \par\bigskip
-  \begin{subfigure}[t]{.45\linewidth}
+  \begin{subfigure}[t]{.40\linewidth}
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm, width=.99\linewidth]{chapter_3_polylidar3d/imgs/meshes/mesh_polylidar3d_examples-mesh_mainfloor_two.pdf}
     \caption{\label{fig:ch3_mesh_example_c}}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[t]{.45\linewidth}
+  \begin{subfigure}[t]{.40\linewidth}
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_3_polylidar3d/imgs/meshes/mesh_polylidar3d_examples-mesh_mainfloor_one.pdf}
     \caption{\label{fig:ch3_mesh_example_d}}
   \end{subfigure}
-  \caption{Polygon extraction from meshes of an indoor home environment. (\textbf{a},\textbf{b}) show results on a basement mesh which has a smoother approximation and less noise; (\textbf{c},\textbf{d}) show results on a significantly larger, denser, and~nosier mesh of the main~floor. }\label{fig:ch3_mesh_example}
+  \caption[Example of Polylidar3D used with user defined meshes]{Polygon extraction from meshes of an indoor home environment. (\textbf{a},\textbf{b}) show results on a basement mesh which has a smoother approximation and less noise; (\textbf{c},\textbf{d}) show results on a significantly larger, denser, and~nosier mesh of the main~floor. }\label{fig:ch3_mesh_example}
 \end{figure}
 \unskip
 
@@ -1588,7 +1597,7 @@ This section explores how Polylidar3D scales with additional CPU threads. We spe
 
 Figure~\ref{fig:ch3_mesh_parallel}a shows the speedup and execution timings of the sparse basement mesh. The~parallel speedup does not go any higher than 2.4 with one dominant plane normal (blue-solid) and reaches approximately 4.0 with four dominant planes (red-solid). The~execution timings (dashed lines) clearly show the diminishing returns as more threads are provided and plateaus around 0.5 ms at 4 threads. Figure~\ref{fig:ch3_mesh_parallel}b shows a similar trend for the much larger and more dense main floor mesh. The~trends are clear that greater speedup is possible as more unique dominant planes normals are requested because this work gets partitioned to independent tasks. However there is a  limit to this parallelism as not all procedures within the tasks are themselves parallelized. This is a clear example of Amdahl's law in effect which explains a theoretical limit to speedup as a function of the percent of a program that is actually parallelizable~\cite{amdahl_validity_1967}. In~essence the theoretical speedup is always limited by the serial tasks, which in our case becomes (roughly) the combined execution time of planar segmentation of the single largest dominant plane normal and the polygon extraction of its largest planar segment. New threads do not reduce the time to complete these tasks because their algorithms are~serial.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
   \begin{subfigure}[t]{.49\linewidth}
     \centering\includegraphics[width=.95\linewidth]{chapter_3_polylidar3d/imgs/meshes/basement_speedup.pdf}
     \caption{\label{fig:ch3_mesh_parallel_a}Basement (Sparse Mesh)}
@@ -1597,7 +1606,7 @@ Figure~\ref{fig:ch3_mesh_parallel}a shows the speedup and execution timings of t
     \centering\includegraphics[width=.95\linewidth]{chapter_3_polylidar3d/imgs/meshes/mainfloor_speedup.pdf}
     \caption{\label{fig:ch3_mesh_parallel_b}Main Floor (Dense Mesh)}
   \end{subfigure}
-  \caption{Results of parallel speedup and execution timing of plane/polygon extraction with up to eight threads. Both basement (\textbf{a}) and main floor meshes (\textbf{b}) are analyzed. Solid lines indicate parallel speedup and link to the left $y$-axis while the dashed lines indicate execution time and link to the right $y$-axis. The~color indicates number of dominant plane (DP) normals~extracted.}\label{fig:ch3_mesh_parallel}
+  \caption[Results of parallel speedup and execution timing of Polylidar3D]{Results of parallel speedup and execution timing of plane/polygon extraction with up to eight threads. Both basement (\textbf{a}) and main floor meshes (\textbf{b}) are analyzed. Solid lines indicate parallel speedup and link to the left $y$-axis while the dashed lines indicate execution time and link to the right $y$-axis. The~color indicates number of dominant plane (DP) normals~extracted.}\label{fig:ch3_mesh_parallel}
 \end{figure}
 \unskip
 
@@ -1622,17 +1631,17 @@ Polylidar3D planar segmentation expects a mesh to be reasonably smoothed. The~am
 
 The Fast Gaussian Accumulator can only detect plane normals; it currently has no concept of origin offset.  This means that if there are two flat surfaces separated far from each other in a scene, with~similar (but not the same) surface normals, it is possible they will appear near each other on the GA and be merged. Noise in the mesh affects how close these two peaks can be on the GA and still be detected as distinct peaks. As~the mesh is further smoothed (with edge-preservation filters) the noise is reduced and the peaks become more defined. This is exactly what had to be done to detect the numerous noisy planes in the SynPEB benchmark. Also, group assignment in Algorithm \ref{alg:ch3_group_assignment} will assign common triangles to these detected peaks if they meet a user defined angular threshold $ang_{min}$ from a detected peak. This means any detected peaks should be greater than $2\cdot arcos(ang_{min})$ from each other to guarantee no overlap. Note also that $ang_{min}$ can be increased as the mesh is~smoothed.
 
-Only dominant planes, flat surfaces that account for most of the 3D data, can be reliably captured from organized point clouds and user-provided meshes. We see numerous qualitative examples of this from RGBD sensor data, the~SynPEB benchmark, and~user-provided meshes. Polylidar3D is only able to extract 47.3\% of the average 42.6 planes in the SynPEB test scenes. However the percent of point cloud metric $k$ at 78\% shows Polylidar3D doing an excellent job of capturing large dominant planes.  Scenes in this benchmark are the antithesis for what Polylidar3D was designed for (dozens of small noisy planes), yet we show Polylidar3D still performs well in important metrics such as minimizing the number of over/under-segmented planes, spurious predictions, and~execution time. We believe these metrics taken as a whole demonstrate Polylidar3D's efficiency and reliability for polygon extraction of dominant planar~surfaces.
+Only dominant planes, flat surfaces that account for most of the 3D data, can be reliably captured from organized point clouds and user-provided meshes. We see numerous qualitative examples of this from \ac{RGBD} sensor data, the~SynPEB benchmark, and~user-provided meshes. Polylidar3D is only able to extract 47.3\% of the average 42.6 planes in the SynPEB test scenes. However the percent of point cloud metric $k$ at 78\% shows Polylidar3D doing an excellent job of capturing large dominant planes.  Scenes in this benchmark are the antithesis for what Polylidar3D was designed for (dozens of small noisy planes), yet we show Polylidar3D still performs well in important metrics such as minimizing the number of over/under-segmented planes, spurious predictions, and~execution time. We believe these metrics taken as a whole demonstrate Polylidar3D's efficiency and reliability for polygon extraction of dominant planar~surfaces.
 
 \subsection{Point Cloud Characteristics and Parameter~Selection}
 
-Each of the experimental result sections use different sensors resulting in dissimilar point cloud characteristics such as density, spatial distribution, noise, and~accuracy to the ground truth surface. These characteristics have been studied both for Airborne Laser Scanning (ALS) technology {\cite{balsa-barreiro_airborne_2012, graham_random_2014}}, Velodyne LiDAR {\cite{bergelt_improving_2017}} and Intel RGBD {\cite{ahn_analysis_2019}} sensors. The~airborne LiDAR point clouds used in Section {\ref{sec:ch3_results_rooftop}} were captured in swathes with a Nominal Point Spacing (NPS) of 30 cm creating a semi-random distribution with less than 2.5 cm RMSE {\cite{lidar_germany}}. Section {\ref{sec:ch3_results_kitti}} uses single scan Velodyne HDL-64E point clouds that are dense in azimuth/rotation but sparsely distributed in  elevation due to beam spacing with a reported depth accuracy of less than 2 cm {\cite{geiger_vision_2013}}. Finally RGBD sensor data analyzed in Section~{\ref{sec:ch3_results_rgbd}} contains dense and uniformly distributed point clouds but with noise growing quadratically with distance {\cite{noauthor_github_2020-4}}.
+Each of the experimental result sections use different sensors resulting in dissimilar point cloud characteristics such as density, spatial distribution, noise, and~accuracy to the ground truth surface. These characteristics have been studied both for Airborne Laser Scanning (ALS) technology {\cite{balsa-barreiro_airborne_2012, graham_random_2014}}, Velodyne LiDAR {\cite{bergelt_improving_2017}} and Intel \ac{RGBD} {\cite{ahn_analysis_2019}} sensors. The~airborne LiDAR point clouds used in Section {\ref{sec:ch3_results_rooftop}} were captured in swathes with a Nominal Point Spacing (NPS) of 30 cm creating a semi-random distribution with less than 2.5 cm RMSE {\cite{lidar_germany}}. Section {\ref{sec:ch3_results_kitti}} uses single scan Velodyne HDL-64E point clouds that are dense in azimuth/rotation but sparsely distributed in  elevation due to beam spacing with a reported depth accuracy of less than 2 cm {\cite{geiger_vision_2013}}. Finally \ac{RGBD} sensor data analyzed in Section~{\ref{sec:ch3_results_rgbd}} contains dense and uniformly distributed point clouds but with noise growing quadratically with distance {\cite{noauthor_github_2020-4}}.
 
-The Polylidar3D parameters in Tables {\ref{table:rooftop_parameters}}, {\ref{table:kitti_parameters}}, and~{\ref{table:rgbd_parameters}} were chosen to give the best qualitative results for each sensor and then applied to all data in their respective section. Most of the parameters are straightforward and can be interpreted and justified when taking into consideration point cloud characteristics. First, the~parameters for Laplacian and Bilateral filtering are influenced by the noise and density of the point cloud. No smoothing was required on the KITTI dataset (Velodyne sensor) because the sensor had minimal noise with large point spacing leading to long skinny triangles for a smooth mesh. The~airborne LiDAR point clouds of rooftops were much denser leading to smaller noisy triangles requiring two iterations of Laplacian and bilateral filtering. The~raw RGBD depth image is extremely dense and noisy requiring the use of Intel's own post-processing image filters with parameters described in {\cite{noauthor_github_2019-1}}. However the generated point clouds were still noisy needing additional smoothing using three iterations of both Laplacian and bilateral~filtering.
+The Polylidar3D parameters in Tables {\ref{table:ch3_rooftop_parameters}}, {\ref{table:ch3_kitti_parameters}}, and~{\ref{table:ch3_rgbd_parameters}} were chosen to give the best qualitative results for each sensor and then applied to all data in their respective section. Most of the parameters are straightforward and can be interpreted and justified when taking into consideration point cloud characteristics. First, the~parameters for Laplacian and Bilateral filtering are influenced by the noise and density of the point cloud. No smoothing was required on the KITTI dataset (Velodyne sensor) because the sensor had minimal noise with large point spacing leading to long skinny triangles for a smooth mesh. The~airborne LiDAR point clouds of rooftops were much denser leading to smaller noisy triangles requiring two iterations of Laplacian and bilateral filtering. The~raw \ac{RGBD} depth image is extremely dense and noisy requiring the use of Intel's own post-processing image filters with parameters described in {\cite{noauthor_github_2019-1}}. However the generated point clouds were still noisy needing additional smoothing using three iterations of both Laplacian and bilateral~filtering.
 
 Our Fast Gaussian Accumulator (FastGA) algorithm has several parameters which are influenced both by point cloud characteristics as well as real-time computational needs. First the $sample_{pct}$ parameter will downsample triangle normals in the mesh as input to FastGA to reduce computation time. The~authors found that a $12 \%$ down-sample was more than sufficient to extract dominant planes in all scenes in the experiments. GA refinement level should be set to 3 or 4 depending on the noise of the point cloud and accuracy required for extracted dominant plane normals. A~lower refinement level has a coarser tessellation of the sphere but is better for noisy data because noise is ``smoothed'' into larger histogram cells. Peak detection parameter $v_{min}$ is scaled between 0--255; the authors found a value between 15--50 to be best. If~only large dominant planes are needed then a high value may be used but must be lowered to detect smaller planar~segments.
 
-Plane and polygon extraction algorithm parameters are influenced by  density, point spacing, and~noise in the point cloud. The~parameter $l_{max}$ should be set to the maximum triangle edge length in the mesh expected for a flat surface which is in turn influenced by the point spacing. For~example, KITTI dataset points are well-separated requiring $l_{max}$ to be set higher than one meter while the dense RGBD point clouds require only 5 cm. The~parameter $ang_{min}$ depends on mesh smoothness and the user's tolerance for deviation from perfect flatness. The~authors found a value between 0.94--0.99 to be ideal which corresponds to a 20$^{\circ}$--10$^{\circ}$ allowance in angle deviation. The~parameter $ptp_{max}$ forces all segmented points to be within a certain distance from a segment's geometric plane which is influenced by point cloud noise. Small planar segments will be quickly removed if the number of triangles is below the parameter $tri_{min}$. Additionally, small interior holes in polygons will be removed if their number of vertices are below the parameter $verrtices^{hole}_{min}$. Both these parameters are influenced by point cloud density and the user's tolerance for superfluous planes and/or holes in polygons.
+Plane and polygon extraction algorithm parameters are influenced by  density, point spacing, and~noise in the point cloud. The~parameter $l_{max}$ should be set to the maximum triangle edge length in the mesh expected for a flat surface which is in turn influenced by the point spacing. For~example, KITTI dataset points are well-separated requiring $l_{max}$ to be set higher than one meter while the dense \ac{RGBD} point clouds require only 5 cm. The~parameter $ang_{min}$ depends on mesh smoothness and the user's tolerance for deviation from perfect flatness. The~authors found a value between 0.94--0.99 to be ideal which corresponds to a 20$^{\circ}$--10$^{\circ}$ allowance in angle deviation. The~parameter $ptp_{max}$ forces all segmented points to be within a certain distance from a segment's geometric plane which is influenced by point cloud noise. Small planar segments will be quickly removed if the number of triangles is below the parameter $tri_{min}$. Additionally, small interior holes in polygons will be removed if their number of vertices are below the parameter $verrtices^{hole}_{min}$. Both these parameters are influenced by point cloud density and the user's tolerance for superfluous planes and/or holes in polygons.
 
 Polygon post-processing parameter values are chosen more from scene context than from underlying point cloud properties. For~example parameters $\gamma$ and $\delta$ remove polygons and holes based on minimum area constraints and are not influenced by the point cloud. If~a user desires to extract only large surfaces (e.g., walls and floors) they can set $\gamma$ to be high to filter small planar patches such as a chair seat. Buffering and simplification parameters ($\alpha, \beta_{neg}, \beta_{pos})$ are used to remove redundant vertices and extraneous details for visualization and subsequent processing.%mdpi: the highlight has been deleted, please confirm. % JC_Author: Correct. All highlighting was for the authors response per Sensors guidelines. It should be removed.
 
@@ -1647,7 +1656,7 @@ There are three significant techniques that will improve Polylidar3D's robustnes
 
 Polylidar3D processes each point cloud distinctly. Time integration incorporates data from multiple data frames in a sequence by filtering and refining extracted polygons based on previous results. In~a static scene with fixed sensor viewpoint time integration can reduce the variance of polygons produced over time. All linear rings of the polygon (both hull and holes) can be explicitly tracked using meta-data previously discussed and removed if certain thresholds are not met.  With~a dynamic scene or moving sensor time integration would require significant extension to Polylidar3D to incorporate additional data such as sensor (vehicle) motion estimates and even semantic scene information. Additional work investigating the use of Bayesian filtering will be~done.
 
-Data such as intensity and/or color of the point cloud can be used to further determine similarity between neighbors in the point cloud during region growing. Such data has been shown to improve results for point cloud registration~\cite{rusinkiewicz_efficient_2001} and mesh smoothing~\cite{lee_fast_2013}. Additionally, deep neural network may perform semantic segmentation on RGBD images to quickly output class labels for each pixel in the image~\cite{pham_scenecut_2018}. This information can then be fused into Polylidar3D to better inform partitioning of work and similarity between neighboring triangles.
+Data such as intensity and/or color of the point cloud can be used to further determine similarity between neighbors in the point cloud during region growing. Such data has been shown to improve results for point cloud registration~\cite{rusinkiewicz_efficient_2001} and mesh smoothing~\cite{lee_fast_2013}. Additionally, deep neural network may perform semantic segmentation on \ac{RGBD} images to quickly output class labels for each pixel in the image~\cite{pham_scenecut_2018}. This information can then be fused into Polylidar3D to better inform partitioning of work and similarity between neighboring triangles.
 %Unlike point sets, there is no well defined ``average`` or ``median`` to aid with smoothing. 
 % \cite{feng_fast_2014}
 % \cite{trevor2013efficient}
@@ -1662,5 +1671,5 @@ Data such as intensity and/or color of the point cloud can be used to further de
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}\label{sec:ch3_conclusion}
 
-This paper introduced Polylidar3D, a~non-convex polygon extraction method  capturing flat surfaces from a variety of 3D data sources. Front-end methods transform unorganized point clouds, organized point clouds, and~3D triangular meshes to a common half-edge triangular mesh format. Back-end core algorithms perform mesh smoothing, dominant plane normal estimation, planar segmentation, and~polygon extraction. A~novel Gaussian accumulator, FastGA, was demonstrated robust and quick at detecting dominant plane normals in a 3D scene. These dominant plane normals are used to parallelize planar segmentation and polygon extraction. Polylidar3D is evaluated in five separate experiments with airborne LiDAR point clouds, automotive LiDAR point clouds, RGBD~videos, synthetic LiDAR benchmark data, and~meshes of indoor environments. Qualitative and quantitative results demonstrate Polylidar3D's speed and versatility. All of Polylidar3D is open source and available to be freely used and improved upon by the community~\cite{Castagno_Github_Polylidar, Castagno_Github_fastga, Castagno_Github_opf}. 
+This chapter introduced Polylidar3D, a~non-convex polygon extraction method  capturing flat surfaces from a variety of 3D data sources. Front-end methods transform unorganized point clouds, organized point clouds, and~3D triangular meshes to a common half-edge triangular mesh format. Back-end core algorithms perform mesh smoothing, dominant plane normal estimation, planar segmentation, and~polygon extraction. A~novel Gaussian accumulator, FastGA, was demonstrated robust and quick at detecting dominant plane normals in a 3D scene. These dominant plane normals are used to parallelize planar segmentation and polygon extraction. Polylidar3D is evaluated in five separate experiments with airborne LiDAR point clouds, automotive LiDAR point clouds, \ac{RGBD}~videos, synthetic LiDAR benchmark data, and~meshes of indoor environments. Qualitative and quantitative results demonstrate Polylidar3D's speed and versatility. All of Polylidar3D is open source and available to be freely used and improved upon by the community~\cite{Castagno_Github_Polylidar, Castagno_Github_fastga, Castagno_Github_opf}. 
 

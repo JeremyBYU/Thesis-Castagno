@@ -8,10 +8,12 @@
 \usepackage{subcaption}
 \usepackage{enumitem}
 \usepackage{amsmath}
+\usepackage{bm}
 \usepackage{amsthm}
 \usepackage{mathtools}
-\usepackage[linesnumbered,ruled]{algorithm2e}
+\usepackage[linesnumbered,ruled,algochapter]{algorithm2e}
 \usepackage{multirow}
+\usepackage{xurl}
 
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 % \usepackage{caption,subcaption}% http://ctan.org/pkg/{caption,subcaption}
@@ -22,6 +24,19 @@
 \newtheorem{definition}{Definition}
 \theoremstyle{remark}
 \newtheorem*{remark}{Remark}
+
+% Chapter 4
+\usepackage{tikz}
+\usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
+\usepackage{siunitx}
+% \usepackage[labelformat=simple]{subcaption}
+% \renewcommand\thesubfigure{\alph{subfigure}}
+% \DeclareCaptionLabelFormat{subcaptionlabel}{\normalfont(\textbf{#2}\normalfont)}
+% \captionsetup[subfigure]{labelformat=subcaptionlabel}
+
+% All Chapters
+\usepackage{etoolbox}
+\AtBeginEnvironment{algorithm}{\setstretch{1.0}}
 
 \title{Mapping and Real-time Navigation \\ with application to Small UAS Urgent Landing}
 
@@ -60,18 +75,20 @@
 % Commands to hide or show lists of figures, tables, etc.
 \showlistoffigures
 \showlistoftables
+\showlistofalgorithms
 % \showlistofmaps
 % \showlistofillustrations
-\showlistofappendices
+% \showlistofappendices
 % \showlistofabbreviations
 \showlistofacronyms
 % \showlistofsymbols
 % OR
 % \hidelistoffigures
 % \hidelistoftables
+% \hidelistofalgorithms
 \hidelistofmaps
 \hidelistofillustrations
-% \hidelistofappendices
+\hidelistofappendices
 \hidelistofabbreviations
 % \hidelistofacronyms
 \hidelistofsymbols
@@ -101,23 +118,29 @@
  \label{ch:polylidar}
  \input{chapter_2_polylidar/main_updated}
  
- 
 \chapter{Polygons from 3D Data}
  \label{ch:polylidar3d}
  \input{chapter_3_polylidar3d/main_updated}
  
- 
 \chapter{Roof Shape Classification from Satellite Images and LiDAR Data  }
  \label{ch:roofshape}
- \input{chapter_4_roofshape/main}
+ \input{chapter_4_roofshape/main_updated}
  
 \chapter{Map-Based Planning for Small UAS Rooftop Landing }
  \label{ch:maplanding}
  \input{chapter_5_mapping/main_updated}
  
-\chapter{Experimental Results for Real-time Landing Site Identification and Selection (Proposed)}
+\chapter{Real-time Autonomous Touchdown Point Selection}
+ \label{ch:landingsim}
+ \input{chapter_6_landingsim/main_updated}
+ 
+\chapter{Experimental Results for Touchdown Point Selection}
  \label{ch:experiments}
- \input{chapter_6_experiments/main}
+ \input{chapter_7_experiments/main_updated}
+ 
+\chapter{Conclusions}
+ \label{ch:conclusions}
+ \input{chapter_8_conclusion/main_updated}
 
 % \appendix
 
@@ -126,19 +149,6 @@
 %  \input{appendix_1/main}
 
 
-
-% \section{Lists Including the Appendices}
-% The command
-% \begin{verbatim}
-% \showlistofappendices
-% \end{verbatim}
-% must appear in the preamble if there are more than one appendices.  For
-% some reason, Rackham does not want the individual appendices and their
-% sections to appear in the Table of Contents, so a special List of
-% Appendices page (which must occur in the Table of Contents!) is required
-% as a sort of extension to the Table of Contents.
-
-% \nocite{*}
 
 
 \bibliographystyle{aiaa}

@@ -1,6 +1,6 @@
 \section{Introduction}
 
-Talk about need for 2D point set to convex polygons. Connection to multiple fields!
+% Talk about need for 2D point set to convex polygons. Connection to multiple fields!
 
 This chapter presents Polylidar, an efficient algorithm to transform 2D point sets into simplified non-convex (i.e., concave) polygons with holes. Polylidar begins by triangulating the point set and filtering triangles given user-specified parameters such as maximum triangle edge length. Once filtering is complete, edge-connected triangles are combined into regions creating a set of triangular meshes representing the shape of the point set. Next, Polylidar converts each mesh region to a polygon through a novel boundary following method which accounts for holes. Figure \ref{fig:ch2_convex_concave}b shows Polylidar applied to a 2D point set while (c) shows Polylidar used on a plane segmented point cloud from an RGBD image.
 
@@ -71,21 +71,21 @@ PostGIS is a geospatial database of computational geometry routines such as the 
 \begin{tabular}{ccc}
 \hline
 Algorithm                                                   & Output                                                           & Holes? \\ \hline
+$\chi$-shapes                                             & \begin{tabular}[c]{@{}c@{}}unordered\\ set of edges\end{tabular} & No     \\
 \begin{tabular}[c]{@{}c@{}}CGAL $\alpha$-shape\end{tabular}   & \begin{tabular}[c]{@{}c@{}}unordered\\ set of edges\end{tabular} & Yes    \\
-$\chi$-shapes                                             & \begin{tabular}[c]{@{}c@{}}Unordered\\ Set of Edges\end{tabular} & No     \\
 Spatialite                                                 & (multi)polygon                                                   & Yes    \\
 PostGIS                                                       & polygon                                                          & Yes    \\
 Polylidar (new)                                                   & (multi)polygon                                                   & Yes    \\ \hline
 \end{tabular}
 \end{table}
 
-Table \ref{table:ch2_compare_alg} provides a summary  of the concave hull algorithms discussed above. The Computational Geometry Algorithms Library (CGAL) is  used as the implementation of the $\alpha$-shape method \cite{the_cgal_project_cgal_2019}. Note that the time complexity of all algorithm implementations, with the exception of PostGIS, is $\mathcal{O}(n\log{}n)$.  Our paper contributes a procedure to more rapidly compute (multi)polygon output with the possibility of holes.  Though this is a complex output to generate, we show through benchmarks that our algorithm and implementation outperforms other available approaches.
+Table \ref{table:ch2_compare_alg} provides a summary  of the concave hull algorithms discussed above. The Computational Geometry Algorithms Library (CGAL) is  used as the implementation of the $\alpha$-shape method \cite{the_cgal_project_cgal_2019}. Note that the time complexity of all algorithm implementations, with the exception of PostGIS, is $\mathcal{O}(n\log{}n)$.  This chapter contributes a procedure to more rapidly compute (multi)polygon output with the possibility of holes.  Though this is a complex output to generate, we show through benchmarks that our algorithm and implementation outperforms other available approaches.
 
 \section{Preliminaries}\label{sec:ch2_prelim}
 
 A 2D \textit{point set} is an arbitrarily ordered set of two dimensional points in a Cartesian reference frame. Each point is defined by orthogonal bases $\hat{\mathbf{e}}_x$ and $\hat{\mathbf{e}}_y$  with
 \begin{equation}
-\label{eq:point}
+\label{eq:ch2_point}
     \vec{{p}_{i}}=x\,\hat{\mathbf{e}}_x+y\, \hat{\mathbf{e}}_y= [x,y]
 \end{equation}
 where $x,y$ are plane coordinates.
@@ -178,7 +178,7 @@ Polygon extraction has three steps: data structure initialization, concave shell
 
 \subsubsection{Data structure initialization}
 
-Data structure initialization is shown in Algorithm \ref{alg:ch2_boundary_edges} which produces three data structures: a boundary half-edge set, a point index hash map, and the extreme point. A visual example of these data structures is shown in Figure \ref{fig:ch2_algorithm1_visual}. Boundary half-edge set $\mathcal{HE}$ contains the half-edge indices that are on the exterior border of a region, marked in blue in Figure \ref{fig:ch2_algorithm1_visual}a.  A half-edge is marked as a boundary if it has no opposite half-edge (meaning it is on the convex hull of the full triangulated set) or if its adjacent triangle is not in $\mathcal{T}_{r,i}$. The last check is important because a half-edge may share an edge with an interior triangle that is not part of $\mathcal{T}_{r,i}$ as seen in the rightmost edge for the blue region in Figure \ref{fig:ch2_plane_extraction}a. The \emph{halfedges} data structure is fixed at triangulation and is not aware of filtered triangles or the regions discussed in Section \ref{sec:ch2_mesh_extraction}.
+Data structure initialization is shown in Algorithm \ref{alg:ch2_boundary_edges} which produces three data structures: a boundary half-edge set, a point index hash map, and the extreme point. A visual example of these data structures is shown in Figure \ref{fig:ch2_algorithm1_visual}. Boundary half-edge set $\mathcal{BE}$ contains the half-edge indices that are on the exterior border of a region, marked in blue in Figure \ref{fig:ch2_algorithm1_visual}a.  A half-edge is marked as a boundary if it has no opposite half-edge (meaning it is on the convex hull of the full triangulated set) or if its adjacent triangle is not in $\mathcal{T}_{r,i}$. The last check is important because a half-edge may share an edge with an interior triangle that is not part of $\mathcal{T}_{r,i}$ as seen in the rightmost edge for the blue region in Figure \ref{fig:ch2_plane_extraction}a. The \emph{halfedges} data structure is fixed at triangulation and is not aware of filtered triangles or the regions discussed in Section \ref{sec:ch2_mesh_extraction}.
 
 \begin{figure}[ht]
     \centering
@@ -209,11 +209,11 @@ The second data structure is a point index hash map, $PtE$, whose \emph{key} is 
         Triangles Point Index, $triangles$ 
     }
     
-    \Output{Half Edge Set , $\mathcal{HE} = \{he_i, \ldots, he_n\}$ \\ 
+    \Output{Half Edge Set , $\mathcal{BE} = \{he_i, \ldots, he_n\}$ \\ 
         Point Index Hash Map, $PtE$ \\
 
         Extreme Point, $pi_{xp}$ } 
-    $\mathcal{HE} = \emptyset$ \tcp*{boundary half-edge set}
+    $\mathcal{BE} = \emptyset$ \tcp*{boundary half-edge set}
     $PtE = \emptyset$ \tcp*{Point to half-edge hashmap}
     $pi_{xp} = 0$ \tcp*{will be overwritten}
     \For{$t_i \in \mathcal{T}_r$} { 
@@ -221,7 +221,7 @@ The second data structure is a point index hash map, $PtE$, whose \emph{key} is 
             $he_j = halfedges[he_i]$\tcp*{opposite edge}
             $t_j = \operatorname{floor}(he_j / 3)$ \tcp*{adjacent tri}
             \uIf{$t_j \notin \mathcal{T}_r$}{
-                $\mathcal{HE}$ = $\mathcal{HE}$ + $he_i$ \tcp*{boundary edge} 
+                $\mathcal{BE}$ = $\mathcal{BE}$ + $he_i$ \tcp*{boundary edge} 
                 $pi = triangles[he_i]$ \\
                 $pi_{xp} = \operatorname{TrackXp}(pi, pi_{xp})$ \\
                 \uIf{$pi \notin PtE$}{
@@ -236,13 +236,13 @@ The second data structure is a point index hash map, $PtE$, whose \emph{key} is 
         }
   
     }
-    return $\mathcal{HE}, PtE, pi_{xp}$
-    \caption{Initialize}\label{alg:ch2_boundary_edges}
+    return $\mathcal{BE}, PtE, pi_{xp}$
+    \caption{Initialize Data Structures for Polylidar}\label{alg:ch2_boundary_edges}
 \end{algorithm}
 
 
 \subsubsection{Concave Shell Extraction}
-Outer shell extraction begins by traversing the half-edge graph, starting with the half-edge provided by the extreme point. As the edges are traversed the point indices are recorded in a list representing the linear ring of the concave hull. Edges are removed from the half-edge set, $\mathcal{HE}$, as they are traversed.  In Figure \ref{fig:ch2_algorithm1_visual}a the extreme point index is PI21 and the starting half-edge is HE70. This starting half edge and start point index are arguments to the \texttt{ExtractLinearRing} procedure in Algorithm \ref{alg:ch2_concave_hull_shell}, with the procedure halting when edge traversal returns back to the starting point index, indicating a closed linear ring has been extracted. The hole in this shape, represented by edges (HE28, HE0, HE14, HE44), with a shared vertex at PI10, must be carefully handled as explained below. This is an example of an non-manifold mesh.
+Outer shell extraction begins by traversing the half-edge graph, starting with the half-edge provided by the extreme point. As the edges are traversed the point indices are recorded in a list representing the linear ring of the concave hull. Edges are removed from the boundary half-edge set, $\mathcal{BE}$, as they are traversed.  In Figure \ref{fig:ch2_algorithm1_visual}a the extreme point index is PI21 and the starting half-edge is HE70. This starting half edge and start point index are arguments to the \texttt{ExtractLinearRing} procedure in Algorithm \ref{alg:ch2_concave_hull_shell}, with the procedure halting when edge traversal returns back to the starting point index, indicating a closed linear ring has been extracted. The hole in this shape, represented by edges (HE28, HE0, HE14, HE44), with a shared vertex at PI10, must be carefully handled as explained below. This is an example of an non-manifold mesh.
 
 The example in Figure \ref{fig:ch2_algorithm1_visual} begins with HE70 traversing to PI10. The outgoing boundary half-edges for this point index are determined from $PtE$ which provides a list of both HE28 and HE42. However HE28 is an edge for a hole in this polygon while HE42 is the correct half-edge to traverse for the outer shell. The \texttt{SelectEdge} procedure determines which of these edges to choose and is visually outlined in Figure \ref{fig:ch2_example1}a. Angles between the proposed edges and previous edge HE70 are calculated and the edge with the largest angle is chosen which guarantees the largest concave hull.  This edge cannot be a hole edge because that would imply that the hole is outside the concave shell, which is invalid.
 
@@ -253,7 +253,7 @@ On rare occasions the extreme point may have more than one outgoing half edge, m
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
 
-    \Input{Half Edge Set , $\mathcal{HE} = \{he_i, \ldots, he_n\}$ \\ 
+    \Input{Half Edge Set , $\mathcal{BE} = \{he_i, \ldots, he_n\}$ \\ 
             Point Index Hash Map, $PtE$ \\
             Starting half-edge, $he$ \\
             Start point index, $startPI$ \\
@@ -262,7 +262,7 @@ On rare occasions the extreme point may have more than one outgoing half edge, m
     \Output{Linear Ring , $lr = [pi_1, \ldots, pi_k]$ } 
     $lr = [\;]$  \tcc*{empty linear ring}
     \While{True}{
-        $\mathcal{HE} = \mathcal{HE} \setminus he $ \\
+        $\mathcal{BE} = \mathcal{BE} \setminus he $ \\
         $he_t = \operatorname{NextTriangleEdge}(he)$\\
         $pi = triangles[he_t]$ \\
         $\operatorname{Append}(lr, pi)$\\
@@ -275,7 +275,7 @@ On rare occasions the extreme point may have more than one outgoing half edge, m
         $he = \operatorname{SelectEdge}(he, nextEdges)$
     }
     return $lr$
-    \caption{ExtractLinearRing}\label{alg:ch2_concave_hull_shell}
+    \caption[Extract Linear Ring]{ExtractLinearRing}\label{alg:ch2_concave_hull_shell}
 \end{algorithm}
 
 
@@ -332,25 +332,25 @@ On rare occasions the extreme point may have more than one outgoing half edge, m
 
 \subsubsection{Hole(s) Extraction}
 
-After the outer shell of the concave hull has been determined, only the holes remain to be found (if any holes exist). Any edges that remains inside $\mathcal{HE}$ are hole edges and will be extracted using Algorithm \ref{alg:ch2_hole_extraction}.  A half-edge is randomly chosen from $\mathcal{HE}$ for which the same \texttt{ExtractLinearRing} procedure is run. Figure \ref{fig:ch2_example1}c shows a corner case of a non-manifold mesh that must be handled if two holes share the same vertex. The previously extracted concave shell is displayed in green while the remaining half-edges to be processed are in blue; note the shared vertex at PI16.  Figure \ref{fig:ch2_example1}d shows the event when HE19 is randomly chosen for hole extraction leading to PI16. HE0 or HE29 is chosen in the manner previously discussed: the edge with largest angle guarantees the smallest hole thus is chosen.  If the other edge was chosen this would indicate a hole inside a hole which is invalid.
+After the outer shell of the concave hull has been determined, only the holes remain to be found (if any holes exist). Any edges that remains inside $\mathcal{BE}$ are hole edges and will be extracted using Algorithm \ref{alg:ch2_hole_extraction}.  A half-edge is randomly chosen from $\mathcal{BE}$ for which the same \texttt{ExtractLinearRing} procedure is run. Figure \ref{fig:ch2_example1}c shows a corner case of a non-manifold mesh that must be handled if two holes share the same vertex. The previously extracted concave shell is displayed in green while the remaining half-edges to be processed are in blue; note the shared vertex at PI16.  Figure \ref{fig:ch2_example1}d shows the event when HE19 is randomly chosen for hole extraction leading to PI16. HE0 or HE29 is chosen in the manner previously discussed: the edge with largest angle guarantees the smallest hole thus is chosen.  If the other edge was chosen this would indicate a hole inside a hole which is invalid.
 
 
 \begin{algorithm}[ht]
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
 
-    \Input{Half Edge Set , $\mathcal{HE} = \{he_i, \ldots, he_n\}$ \\ 
+    \Input{Half Edge Set , $\mathcal{BE} = \{he_i, \ldots, he_n\}$ \\ 
             Point Index Hash Map, $PtE$ \\
             Triangles Point Index, $triangles$
     }
     \Output{Set of Linear Ring Holes , $\mathcal{HR} = \{lr_1, \ldots, lr_k\}$ } 
     $\mathcal{HR} = \emptyset$  \tcc*{empty hole set}
 
-    \While{$\mathcal{HE}$ is not empty}{
+    \While{$\mathcal{BE}$ is not empty}{
 
-        $he= \operatorname{RandomChoice}(\mathcal{HE})$ \\
+        $he= \operatorname{RandomChoice}(\mathcal{BE})$ \\
         $pi = triangles[he]$\\
-        $lr = \operatorname{ExtractLinearRing}(\mathcal{HE}, PtE, he, pi, triangles)$ \\
+        $lr = \operatorname{ExtractLinearRing}(\mathcal{BE}, PtE, he, pi, triangles)$ \\
     
         $\mathcal{HR} = \mathcal{HR} + lr$ 
     }
@@ -395,33 +395,33 @@ After the outer shell of the concave hull has been determined, only the holes re
 
 
 
-% % \subsection{Time Complexity}\label{sec:time_complexity}
-% % This section describes the time complexity of Polylidar.
-% % %, shown to be $\mathcal{O}(n\log{}n)$ where $n$ is the number of point cloud values in the point set.  
-% % The Delaunay triangulation is first computed in $\mathcal{O}(n\log{}n)$ \cite{de2008delaunay}. Region extraction from Section \ref{sec:mesh_extraction} is $\mathcal{O}(n)$:
+\subsection{Time Complexity}\label{sec:time_complexity}
+This section describes the time complexity of Polylidar.
+%, shown to be $\mathcal{O}(n\log{}n)$ where $n$ is the number of point cloud values in the point set.  
+The Delaunay triangulation is first computed in $\mathcal{O}(n\log{}n)$ \cite{de_berg_delaunay_2008}. Region extraction from Section \ref{sec:ch2_mesh_extraction} is $\mathcal{O}(n)$:
 
-% % \begin{itemize}
-% %     \item At most $t = 2n - 2$ triangles are returned from Delaunay triangulation by Euler's formula so $t$ is linear in $n$.
-% %     \item The maximum of $2*t$ iterations occurs. One loop filters triangles; worst case no triangles are removed. A second loop occurs over remaining connected triangles.
-% %     \item Determining shared edges for expansion requires an $\mathcal{O}(1)$ lookup in the $halfedges$ array.
-% %     \item Output generation $\mathcal{T}_{r}$ is $\mathcal{O}(1)$ for each insertion.
-% % \end{itemize}
+\begin{itemize}
+    \item At most $t = 2n - 2$ triangles are returned from Delaunay triangulation by Euler's formula so $t$ is linear in $n$.
+    \item The maximum of $2*t$ iterations occurs. One loop filters triangles; worst case no triangles are removed. A second loop occurs over remaining connected triangles.
+    \item Determining shared edges for expansion requires an $\mathcal{O}(1)$ lookup in the $halfedges$ array.
+    \item Output generation $\mathcal{T}_{r}$ is $\mathcal{O}(1)$ for each insertion.
+\end{itemize}
 
-% % Polygon extraction is also $\mathcal{O}(n)$. The initialization procedure in Algorithm \ref{alg:boundary_edges} is $\mathcal{O}(n)$ per the following analysis:
-% % \begin{itemize}
-% %     \item Assuming the worst case, the algorithm loops through every edge of every triangle, providing a maximum number of iterations of $3 \cdot t$. Therefore the number of iterations is linear with $n$.
-% %     \item Determining if an edge is a boundary edge is an $\mathcal{O}(1)$ operation. Line 6 is $\mathcal{O}(1)$ lookup in halfedges array. Line 8 is $\mathcal{O}(1)$ lookup in the input triangle set.
-% %     \item Output generation, the half-edge set and point index hash map, is $\mathcal{O}(1)$ for each insertion.
-% % \end{itemize}
+Polygon extraction is also $\mathcal{O}(n)$. The initialization procedure in Algorithm \ref{alg:ch2_boundary_edges} is $\mathcal{O}(n)$ per the following analysis:
+\begin{itemize}
+    \item Assuming the worst case, the algorithm loops through every edge of every triangle, providing a maximum number of iterations of $3 \cdot t$. Therefore the number of iterations is linear with $n$.
+    \item Determining if an edge is a boundary edge is an $\mathcal{O}(1)$ operation. Line 6 is $\mathcal{O}(1)$ lookup in halfedges array. Line 8 is $\mathcal{O}(1)$ lookup in the input triangle set.
+    \item Output generation, the half-edge set and point index hash map, is $\mathcal{O}(1)$ for each insertion.
+\end{itemize}
 
-% % Algorithm \ref{alg:concave_hull_shell} is linear in $n$ for similar reasons:
-% % \begin{itemize}
-% %     \item The number of iterations is the number of boundary edges computed, a subset of the iterations in Alg. \ref{alg:boundary_edges}.
-% %     \item The output linear ring is $\mathcal{O}(1)$ for each insertion.
-% %     \item The \texttt{SelectEdge} procedure is $\mathcal{O}(1)$ with no loops.
-% % \end{itemize}
+Algorithm \ref{alg:ch2_concave_hull_shell} is linear in $n$ for similar reasons:
+\begin{itemize}
+    \item The number of iterations is the number of boundary edges computed, a subset of the iterations in Alg. \ref{alg:ch2_boundary_edges}.
+    \item The output linear ring is $\mathcal{O}(1)$ for each insertion.
+    \item The \texttt{SelectEdge} procedure is $\mathcal{O}(1)$ with no loops.
+\end{itemize}
 
-% % Finally Algorithm \ref{alg:hole_extraction} is also linear with respect to $n$. It is executed as many times as there are holes in a polygon. A hole contains a minimum of one triangle; we have shown previously that $t$ grows linearly with $n$. Selecting a random half-edge, Line 3, is an $\mathcal{O}(1)$ operation. Overall, Polylidar has complexity $\mathcal{O}(n\log{}n)$ from the initial triangulation.
+Finally Algorithm \ref{alg:ch2_hole_extraction} is also linear with respect to $n$. It is executed as many times as there are holes in a polygon. A hole contains a minimum of one triangle; we have shown previously that $t$ grows linearly with $n$. Selecting a random half-edge, Line 3, is an $\mathcal{O}(1)$ operation. Overall, Polylidar has complexity $\mathcal{O}(n\log{}n)$ from the initial triangulation.
 
 \section{Benchmarking Comparisons}\label{sec:ch2_results}
 
@@ -545,7 +545,7 @@ Figure \ref{fig:ch2_ca_output} shows a visual comparison of CA concave polygon o
 
 \begin{figure}[!ht] 
     \centering
-      \includegraphics[clip, trim=0.5cm 1.2cm 0.0cm 0.0cm, width=0.25\linewidth]{chapter_2_polylidar/imgs/ouput_ca.pdf}
+      \includegraphics[clip, trim=0.5cm 1.2cm 0.0cm 0.0cm, width=0.35\linewidth]{chapter_2_polylidar/imgs/ouput_ca.pdf}
   \caption[Visual comparison of different polygon extraction methods]{Concave polygon output from Polylidar/CGAL (left), Spatialite (center), and PostGIS (right).  Input to each algorithm was a 4000 point set sampled from the California (CA) polygon with holes per Figure \ref{fig:ch2_compare_algs_all}a.}
   \label{fig:ch2_ca_output} 
 \end{figure}
@@ -670,7 +670,7 @@ The benchmarks above indicate that Polylidar is the faster concave (multi)polygo
 
 \textbf{Shape Extraction} Polylidar and Spatialite are most similar, focusing only on filtering triangles in the mesh. However Polylidar goes further with region growing (Section \ref{sec:ch2_mesh_extraction}) that isolates disconnected regions in the mesh. For memory efficiency and speed we represent the filtered triangle set $\mathcal{T}_f$ as a bit array with 1/0 indicating in/out of set. This allows rapid triangle filtering and region growing which was previously profiled to be slower when using hashmaps. On the other hand CGAL first creates ``interval hashmaps'' for its simplices, including triangles, edges, and vertices.  These hashmaps store data detailing at what $\alpha$-interval a specific simplex would be in the $\alpha$-complex. These ordered hashmaps give the ability to more quickly compute a \emph{family} of $\alpha$-shapes from a point set. These data structures are implemented as C++ multimaps with $\mathcal{O}(\log{}n)$ for insertion/look-up in comparison to unordered maps having $\mathcal{O}(1)$. This design choice leads to shape extraction having an $\mathcal{O}(n \log{}n)$ complexity for CGAL. By creating hash maps for edges and vertices CGAL can also return the \emph{singular} points and edges which are isolated and not attached to any triangle in the $\alpha$-complex (e.g., a single point far removed from all others). Polylidar need not do this because singular points and edges cannot be polygons thus are not required steps in shape extraction.
 
-\textbf{Polygon Extraction} Polylidar independently converts each region into a polygon. Algorithm 2 quickly identifies all border edges and uses efficient unordered contiguous memory hashmaps to store this information in $\mathcal{HE}$ and $PtE$. The essence of Algorithms 3 and 4 are entirely border-edge based leading to a significant speed up compared to triangle based methods (i.e., perimeter vs. area).  Spatialite uses GEOS to take the union of all unfiltered triangles to generate a valid multipolygon. CGAL's Alpha Shape produces an unordered list of the boundary edges of the $\alpha$-shape. However CGAL does not provide any explicit function to convert this list to a valid (multi)polygon. 
+\textbf{Polygon Extraction} Polylidar independently converts each region into a polygon. Algorithm 2 quickly identifies all border edges and uses efficient unordered contiguous memory hashmaps to store this information in $\mathcal{BE}$ and $PtE$. The essence of Algorithms 3 and 4 are entirely border-edge based leading to a significant speed up compared to triangle based methods (i.e., perimeter vs. area).  Spatialite uses GEOS to take the union of all unfiltered triangles to generate a valid multipolygon. CGAL's Alpha Shape produces an unordered list of the boundary edges of the $\alpha$-shape. However CGAL does not provide any explicit function to convert this list to a valid (multi)polygon. 
 % These algorithms perform boundary following to properly extract the LinearRing(s) of the outer shell and hole(s).
 %The authors are unaware of any other polygon extraction methods performing boundary following (while handling holes) as outlined in Algorithms 3 and 4.
 
@@ -701,4 +701,4 @@ Table \ref{table:ch2_disc_subtimings} summarizes mean execution timings for each
 
 \section{Conclusion}\label{sec:ch2_conclusion}
 
-This paper has introduced Polylidar, an efficient 2D concave hull extraction algorithm which produces (multi)polygon output with holes. Comparison benchmarks of numerous test sets, similarly done in \cite{duckham_efficient_2008}, show Polylidar is faster than competing approaches with comparable or better accuracy. Additionally we perform random polygon tests that confirm every polygon produced by Polylidar is valid. In future work we will extend Polylidar to operate directly on 3D point cloud data by performing both planar segmentation and polygon extraction. We will remove Polylidar's reliance on Delaunay triangulation when used with organized point clouds (e.g., range images) similar to \cite{lee_fast_2013}. Triangulation can be performed in $\mathcal{O}(n)$ time by exploiting the spatial relationship inherit in range images. The OpenMP library will be used to parallelize iteration independent loops such as triangle filtering. Additionally we will explore task-based parallelization by making use of the data independence between polygons, i.e., spawning polygon extraction tasks immediately after a plane is segmented \cite{huang_cpp-taskflow_2019}. 
+This chapter has introduced Polylidar, an efficient 2D concave hull extraction algorithm which produces (multi)polygon output with holes. Comparison benchmarks of numerous test sets, similarly done in \cite{duckham_efficient_2008}, show Polylidar is faster than competing approaches with comparable or better accuracy. Additionally we perform random polygon tests that confirm every polygon produced by Polylidar is valid. In future work we will extend Polylidar to operate directly on 3D point cloud data by performing both planar segmentation and polygon extraction. We will remove Polylidar's reliance on Delaunay triangulation when used with organized point clouds (e.g., range images) similar to \cite{lee_fast_2013}. Triangulation can be performed in $\mathcal{O}(n)$ time by exploiting the spatial relationship inherit in range images. The OpenMP library will be used to parallelize iteration independent loops such as triangle filtering. Additionally we will explore task-based parallelization by making use of the data independence between polygons, i.e., spawning polygon extraction tasks immediately after a plane is segmented \cite{huang_cpp-taskflow_2019}. 
