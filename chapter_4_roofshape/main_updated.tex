@@ -104,7 +104,7 @@ Each neural network layer consists of a \emph{node} vector, a node activation fu
 
 \vspace{-12pt}
 
-\caption[Example of a fully connected and convolutional neural network]{(\textbf{a}) Example of a fully connected neural network with one hidden layer. (\textbf{b}) Example of a~CNN  with two convolutional blocks.}
+\caption[Example of a fully connected and convolutional neural network]{Example of a fully connected and convolutional neural network. (\textbf{a}) Fully connected neural network with one hidden layer. (\textbf{b}) CNN  with two convolutional blocks.}
 \label{fig:example_nn}
 \end{figure}
 
@@ -135,7 +135,7 @@ Similarly, random forest classifiers create nonlinear decision boundaries throug
 \end{subfigure}
 \vspace{-12pt}
 
-\caption[SVM and Random Forest]{(\textbf{a}) Example of an SVM separating two classes with a hyperplane. Optimal class separation is guaranteed by maximizing margin size. (\textbf{b}) Example of a random forest with multiple decision trees being trained on random samples from the training data. }
+\caption[Example of a SVM and random forest classifier.]{Example of a SVM and random forest classifier. (\textbf{a}) SVM separating two classes with a hyperplane. Optimal class separation is guaranteed by maximizing margin size. (\textbf{b}) Random forest with multiple decision trees being trained on random samples from the training data. }
 \label{fig:vis_classical}
 \end{figure}
 
@@ -233,7 +233,7 @@ Once LiDAR point extraction is complete, the points are projected onto a plane, 
            \label{fig:point_cloud_projection} 
         \end{subfigure}
     \end{minipage}
-\caption[Results of LiDAR Filtering]{LiDAR data of a gabled roof.  Histogram of height distribution and generated image (\textbf{a}) before filtering and (\textbf{b}) after filtering, using median absolute deviation. (\textbf{c}) Projection of filtered point cloud. }
+\caption[Demonstration of LiDAR filtering]{Demonstration of LiDAR filtering. LiDAR data of a gabled roof.  Histogram of height distribution and generated image (\textbf{a}) before filtering and (\textbf{b}) after filtering, using median absolute deviation. (\textbf{c}) Projection of filtered point cloud. }
 \label{fig:lidar_filt}
 \end{figure}
 
@@ -263,7 +263,7 @@ Figure \ref{fig:rgb_building1}a shows an~example original building outline (red 
     \end{subfigure}
     \vspace{-12pt}
 
-    \caption[Satellite image processing]{(\textbf{a}) Witten building outline in red shading overlaid on the satellite image. The enlarged crop area is shown in cyan shading. (\textbf{b}) The final generated image, resized.}
+    \caption[Satellite image processing]{Satellite image processing. (\textbf{a}) Witten building outline in red shading overlaid on the satellite image. The enlarged crop area is shown in cyan shading. (\textbf{b}) The final generated image, resized.}
       \label{fig:rgb_building1}
 \end{figure}
 
@@ -334,7 +334,7 @@ Random Forest  & Criterion: gini, entropy        \\
 \includegraphics[width=0.7\textwidth]{chapter_4_roofshape/imgs/CNN_Extraction.pdf}
 \vspace{-9PT}
 
-\caption[CNN feature extraction from rooftop data]{Feature extraction for use in SVM and Random Forest model training. The ``dual'' model refers to both LiDAR and RGB features being combined as input for model training and prediction. }
+\caption[Feature extraction for use in SVM and random forest model training]{Feature extraction for use in SVM and random forest model training. The ``dual'' model refers to both LiDAR and RGB features being combined as input for model training and prediction. }
 \label{fig:dual_classical}
 \end{figure}
 
@@ -450,7 +450,7 @@ All training was performed on the University of Michigan Flux system, providing 
     \end{subfigure}
     \vspace{-12PT}
 
-    \caption[Results of CNN networks on validation set]{Comparison between CNN validation set accuracy. Colors indicate the base model used while the horizontal axis specifies whether a fully connected layer is part of the architecture. (\textbf{a}) RGB (satellite) image input and (\textbf{b}) LiDAR image input.}
+    \caption[Results of CNN networks on validation set]{Results of CNN networks on validation set. Colors indicate the base model used while the horizontal axis specifies whether a fully connected layer is part of the architecture. (\textbf{a}) RGB (satellite) image input and (\textbf{b}) LiDAR image input.}
     \label{fig:cnn_val}
 \end{figure}
 
@@ -488,7 +488,7 @@ Using the best performing models, as shown in Table \ref{table:best_cnn_arch}, a
     \end{subfigure}
     \vspace{-12pt}
 
-    \caption[Accuracy between region-specific and combined training datasets]{Comparison between region-specific  and combined training datasets. Results labeled ``combined dataset'' are trained on images from both Witten and Manhattan. Validation set accuracy on the vertical axis is specific to the region indicated on the horizontal axis. (\textbf{a}) RGB (satellite) image input and (\textbf{b}) LiDAR image input.}
+    \caption[Accuracy between region-specific and combined training datasets]{Accuracy between region-specific and combined training datasets. Results labeled ``combined dataset'' are trained on images from both Witten and Manhattan. Validation set accuracy on the vertical axis is specific to the region indicated on the horizontal axis. (\textbf{a}) RGB (satellite) image input and (\textbf{b}) LiDAR image input.}
     \label{fig:cnn_multi}
 \end{figure}
 
@@ -503,7 +503,7 @@ Training set images from Manhattan and Witten have their salient features extrac
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.7\textwidth]{chapter_4_roofshape/imgs/test_data_set_classical.pdf}
-\caption[Test Set 1 Accuracy]{Test Set     1 (Witten/Manhattan) accuracy using CNN feature extraction coupled with SVM and decision tree classifiers.}
+\caption[Test Set 1 Accuracy (Witten/Manhattan)]{Test Set 1 Accuracy (Witten/Manhattan). Comparison of using CNN feature extraction coupled with SVM and random forest  classifiers.}
 \label{fig:test_classical_train}
 \end{figure}
 
@@ -553,8 +553,7 @@ Section \ref{section:confusion_matrices} provides analysis for the final dual in
         \caption{Test Set     2}
         \label{fig:dual_test_annarbor_cm}
     \end{subfigure}
-    \vspace{-14pt}
-    \caption[Confusion Matrices for both Test Sets]{Confusion Matrices for Test Set 1 (Witten/Manhattan) and Test set 2 (Ann Arbor). }
+    \caption[Confusion Matrices for Test Set 1 (Witten/Manhattan) and Test Set 2 (Ann Arbor).]{Confusion Matrices for Test Set 1 (Witten/Manhattan) and Test Set 2 (Ann Arbor). }
     \label{fig:dual_tes_cm}
     \hfill
 \end{figure}
@@ -621,7 +620,7 @@ The total accuracy for Test Set     1 (Witten and Manhattan) is 87.2\%, while Te
 \begin{figure*}[h]
 \centering
 \includegraphics[width=0.95\textwidth]{chapter_4_roofshape/imgs/metrics_threshold_collapseflat.pdf}
-\caption[Test Set 1 confidence thresholding]{Test Set 1 confidence threshold impact on precision and recall for multiple classes.}
+\caption{Test Set 1 confidence threshold impact on precision and recall for multiple classes.}
 \label{fig:confidence_combined_collapseflat}
 \end{figure*}
 
@@ -630,7 +629,7 @@ We can clearly see the inverse relationship between precision and recall as the 
 \begin{figure*}[h]
 \centering
 \includegraphics[width=0.95\textwidth]{chapter_4_roofshape/imgs/metrics_threshold_collapseflat_aa.pdf}
-\caption[Test Set 2 confidence thresholding]{Test Set 2 confidence threshold impact on precision and recall for multiple classes.}
+\caption{Test Set 2 confidence threshold impact on precision and recall for multiple classes.}
 \label{fig:confidence_aa_collapseflat}
 \end{figure*}
 

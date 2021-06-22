@@ -18,7 +18,7 @@ Emergency landing planning is typically accomplished with either onboard sensor-
 \begin{figure}[ht]
 \includegraphics[scale=.65]{chapter_5_mapping/imgs/meta-level-planner.pdf}
 \centering
-\caption[Simplified flow chart for emergency landing]{Emergency planning logic. Reprinted from Ref. \cite{ten_harmsel_emergency_2017}, originally published open access under a CC-BY 4.0 license. https://link.springer.com/article/10.1007/s10846-016-0370-z}
+\caption[Emergency planning logic.]{Emergency planning logic. Reprinted from Ref. \cite{ten_harmsel_emergency_2017}, originally published open access under a CC-BY 4.0 license. https://link.springer.com/article/10.1007/s10846-016-0370-z}
 \label{fig:ch5_meta-level-planner}       % Give a unique label
 \end{figure}
 
@@ -87,7 +87,7 @@ In our work multiple landing sites (goals) will typically be identified. Risk is
 %     \centering\includegraphics[width=\linewidth]{chapter_5_mapping/imgs/mg_sg_2.pdf}
 %     \caption{\label{fig:ch5_mg_sg_2}}
 %   \end{subfigure}%
-  \caption[Comparison of multi-goal planners]{Comparison of multi-goal planning definitions. The green state depicts the initial state, e.g., where the \ac{UAS} begins its emergency landing trajectory.  Unfilled circles are goal states.}
+  \caption[Comparison of multi-goal planning definitions]{Comparison of multi-goal planning definitions. The green state depicts the initial state, e.g., where the \ac{UAS} begins its emergency landing trajectory.  Unfilled circles are goal states.}
   \label{fig:ch5_mg_example}
 \end{figure}
 
@@ -101,7 +101,7 @@ An emergency landing requires first identifying safe nearby landings sites.  Cit
 \begin{figure}[ht]
     \centering
     \includegraphics[clip, trim=0.0cm 0cm 0cm 0cm, width=0.45\linewidth]{chapter_5_mapping/imgs/challenge_urban-Page-2.jpg}
-    \caption[Satellite image of an urban environment]{Satellite image of an urban environment with multiple flat roof landing sites. Select roof shapes and obstacles are labeled.}
+    \caption[Satellite image of an urban environment with multiple flat roof landing sites]{Satellite image of an urban environment with multiple flat roof landing sites. Select roof shapes and obstacles are labeled.}
     \label{fig:ch5_challenge_urban}
 \end{figure}
 
@@ -156,7 +156,7 @@ The search space is limited to cells within the the radial footprint $R$ to boun
 \begin{figure}[!t]
     \centering
     \includegraphics[clip, trim=0.0cm 0cm 0cm 0cm, width=0.7\linewidth]{chapter_5_mapping/imgs/data_preprocessing-Page-1.pdf}
-    \caption[Data processing pipeline for landing sites]{Data processing pipeline to construct landing site database and occupancy map databases with risk values.}
+    \caption[Processing pipeline to construct landing site and occupancy map databases]{Processing pipeline to construct landing site and occupancy map databases. Landing sites and occupancy map are risk evaluated.}
     \label{fig:ch5_overview_processing}
 \end{figure}
 
@@ -187,7 +187,7 @@ Information on building roof shape is sparse in existing  databases. Chapter 4 s
    \caption{Manhattan, New York}\label{fig:ch5_ny-flat}
  \end{subfigure}
 %   \sidecaption[t]
- \caption[Maps of predicted flat rooftops]{Three city maps. Buildings with a predicted flat-like roof shape are outlined in dark yellow with blue dashed lines through the center.  Parks and grasslands are shown in green. Maps from \copyright OpenStreetMap contributors and \copyright CARTO. License: Open Database License: https://www.openstreetmap.org/copyright}\label{fig:ch5_all_flat_buildings}
+ \caption[Maps of predicted flat rooftops in three cities.]{Maps of predicted flat rooftops in three cities. Buildings with a predicted flat-like roof shape are outlined in dark yellow with blue dashed lines through the center.  Parks and grasslands are shown in green. Maps from \copyright OpenStreetMap contributors and \copyright CARTO. License: Open Database License: https://www.openstreetmap.org/copyright}\label{fig:ch5_all_flat_buildings}
 \end{figure}
 
 Figure \ref{fig:ch5_all_flat_buildings} shows results of our roof prediction model for the cities of Ann Arbor, Michigan, Witten, Germany, and mid-town Manhattan in New York City. In previous work only parks and grasslands were processed to identify emergency landing zones. This work adds new landing site options identified from the illustrated flat-like rooftops as described below. 
@@ -219,7 +219,7 @@ Figure \ref{fig:ch5_all_flat_buildings} shows results of our roof prediction mod
     \centering\includegraphics[width=75pt,height=125pt]{chapter_5_mapping/imgs/74200284_satellite_simple.pdf}
     \caption{\label{fig:ch5_satellite_example}}
   \end{subfigure}%
-  \caption[Flat surface extraction from rooftops]{Flat rooftop surface extraction example. Point cloud data for a building is displayed in (\subref{fig:ch5_pc_example}); (\subref{fig:ch5_trimesh_example}) shows the generated planar triangular mesh.  Conversion of the 3D mesh to a 2D polygon is shown in (\subref{fig:ch5_polygon_example}) with subsequent polygon inward buffering and simplification shown in dashed lines.  A reference satellite image is shown in (\subref{fig:ch5_satellite_example}).}
+  \caption[Flat surface extraction from rooftops]{Flat surface extraction from rooftops. Point cloud data for a building is displayed in (\subref{fig:ch5_pc_example}); (\subref{fig:ch5_trimesh_example}) shows the generated planar triangular mesh.  Conversion of the 3D mesh to a 2D polygon is shown in (\subref{fig:ch5_polygon_example}) with subsequent polygon inward buffering and simplification shown in dashed lines.  A reference satellite image is shown in (\subref{fig:ch5_satellite_example}).}
   \label{fig:ch5_example_usable}
 \end{figure}
 
@@ -253,7 +253,7 @@ There are additional suitable touchdown sites on this rooftop that can be used. 
     \centering\includegraphics[width=80pt,height=125pt]{chapter_5_mapping/imgs/74200284_polygonbuffer_all_lc.pdf}
     \caption{\label{fig:ch5_polylabel_example_all}}
   \end{subfigure}%
-  \caption[Touchdown point extraction on rooftops]{Touchdown points on rooftop surface shown in orange. The best (largest circle) landing zone is shown in (\subref{fig:ch5_polylabel_example}). (b) Polygon subtraction of a previously found touchdown zone. The complete ranked touchdown site set is shown in (\subref{fig:ch5_polylabel_example_all}).}
+  \caption[Touchdown point extraction on rooftops]{Touchdown point extraction on rooftops. Rooftop surface shown in orange. The best (largest circle) landing zone is shown in (\subref{fig:ch5_polylabel_example}). (b) Polygon subtraction of a previously found touchdown zone. The complete ranked touchdown site set is shown in (\subref{fig:ch5_polylabel_example_all}).}
   \label{fig:ch5_touchdown_zones}
 \end{figure}
 
@@ -340,7 +340,7 @@ An example of this mapping is shown in Figure \ref{fig:ch5_ny_area_cost}.
 \begin{figure}[ht]
     \centering
     \includegraphics[clip, trim=0.2cm 0cm 0cm 0cm, width=0.5\linewidth]{chapter_5_mapping/imgs/area_cost.pdf}
-    \caption[Mapping area size to risk]{Example function mapping area size to a cost value between [0, 1]. In this example $A_{avg}$ and $A_{min}$ are 100 and 12.5$m^2$, respectively. }
+    \caption[Mapping area size to risk]{Mapping area size to risk. Function maps area size to a cost value between [0, 1]. In this example $A_{avg}$ and $A_{min}$ are 100 and 12.5$m^2$, respectively. }
     \label{fig:ch5_ny_area_cost}
 \end{figure}
 
@@ -392,7 +392,7 @@ The occupancy map is generated similar to \cite{ten_harmsel_emergency_2017} wher
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.5\linewidth]{chapter_5_mapping/imgs/voxel_map_ny_2.png}
-  \caption[Occupancy map of New York City]{Example occupancy and risk map for New York City. Obstacles are colored orange with a surrounding potential field denoted by pink, light blue, and dark blue colors. Buildings which do not fit in the map (higher then 400 feet AGL), are shown with orange roofs.}
+  \caption[Example occupancy and risk map of New York City]{Example occupancy and risk map of New York City. Obstacles are colored orange with a surrounding potential field denoted by pink, light blue, and dark blue colors. Buildings which do not fit in the map (higher then 400 feet AGL), are shown with orange roofs.}
   \label{fig:ch5_ny_voxel_map}
 \end{figure}
 
@@ -447,7 +447,7 @@ Minimizing the landing site risk and path risk to a site requires solving a mult
 \begin{figure}[h!]
 \centering
 \includegraphics[width=.5\linewidth]{chapter_5_mapping/imgs/witten_Scenario1_pareto.pdf}
-\caption[Example Pareto frontier for risk]{Example trade-off between landing site risk and path risk. Points in the Pareto frontier are connected by a green line.}
+\caption[Example Pareto frontier for landing site and path risk]{Example Pareto frontier for landing site and path risk. Demonstrates trade-off between to minimize both objectives. Points in the Pareto frontier are connected by a green line.}
 \label{fig:ch5_pareto_example}
 \end{figure}
 
@@ -685,7 +685,7 @@ The operating regions are approximately $1500\times1500$, $1500\times1300$, and 
 %   \rule{\linewidth}{\dimexpr 2\linewidth+2\baselineskip+6pt}
    \caption{New York}\label{fig:ch5_ny_all_risk}
  \end{subfigure}
- \caption[Map of landing site risk]{Landings site risk for the cities of Ann Arbor (a), Witten (b), and New York (c). Landing sites are color-coded from low risk (light yellow) to high risk (dark orange). Touchdown sites are denoted by blue circles. Maps from \copyright OpenStreetMap contributors and \copyright CARTO. License: Open Database License: https://www.openstreetmap.org/copyright}\label{fig:ch5_all_ls_risk}
+ \caption[Maps of landing sites and associated risk.]{Maps of landing sites and associated risk. Landings site risk for the cities of Ann Arbor (a), Witten (b), and New York (c). Landing sites are color-coded from low risk (light yellow) to high risk (dark orange). Touchdown sites are denoted by blue circles. Maps from \copyright OpenStreetMap contributors and \copyright CARTO. License: Open Database License: https://www.openstreetmap.org/copyright}\label{fig:ch5_all_ls_risk}
 \end{figure}
 
 
@@ -721,7 +721,7 @@ Pareto plots are also provided for each of these case studies in Fig. \ref{fig:c
         \centering\includegraphics[width=155pt, height=130pt]{chapter_5_mapping/imgs/newyork_scenario_4.png}
         \caption{\label{fig:ch5_ny_map2}}
       \end{subfigure}
-         \caption[Maps of case studies for emergency landing]{Maps of Ann Arbor (a,b), Witten (c,d), and New York (e, f).  Failure position of the \ac{UAS} is indicated by the green marker. Landing site risk is colorized from low (yellow) to high (dark orange) risk, with associated touchdown sites marked as blue circles. The lowest risk landing sites are ranked and marked with blue numbered icons. Our planner's chosen landing site is marked in red which trades off landing site and path risk. Maps from \copyright OpenStreetMap contributors and \copyright CARTO. License: Open Database License: https://www.openstreetmap.org/copyright}
+         \caption[Maps of case studies for emergency landing]{Maps of case studies for emergency landing. Maps of Ann Arbor (a,b), Witten (c,d), and New York (e, f).  Failure position of the \ac{UAS} is indicated by the green marker. Landing site risk is colorized from low (yellow) to high (dark orange) risk, with associated touchdown sites marked as blue circles. The lowest risk landing sites are ranked and marked with blue numbered icons. Our planner's chosen landing site is marked in red which trades off landing site and path risk. Maps from \copyright OpenStreetMap contributors and \copyright CARTO. License: Open Database License: https://www.openstreetmap.org/copyright}
      \label{fig:ch5_all_scenarios_map}
 \end{figure}
 
@@ -746,7 +746,7 @@ NY CS\#2    & 40.7662, -73.9903   & 17         \\
 \begin{figure}[t]
     \centering
     \includegraphics[clip, trim=0.2cm 0cm 0cm 0cm, width=.80\linewidth]{chapter_5_mapping/imgs/all_pareto.pdf}
-    \caption[Pareto frontier of case studies]{Simulation results for six case studies performed in Ann Arbor (first row), Witten (second row), and New York City (third row). The $x$ and $y$ axes are landing site risk and path risk, respectively. Each purple dots represents a landing site and its associated path, while the red dot signifies the planner's choice which minimizes total weighted risk.}
+    \caption[Pareto frontier of case studies]{Pareto frontier of case studies. Simulation results for six case studies performed in Ann Arbor (first row), Witten (second row), and New York City (third row). The $x$ and $y$ axes are landing site risk and path risk, respectively. Each purple dots represents a landing site and its associated path, while the red dot signifies the planner's choice which minimizes total weighted risk.}
     \label{fig:ch5_all_pareto_plots}
 \end{figure}
 
@@ -837,7 +837,7 @@ A search radius footprint, $R$, determines the maximum distance the planner will
 %   \rule{\linewidth}{\dimexpr 2\linewidth+2\baselineskip+6pt}
    \caption{New York}\label{subfig-1:dummy}
  \end{subfigure}
- \caption[Maximum distance between landing sites]{The maximum distance to any landing site for each city is shown. Each landing site is displayed as a blue circle with the red circle center labelling the point farthest from any landing site. Maps from \copyright OpenStreetMap contributors and \copyright CARTO. License: Open Database License: https://www.openstreetmap.org/copyright}\label{fig:ch5_farthest_landing_site}
+ \caption[Maximum distance between landing sites]{Maximum distance between landing sites. Each landing site is displayed as a blue circle with the red circle center labelling the point farthest from any landing site. Maps from \copyright OpenStreetMap contributors and \copyright CARTO. License: Open Database License: https://www.openstreetmap.org/copyright}\label{fig:ch5_farthest_landing_site}
 \end{figure}
 
 
@@ -889,7 +889,7 @@ Figure \ref{fig:ch5_random_stats}c shows multi-goal planner execution time in mi
     \centering\includegraphics[width=\textwidth]{chapter_5_mapping/imgs/random_total_goal_searches_bw.pdf}
     \caption{\label{fig:ch5_random_ls_searched}}
   \end{subfigure}%
-  \caption[Metrics for map-based planner]{Comparison of key metrics between the cities of Ann Arbor, Witten, and New York in 500 random \ac{UAS} initial positions with a search radius of 250 m. Each data point is shown with the box capturing interquartile range and whiskers denoting 0-95th percentile. Statistics are provided for number of available landing sites (a), time to query the database (b), time to find the risk-optimal landing site/path pair (c), and number of landing sites searched (d).}
+  \caption[Metrics for map-based planner]{Metrics for map-based planner. Comparison between the cities of Ann Arbor, Witten, and New York in 500 random \ac{UAS} initial positions with a search radius of 250 m. Each data point is shown with the box capturing interquartile range and whiskers denoting 0-95th percentile. Statistics are provided for number of available landing sites (a), time to query the database (b), time to find the risk-optimal landing site/path pair (c), and number of landing sites searched (d).}
   \label{fig:ch5_random_stats}
 \end{figure*}
 

@@ -6,7 +6,7 @@ Recent advances in small Unmanned Aircraft Systems (UAS) perception systems are 
     \centering
     \includegraphics[width=0.70\columnwidth]{chapter_6_landingsim/figs/main_photo.pdf}
     % \includegraphics[width=0.99\columnwidth]{imgs/Overview_LS_Identification_rev2.pdf}
-    \caption[Overview of Semantic Polylidar3D]{Overview of Semantic Polylidar3D for touchdown point selection. Camera RGB (red-green-blue) images are transformed into a segmented image through a neural network. LiDAR point cloud data is projected into the segmented image for classification. Flat surfaces are extracted with Semantic Polylidar3D \cite{castagno_polylidar3d_2020} from the \textit{classified} point cloud as shown in the right image indicating a green candidate landing site polygon with orange interior ``obstacle cutouts''. The blue circle represents the largest flat, obstacle-free touchdown point in the polygon.}
+    \caption[Overview of Semantic Polylidar3D for touchdown point selection]{Overview of Semantic Polylidar3D for touchdown point selection. Camera RGB (red-green-blue) images are transformed into a segmented image through a neural network. LiDAR point cloud data is projected into the segmented image for classification. Flat surfaces are extracted with Semantic Polylidar3D \cite{castagno_polylidar3d_2020} from the \textit{classified} point cloud as shown in the right image indicating a green candidate landing site polygon with orange interior ``obstacle cutouts''. The blue circle represents the largest flat, obstacle-free touchdown point in the polygon.}
     \label{fig:ch6_ls_overview}
 \end{figure}
 
@@ -62,7 +62,7 @@ This paper investigates rooftop touchdown point selection to enable small UAS op
 \begin{figure}[ht!]
 \centering
 % \includegraphics[width=.95\linewidth]{chapter_6_landingsim/figs/problem_statement_overview_2.pdf}
-\includegraphics[width=.85\linewidth]{chapter_6_landingsim/figs/problem_statement_overview_2.pdf}
+\includegraphics[width=.75\linewidth]{chapter_6_landingsim/figs/problem_statement_overview_2.pdf}
 \caption[Rooftop-based contingency landing planning overview]{Rooftop-based contingency landing planning overview. Boxes with gold stars indicate research focus for this paper. }
 \label{fig:ch6_contingency_planning}
 \end{figure}
@@ -145,7 +145,7 @@ Classified organized point cloud $\mathcal{P}^L$ is rapidly transformed into a h
     \centering\includegraphics[page=1, width=.99\linewidth]{chapter_6_landingsim/figs/Algorithm_polygon.pdf}
     \caption{\label{fig:ch6_semantic_pl3d_b}}
   \end{subfigure}
-  \caption[Visualization of Semantic Polylidar3D algorithm]{Visualization of Semantic Polylidar3D. (\subref{fig:ch6_semantic_pl3d_a}) Classified LiDAR point cloud with triangular mesh: green is rooftop, orange is obstacles, blue is unknown. Triangles meeting semantic and planarity constraints are shaded light blue. (\subref{fig:ch6_semantic_pl3d_b}) Polygon extraction from planar mesh. Green is hull, orange are interior holes, and blue is the touchdown site.}\label{fig:ch6_semantic_pl3d}
+  \caption[Visualization of Semantic Polylidar3D]{Visualization of Semantic Polylidar3D. (\subref{fig:ch6_semantic_pl3d_a}) Classified LiDAR point cloud with triangular mesh: green is rooftop, orange is obstacles, blue is unknown. Triangles meeting semantic and planarity constraints are shaded light blue. (\subref{fig:ch6_semantic_pl3d_b}) Polygon extraction from planar mesh. Green is hull, orange are interior holes, and blue is the touchdown site.}\label{fig:ch6_semantic_pl3d}
 \end{figure}
 
 \begin{algorithm}[ht]
@@ -219,7 +219,7 @@ Before constructing the simulation environment, an analysis of rooftops in Manha
 \begin{figure}[ht!]
 \centering
 \includegraphics[angle=0,origin=c,width=.75\columnwidth]{chapter_6_landingsim/figs/map_ny_vector.pdf}
-\caption[Map of Manhattan buildings observed for rooftop assets]{Map of Manhattan buildings. Each blue circle represents a rooftop  used for asset analysis.}
+\caption[Map of Manhattan buildings observed for rooftop assets]{Map of Manhattan buildings observed for rooftop assets. Each blue circle represents a rooftop  used for asset analysis.}
 \label{fig:ch6_ny_rooftops}
 \end{figure}
 
@@ -266,7 +266,7 @@ A map of the base world colorized by height is shown in Figure \ref{fig:ch6_map_
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=.60\linewidth]{chapter_6_landingsim/figs/assets_all.pdf}
-\caption[Examples of rooftop asset modelling and customization]{Examples of four rooftop assets (air-vents, seating, rooftop-entrance, ac-unit) and a subset of their customization in random worlds. Metallic, texture, and static mesh properties can be altered for each asset type.  }
+\caption[Examples of rooftop asset modelling and customization]{Examples of rooftop asset modelling and customization. Four rooftop assets (air-vents, seating, rooftop-entrance, ac-unit) and a subset of their customization in random worlds are shown. Metallic, texture, and static mesh properties can be altered for each asset type.  }
 % Two different sampling techniques are shown, directly sampling from a histogram (orange) and sampling from a fitted kernel density estimator (blue)
 \label{fig:ch6_all_assets}
 \end{figure}
@@ -282,7 +282,7 @@ A map of the base world colorized by height is shown in Figure \ref{fig:ch6_map_
     \centering\includegraphics[page=1, width=.99\linewidth]{chapter_6_landingsim/figs/HistogramRoof.pdf}
     \caption{\label{fig:ch6_map_base_b}}
   \end{subfigure}
-  \caption[Example simulated urban city]{ (\subref{fig:ch6_map_base_a}) Map of the 33 base city flat rooftops colorized by height. (\subref{fig:ch6_map_base_b}) Example of randomized asset placement from world generation script.}\label{fig:ch6_map_base}
+  \caption[Example simulated urban city]{Example simulated urban city. (\subref{fig:ch6_map_base_a}) Map of the 33 base city flat rooftops colorized by height. (\subref{fig:ch6_map_base_b}) Example of randomized asset placement from world generation script.}\label{fig:ch6_map_base}
 \end{figure}
 
 % was performed and leads to a more realistic world in terms of asset quantities, though placement could still be considered odd.
@@ -316,7 +316,7 @@ Training, validating, and testing a neural network to segment rooftops and obstr
 \begin{figure}[ht!]
 \centering
 \includegraphics[clip,trim=1cm 0.0cm 0.0cm 1cm,, width=.50\linewidth]{chapter_6_landingsim/figs/SamplingSphere.pdf}
-\caption[Image sampling strategy for rooftops]{Image sampling strategy for creating an annotated dataset of rooftop segmentation. Blue arrows denote the position and orientation of the camera. The green polygon denotes the rooftop.}
+\caption[Image sampling strategy for creating an annotated dataset of rooftop segmentation]{Image sampling strategy for creating an annotated dataset of rooftop segmentation. Blue arrows denote the position and orientation of the camera. The green polygon denotes the rooftop.}
 % Two different sampling techniques are shown, directly sampling from a histogram (orange) and sampling from a fitted kernel density estimator (blue)
 \label{fig:ch6_sampling_strategy}
 \end{figure}
@@ -398,7 +398,7 @@ LiDAR and camera image data were collected at 10 meters above each of the 33 roo
     \centering\includegraphics[page=2, width=.99\linewidth]{chapter_6_landingsim/figs/GroundTruthClipping.pdf}
     \caption{\label{fig:ch6_clipping_b}}
   \end{subfigure}
-  \caption[Semantic Polylidar3D parameters]{ (\subref{fig:ch6_clipping_a}) Rooftop ground truth polygon (exterior=green,holes=orange), classified point cloud, and camera FOV frustum (red). (\subref{fig:ch6_clipping_b}) The ground truth polygon is clipped (purple) to be inside the frustum.}\label{fig:ch6_clipping}
+  \caption[Demonstrating of gathering test data in simulation environment.]{Demonstrating of gathering test data in simulation environment. (\subref{fig:ch6_clipping_a}) Rooftop ground truth polygon (exterior=green,holes=orange), classified point cloud, and camera FOV frustum (red). (\subref{fig:ch6_clipping_b}) The ground truth polygon is clipped (purple) to be inside the frustum.}\label{fig:ch6_clipping}
 \end{figure}
 
 
@@ -423,7 +423,7 @@ LiDAR and camera image data were collected at 10 meters above each of the 33 roo
     \centering\includegraphics[page=4, width=.99\linewidth]{chapter_6_landingsim/figs/QualitativeExamples.pdf}
     \caption{\label{fig:ch6_qualitative_d}}
   \end{subfigure}
-  \caption[Example touchdown point selection on rooftops]{Three examples of touchdown point selection. Predicted segmentation and camera image with overlaying projected polygons are shown on the left and right, respectively. Dashed purple lines represent ground truth polygons while green/orange represent the predicted polygon. The center of the blue circle is the selected touchdown point.     }\label{fig:ch6_qualitative}
+  \caption[Three examples of touchdown point selection on rooftops.]{Three examples of touchdown point selection on rooftops. Predicted segmentation and camera image with overlaying projected polygons are shown on the left and right, respectively. Dashed purple lines represent ground truth polygons while green/orange represent the predicted polygon. The center of the blue circle is the selected touchdown point.     }\label{fig:ch6_qualitative}
 \end{figure*}
 
 Figure \ref{fig:ch6_qualitative} displays three examples of our touchdown point selection process, each with two images. The left image shows the neural network semantic classification map while the right image displays the camera image overlaid with polygons.  Semantic Polylidar3D polygons are shown in green/orange (orange is interior obstacles); the clipped ground truth polygons are indicated by a dashed purple line, and the center of the blue circle represents the optimal touchdown point. A safe touchdown point is found in each of these examples.  Generated polygons map reasonably to ground truth polygons but may overestimate the size of large obstacles such as the rooftop entrances seen in (c). This occurs when obstacles occlude perception by the camera and LiDAR sensors, leaving a ``shadow'' of missing information behind them. Our method is conservative in that such regions will not be considered touchdown options. 
@@ -454,7 +454,7 @@ Fig. \ref{fig:ch6_case1} demonstrates a challenging scenario where Semantic Poly
     \centering\includegraphics[page=4, width=.99\columnwidth]{chapter_6_landingsim/figs/CompareAlgs_Case1.pdf}
     \caption{\label{fig:ch6_case1_e}}
   \end{subfigure}
-  \caption[Example of Semantic Polylidar3D on a challenging rooftop]{ (\subref{fig:ch6_case1_a}) Rooftop with tarp and rooftop-entrance. The entrance texture is similar to the rooftops.  (\subref{fig:ch6_case1_c}) Neural network semantic segmentation. 
+  \caption[Example of Semantic Polylidar3D on a challenging rooftop]{Example of Semantic Polylidar3D on a challenging rooftop. (\subref{fig:ch6_case1_a}) Rooftop with tarp and rooftop-entrance. The entrance texture is similar to the rooftops.  (\subref{fig:ch6_case1_c}) Neural network semantic segmentation. 
    (\subref{fig:ch6_case1_d}) Proposed Semantic Polylidar3D polygon extraction. (\subref{fig:ch6_case1_e}) Baseline Polylidar3D fails to identify the tarp. }\label{fig:ch6_case1}
 \end{figure}
 
@@ -469,7 +469,7 @@ The IoU of the predicted polygon and ground truth polygon (clipped to camera FOV
 \centering
 % \includegraphics[width=.85\linewidth]{chapter_6_landingsim/figs/compare_algs_extra_2.pdf}
 \includegraphics[width=.55\linewidth]{chapter_6_landingsim/figs/compare_algs_extra_2.pdf}
-\caption[Accuracy benchmark for Semantic Polylidar3D]{Accuracy of Polylidar3D (blue, baseline) versus Semantic Polylidar3D (orange, proposed). A higher IoU indicates the algorithm captured more of the surface and correctly identified obstacles. Mean and $1\sigma$ bars are shown on top.}
+\caption[Comparison of Semantic Polylidar3D IoU accuracy]{Comparison of Semantic Polylidar3D IoU accuracy. Polylidar3D (blue, baseline) versus Semantic Polylidar3D (orange, proposed). A higher IoU indicates the algorithm captured more of the surface and correctly identified obstacles. Mean and $1\sigma$ bars are shown on top.}
 % Two different sampling techniques are shown, directly sampling from a histogram (orange) and sampling from a fitted kernel density estimator (blue)
 \label{fig:ch6_compare_algs}
 \end{figure}
@@ -520,7 +520,7 @@ Decision height & 10 m     & 20 m     & 30 m     \\ \bottomrule
     \centering\includegraphics[page=2, width=.99\linewidth]{chapter_6_landingsim/figs/DecisionPointImages.pdf}
     \caption{\label{fig:ch6_dp_b}}
   \end{subfigure}
-  \caption[Rooftop environment for decision height analysis]{ (\subref{fig:ch6_dp_a}) Rooftop environment for decision height analysis.   (\subref{fig:ch6_dp_b}) Example observation point of a drone five meters above a person.}\label{fig:ch6_dp}
+  \caption[Decision height analysis]{Decision height analysis. (\subref{fig:ch6_dp_a}) Rooftop environment for analysis.   (\subref{fig:ch6_dp_b}) Example observation point of a drone five meters above a person.}\label{fig:ch6_dp}
 \end{figure}
 
 \section{Discussion}\label{sec:ch6_discussion}
@@ -556,7 +556,7 @@ The archived map for safe rooftop landing sites must be updated when the sensor-
     \centering\includegraphics[clip, trim=0cm 0cm 0.0cm 0cm, width=.99\linewidth]{chapter_6_landingsim/figs/map_update_d.pdf}
     \caption{Updated Polygon (UP)\label{fig:ch6_map_update_d}}
   \end{subfigure}
-  \caption[Proposed rooftop archival polygon update procedure]{Rooftop archival polygon update with information from onboard sensors. The AP and LP are intersected to create (c). The final polygon to update the rooftop is shown in (d).  }\label{fig:ch6_map_upate}
+  \caption[Proposed rooftop archival polygon update procedure]{Proposed rooftop archival polygon update procedure. The AP and LP are intersected to create (c). The final polygon to update the rooftop is shown in (d).  }\label{fig:ch6_map_upate}
 \end{figure}
 
 

@@ -3,11 +3,10 @@ Flat surfaces are pervasive in engineered structures and also occur in natural t
 
 Planar points clouds may be converted to convex polygons~\cite{biswas_planar_2012}. Convex polygons are simple and efficient to generate but often do not represent the true shape of a point set. Non-convex polygons may be generated using techniques such as $\alpha$-shapes but operate strictly on 2D data, requiring the projection of each 3D planar point cloud and expensive triangulation~\cite{lee_fast_2013, edelsbrunner_shape_1983}. Pixel-level boundary following of organized point clouds can be used to extract non-convex polygons but often only captures the exterior shell of the polygon~\cite{lee_indoor_2012-1}. These methods are not able to capture \emph{interior} holes in a polygon representing the shape of obstacles on flat surfaces. Finally, speed is an important consideration for many of the applications mentioned previously. Parallel algorithms written for multi-core CPUs and GPUs should be used to reduce~latency. 
 
-% JC_Author: It's important that this figure is not too small. The edit of changing to "width=0.7" makes the text not legible. It should be a minimum of 0.85 as it is now.
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.95\linewidth]{chapter_3_polylidar3d/imgs/Polylidar3DArchitecture-SimplifedV4.pdf}
-    \caption[Overview of Polylidar3D's data input, algorithms, and output]{Overview of Polylidar3D. Input data can be 2D point sets, unorganized/organized 3D point clouds, or~user-provided meshes. Polylidar3D's front-end transforms input data to a half-edge triangulation structure. The~back-end is responsible for mesh smoothing, dominant plane normal~estimation, planar segmentation, and~polygon extraction. Polylidar3D outputs both planes (sets of spatially connected triangles) and corresponding polygonal representations. An~example output of color-coded extracted planes from organized point clouds is shown (top right). An~example of extracted polygons from a user-provided mesh is shown (bottom right). The~green line represents the concave hull; orange lines show interior holes representing obstacles.} %Note that only one planar direction can be extracted for unorganized 3D point clouds. This is suitable for airborne LiDAR point~clouds. }
+    \caption[Overview of Polylidar3D framework]{Overview of Polylidar3D framework. Input data can be 2D point sets, unorganized/organized 3D point clouds, or~user-provided meshes. Polylidar3D's front-end transforms input data to a half-edge triangulation structure. The~back-end is responsible for mesh smoothing, dominant plane normal~estimation, planar segmentation, and~polygon extraction. Polylidar3D outputs both planes (sets of spatially connected triangles) and corresponding polygonal representations. An~example output of color-coded extracted planes from organized point clouds is shown (top right). An~example of extracted polygons from a user-provided mesh is shown (bottom right). The~green line represents the concave hull; orange lines show interior holes representing obstacles.} %Note that only one planar direction can be extracted for unorganized 3D point clouds. This is suitable for airborne LiDAR point~clouds. }
     \label{fig:ch3_polylidar_overview}
 \end{figure}
 
@@ -169,7 +168,7 @@ Borrmann et al.~\cite{borrmann_3d_2011} and Limberger et al.~\cite{limberger_rea
     \centering\includegraphics[trim=0.1cm 0cm 0.99cm 0.6cm,width=.99\linewidth]{chapter_3_polylidar3d/imgs/ref_ga/strips_histogram.pdf}
     \caption{Ball Sphere, Histogram\label{fig:ch3_bg_ga_f}}\vspace{6pt}
   \end{subfigure}
-  \caption[Example of integrating surface normals into Gaussian Accumulators]{Examples of integrating normals from two identically ``noisy'' planes (red arrows, Gaussian~distributed) into a UV Sphere (\textbf{a},\textbf{b}) and Ball Sphere (\textbf{c},\textbf{d}). Note the anisotropic property of sphere cells caused by unequal area and shape; (\textbf{e}) The UV Sphere histogram is unable to detect the peak at the pole; (\textbf{f}) The Ball sphere is able to detect both peaks, but~the north pole cell is significantly larger
+  \caption[Example Gaussian Accumulators]{Example Gaussian Accumulators. Two identically ``noisy'' planes (red arrows, Gaussian~distributed) are integrated into a UV Sphere (\textbf{a},\textbf{b}) and Ball Sphere (\textbf{c},\textbf{d}). Note the anisotropic property of sphere cells caused by unequal area and shape; (\textbf{e}) The UV Sphere histogram is unable to detect the peak at the pole; (\textbf{f}) The Ball sphere is able to detect both peaks, but~the north pole cell is significantly larger
   leading to an incorrectly higher value than the equator cell.}\label{fig:ch3_bg_ga}
 \end{figure}
 
@@ -262,7 +261,7 @@ We convert an unorganized 3D point cloud $\mathcal{P}$ into a 3D triangular mesh
     \centering\includegraphics[width=.65\linewidth]{chapter_3_polylidar3d/imgs/Basic25DAlgorithm_mesh.pdf}
     \caption{\label{fig:ch3_25DMesh}2D and 3D~Mesh}\vspace{6pt}
   \end{subfigure}
-  \caption[Converting an unorganized 3D point cloud to a 3D triangular mesh]{Example conversion of an unorganized 3D point cloud to a 3D triangular mesh. (\textbf{a})~Synthetic~point cloud of a  rooftop scene generated from an overhead laser scanner. A~single wall is captured because the scanner is slightly angled; (\textbf{b}) The point cloud is projected to the $xy$ plane and triangulated, generating the dual 3D mesh. Only planes aligned with the $xy$ plane can be~captured.  }\label{fig:ch3_25DMeshCreation}
+  \caption[Converting an unorganized 3D point cloud to a 3D triangular mesh]{Converting an unorganized 3D point cloud to a 3D triangular mesh. (\textbf{a})~Synthetic~point cloud of a  rooftop scene generated from an overhead laser scanner. A~single wall is captured because the scanner is slightly angled; (\textbf{b}) The point cloud is projected to the $xy$ plane and triangulated, generating the dual 3D mesh. Only planes aligned with the $xy$ plane can be~captured.  }\label{fig:ch3_25DMeshCreation}
 \end{figure}
 
 Plane normals may not be aligned with the inertial $xy$ plane, e.g.,~3D laser scanner rigidly mounted on an automobile. The~point cloud, generated in the sensor frame, must then be rotated such that desired plane to be extracted is aligned with $xy$ plane. This requires a priori knowledge of the plane normal and rigid body transformation necessary to align the sensor frame point cloud as demonstrated in Section~\ref{sec:ch3_results_kitti} where the ground plane (road) is extracted from point clouds generated by a spinning LiDAR sensor mounted on a~car.
@@ -290,7 +289,7 @@ Half-edge triangulation of an M $\times$ N organized point cloud can be quickly 
      \centering\includegraphics[width=.95\linewidth]{chapter_3_polylidar3d/imgs/OPCHalfEdge-OPC-Mesh_actual_V2.pdf}
     \caption{\label{fig:ch3_OPC_Mesh} Final Mesh, $\mathcal{T}$ }\vspace{6pt}
   \end{subfigure}
-  \caption[Converting an organized point cloud into a 3D triangular mesh]{Example conversion of a 7 $\times$ 7 Organized Point Cloud (OPC) to a half-edge triangular mesh.~Points are represented by circles; red indicates an invalid value (e.g.,~0~depth~measurement). (\textbf{a})~Implicit~mesh of \ac{OPC} with right cut triangles, $\mathcal{T}_{FC}$.~A unique global id $GID = 2 \cdot (u \cdot (N-1) + v) + k$ is shown inside each triangle;  (\textbf{b}) Indexing scheme to define $GID$s for triangles in $\mathcal{T}_{FC}$; (\textbf{c}) Final mesh $\mathcal{T}$ with triangles created if and only if all vertices are valid. Unique indices into $\mathcal{T}$  are marked.  $\mathcal{T}_{map}$ maps between $GID$s in $\mathcal{T}_{FC}$ to $\mathcal{T}$. }\label{fig:ch3_OPC_Mesh_all}
+  \caption[Converting an organized point cloud into a 3D triangular mesh]{Converting an organized point cloud into a 3D triangular mesh. Example conversion of a 7 $\times$ 7 Organized Point Cloud (OPC) to a half-edge triangular mesh.~Points are represented by circles; red indicates an invalid value (e.g.,~0~depth~measurement). (\textbf{a})~Implicit~mesh of \ac{OPC} with right cut triangles, $\mathcal{T}_{FC}$.~A unique global id $GID = 2 \cdot (u \cdot (N-1) + v) + k$ is shown inside each triangle;  (\textbf{b}) Indexing scheme to define $GID$s for triangles in $\mathcal{T}_{FC}$; (\textbf{c}) Final mesh $\mathcal{T}$ with triangles created if and only if all vertices are valid. Unique indices into $\mathcal{T}$  are marked.  $\mathcal{T}_{map}$ maps between $GID$s in $\mathcal{T}_{FC}$ to $\mathcal{T}$. }\label{fig:ch3_OPC_Mesh_all}
 \end{figure}
 First, any invalid data in the point cloud is set to an NaN floating point value.~This keeps the point cloud organized and prompts removal of invalid triangles in the mesh.~An~implicit fully-connected right-cut mesh triangulates all points, including invalid points marked red in Figure~\ref{fig:ch3_OPC_Mesh_all}a and denoted~$\mathcal{T}_{FC}$.  Each 2 $\times$ 2 grid in the \ac{OPC} creates two triangles, which we denote first and second as shown in Figure~\ref{fig:ch3_OPC_Mesh_all}b. Each triangle in $\mathcal{T}_{FC}$ is indexed by $t_{u,v,k}$ where  $k \in \{0,1\}$ represents the first or second triangle, respectively. A~unique global id $GID = 2 \cdot (u \cdot (N-1) + v) + k$ is shown inside each triangle in Figure~\ref{fig:ch3_OPC_Mesh_all}a. This $GID$ represents the triangle order within $\mathcal{T}_{FC}$.  The~final mesh returned $\mathcal{T}$ is shown in Figure~\ref{fig:ch3_OPC_Mesh_all}c with construction outlined in Algorithm \ref{alg:ch3_opc_mesh_creation}. The~data structure $\mathcal{T}_{map}$ defines a mapping of global ids in $\mathcal{T}_{FC}$ to their index positions in $\mathcal{T}$ (if they exist, else  $-$1) which is used later in half-edge extraction. Algorithm \ref{alg:ch3_opc_mesh_creation} begins by iterating over all 2 $\times$ 2 point grids and constructs the first and second triangle for each. These respective triangles are only added to $\mathcal{T}$ if all three points are valid. Triangle point indices are added counter-clockwise with the three half-edges implicitly defined by the ordered traversal of point indices, e.g.,~the first triangle's half-edges are [PI3 $\rightarrow$ PI2, PI2 $\rightarrow$ PI1, PI1 $\rightarrow$ PI3]. 
 
@@ -482,7 +481,7 @@ Option one is advantageous in speed and will generally have minimal consequences
     \centering\includegraphics[clip,trim=1.1cm 5.1cm 9.1cm 5.1cm,width=.95\linewidth]{chapter_3_polylidar3d/imgs/manifold3d_three.pdf}
     \caption{Three shared~edges\label{fig:ch3_NonMainifoldCond2C}}\vspace{6pt}
   \end{subfigure}
-  \caption[Example non-manifold meshes with condition two violations]{Examples of non-manifold meshes where an edge is shared by more than two triangles. This~common edge is shared by green and orange triangles. The~green triangles form a two-manifold mesh with the blue triangles while the orange triangle(s) do not. The~orange triangles in (Figure~\ref{fig:ch3_NonMainifoldCond2}a,b) have sufficiently different normals such the green triangles half-edges can be easily linked. However~all triangles in (Figure~\ref{fig:ch3_NonMainifoldCond2}c) have nearly equal normals making this~impossible.}\label{fig:ch3_NonMainifoldCond2}
+  \caption[Example non-manifold meshes with condition two violations]{Example non-manifold meshes with condition two violations. Edges are shared by more than two triangles. This common edge is shared by green and orange triangles. The~green triangles form a two-manifold mesh with the blue triangles while the orange triangle(s) do not. The~orange triangles in (Figure~\ref{fig:ch3_NonMainifoldCond2}a,b) have sufficiently different normals such the green triangles half-edges can be easily linked. However~all triangles in (Figure~\ref{fig:ch3_NonMainifoldCond2}c) have nearly equal normals making this~impossible.}\label{fig:ch3_NonMainifoldCond2}
 \end{figure}
 \unskip
 
@@ -516,7 +515,7 @@ The algorithm partitions triangle smoothing in image space coordinates, smoothin
 \begin{figure}[H]
     \centering
     \includegraphics[width=.60\linewidth]{chapter_3_polylidar3d/imgs/OPCHalfEdge-BilateralFilter.pdf}
-    \caption[Visualization of a triangle's neighborhood during bilateral filtering]{Visualization of a triangle's neighborhood during bilateral filtering of an organized point~cloud.  Each 2 $\times$ 2 point group forms two triangles creating a mesh. Each triangle's neighbors are defined by the kernel size. For~example a kernel size of five includes all blue and red~triangles.}
+    \caption[Visualization of a triangle's neighborhood during bilateral filtering]{Visualization of a triangle's neighborhood during bilateral filtering.  Each 2 $\times$ 2 point group forms two triangles creating a mesh. Each triangle's neighbors are defined by the kernel size. For~example a kernel size of five includes all blue and red~triangles.}
     \label{fig:ch3_smooth_bilateral}
 \end{figure}
 
@@ -566,7 +565,7 @@ A space-filling curve (SFC) maps a multi‐dimensional space into a one‐dimens
 \begin{figure}[H]
     \centering
     \includegraphics[width=.20\linewidth]{chapter_3_polylidar3d/imgs/fastga_ico_hilbert_v3.png}
-    \caption[Space filling curve (SFC) of a level four refined icosahedron]{Space filling curve (SFC) of a level 4 icosahedron generated using the S2 Geometry Library. Each cell's surface normal is mapped to an integer creating a linear ordering for a curve. The~curve is colored according to this mapping and traverses each~cell.   }
+    \caption[Space filling curve (SFC) of a level four refined icosahedron]{Space filling curve (SFC) of a level 4 icosahedron. Curve generated using the S2 Geometry Library. Each cell's surface normal is mapped to an integer creating a linear ordering for a curve. The~curve is colored according to this mapping and traverses each~cell.   }
     \label{fig:ch3_fastga_hilbert}
 \end{figure}
 
@@ -651,7 +650,7 @@ We use least squares regression to fit a line to the data shown in Figure~\ref{f
     \includegraphics[width=\linewidth]{chapter_3_polylidar3d/imgs/ga_linear_interp_2.pdf}
     \caption{\label{fig:ch3_linear_interp_2}}
   \end{subfigure}
-  \caption[Linear prediction model for space filling curve indices on a Gaussian Accumulator]{Linear prediction model for a level four Gaussian Accumulator (GA). The~5120 GA cells are sorted in an array ($Cells$) by their corresponding spatial index $s2id$;  (\textbf{a}) Plot relating cell $s2id$ and index position in the $Cells$ array with a regressed line (green) to the data; (\textbf{b})  Zoomed-in view showing model error (red line) indicating  difference between predicted and actual index for each $s2id$.  
+  \caption[Linear prediction model for space filling curve indices on a Gaussian Accumulator]{Linear prediction model for space filling curve indices on a Gaussian Accumulator. The 5120 GA cells are sorted in an array ($Cells$) by their corresponding spatial index $s2id$;  (\textbf{a}) Plot relating cell $s2id$ and index position in the $Cells$ array with a regressed line (green) to the data; (\textbf{b})  Zoomed-in view showing model error (red line) indicating  difference between predicted and actual index for each $s2id$.  
   }\label{fig:ch3_linear_interp}
 \end{figure}
 
@@ -699,7 +698,7 @@ The histogram of the Gaussian Accumulator is normalized between the range [0--25
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.95\linewidth]{chapter_3_polylidar3d/imgs/ga_examples-ga_basement_unwrapped_v2.pdf}
     \caption{Unwrapped GA, rotated \label{fig:ch3_basement_unwrapped}}\vspace{6pt}
   \end{subfigure}
-  \caption[Example using Fast Gaussian Accumulator on a triangular mesh]{(\textbf{a})~Example basement scene mesh;~(\textbf{b})~Mesh triangle normals are integrated into the Gaussian Accumulator and colorized showing peaks for the floor and walls;~(\textbf{c})~Overview of unwrapping a refined icosahedron into a 2D image. Five overlapping charts are stitched together to create a grid. Padding between charts is accomplished by copying adjoining chart neighbors using the unwrapping process and its illustration from~\cite{cohen_gauge_2019};~(\textbf{d})~Unwrapped Gaussian Accumulator creating a 2D image used for peak detection.  White boxes indicate detected peaks. Duplicate peaks are merged (1 \& 5) with agglomerative hierarchical clustering. 
+  \caption[Example using Fast Gaussian Accumulator on a triangular mesh]{Example using Fast Gaussian Accumulator on a triangular mesh. (\textbf{a})~Example basement scene mesh;~(\textbf{b})~Mesh triangle normals are integrated into the Gaussian Accumulator and colorized showing peaks for the floor and walls;~(\textbf{c})~Overview of unwrapping a refined icosahedron into a 2D image. Five overlapping charts are stitched together to create a grid. Padding between charts is accomplished by copying adjoining chart neighbors using the unwrapping process and its illustration from~\cite{cohen_gauge_2019};~(\textbf{d})~Unwrapped Gaussian Accumulator creating a 2D image used for peak detection.  White boxes indicate detected peaks. Duplicate peaks are merged (1 \& 5) with agglomerative hierarchical clustering. 
   }\label{fig:ch3_peak_detection}
 \end{figure}
 
@@ -851,8 +850,7 @@ Region growing is decomposed using \emph{task-based} parallelism, where $l$ domi
     \caption{Extracted~Polygons\label{fig:ch3_planar_seg_d}}\vspace{6pt}
   \end{subfigure}
 
-  \caption[Demonstration of Polylidar3D extracting planes and their polygonal representations]{(\textbf{a}) An example mesh to demonstrate planar segmentation and polygon extraction using two dominant plane normals, represented by the floor and wall;
-  (\textbf{b}) Every triangle is inspected for filtering and clustered through group assignment. Blue and red triangles meet triangle edge length constraints and are within an angular tolerance of the floor and wall surface normals, respectively; (\textbf{c}) Region growing is performed in parallel for the blue and red triangles. The~top chair surface and floor are distinct planar segments;  (\textbf{d}) Polygonal representations for each planar segment are shown. The~green line represents the concave hull; the orange line depicts any interior holes. Note that small segments and small interior holes are filtered. 
+  \caption[Demonstration of Polylidar3D extracting planes and their polygonal representations]{Demonstration of Polylidar3D extracting planes and their polygonal representations. (\textbf{a}) An example mesh to demonstrate planar segmentation and polygon extraction using two dominant plane normals, represented by the floor and wall;(\textbf{b}) Every triangle is inspected for filtering and clustered through group assignment. Blue and red triangles meet triangle edge length constraints and are within an angular tolerance of the floor and wall surface normals, respectively; (\textbf{c}) Region growing is performed in parallel for the blue and red triangles. The~top chair surface and floor are distinct planar segments;  (\textbf{d}) Polygonal representations for each planar segment are shown. The~green line represents the concave hull; the orange line depicts any interior holes. Note that small segments and small interior holes are filtered. 
   }\label{fig:ch3_planar_segmenti}
 \end{figure}
 
@@ -906,7 +904,7 @@ Given noisy and dense planar mesh segments, border edges may cross during projec
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_3_polylidar3d/imgs/polygon/PolygonExtraction_b2.pdf}
     \caption{\label{fig:ch3_polygon_extraction_c}}
   \end{subfigure}
-  \caption[Example polygon extraction from a planar triangular segment]{(\textbf{a}) Example extracted planar triangular segment $\mathcal{T}^{g}_i$. Note the four holes in the mesh; (\textbf{b})~Projection of a triangle segment to a geometric plane. Only border edges (purple) are actually needed for projection; (\textbf{c}) A polygon is extracted from border edges with a concave hull (green) and multiple interior holes (orange). }\label{fig:ch3_polygon_extraction}
+  \caption[Example polygon extraction from a planar triangular segment]{Example polygon extraction from a planar triangular segment. (\textbf{a}) Planar triangular segment $\mathcal{T}^{g}_i$. Note the four holes in the mesh; (\textbf{b})~Projection of a triangle segment to a geometric plane. Only border edges (purple) are actually needed for projection; (\textbf{c}) A polygon is extracted from border edges with a concave hull (green) and multiple interior holes (orange). }\label{fig:ch3_polygon_extraction}
 \end{figure}
 
 
@@ -946,7 +944,7 @@ The simplification algorithm is used to remove redundant vertices and ``smooth''
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_3_polylidar3d/imgs/polygon/PolygonExtraction_e.pdf}
     \caption{\label{fig:ch3_polygon_post_c}}
   \end{subfigure}
-  \caption[Example of polygon post processing]{An example of polygon post processing. The~shaded blue polygon is the original polygon extracted (see Figure~\ref{fig:ch3_polygon_extraction}c). All dashed lines indicate a new polygon generated from a step of post processing. (\textbf{a}) The polygon is simplified; (\textbf{b}) The polygon is applied a positive buffer. Two small holes have been ``filled'' in; (\textbf{c}) The polygon is applied a negative buffer; only two holes~remain. }\label{fig:ch3_polygon_post}
+  \caption[Example of polygon post processing]{Example of polygon post processing. The~shaded blue polygon is the original polygon extracted (see Figure~\ref{fig:ch3_polygon_extraction}c). All dashed lines indicate a new polygon generated from a step of post processing. (\textbf{a}) The polygon is simplified; (\textbf{b}) The polygon is applied a positive buffer. Two small holes have been ``filled'' in; (\textbf{c}) The polygon is applied a negative buffer; only two holes~remain. }\label{fig:ch3_polygon_post}
 \end{figure}
 \unskip
 
@@ -1153,8 +1151,7 @@ Figure~\ref{fig:ch3_rooftop}a shows a single building with two flat surfaces ide
     \centering\includegraphics[trim=0mm 4mm 0mm 0mm, clip, width=6cm]{chapter_3_polylidar3d/imgs/rooftop/74201616_satellite.pdf}
     \caption{\label{fig:ch3_rooftop_e}}
   \end{subfigure}
-  \caption[Example of Polylidar3D used with unorganized point cloud data]{Polygon extraction of rooftops from unorganized 3D point clouds generated by airborne LiDAR. %There is no explanation for (a-e) in the figure. %JC_Author: Added (a,b,c,d,e) reference
-  Each figure (\textbf{a},\textbf{b},\textbf{c},\textbf{d},\textbf{e}) shows the satellite image overlaid with the extracted polygons (green) representing flat surfaces with interior holes (orange) representing obstacles. A~colorized point cloud is also overlaid ranging from dark purple to bright yellow denoting a normalized low to high elevation. LiDAR data and satellite images are provided from~\cite{lidar_germany} and~\cite{satellite_germany} respectively. }\label{fig:ch3_rooftop}
+  \caption[Example of Polylidar3D used with unorganized point cloud data]{Example of Polylidar3D used with unorganized point cloud data. Demonstrates flat rooftop extraction from airborne LiDAR. Each figure (\textbf{a},\textbf{b},\textbf{c},\textbf{d},\textbf{e}) shows the satellite image overlaid with the extracted polygons (green) representing flat surfaces with interior holes (orange) representing obstacles. A~colorized point cloud is also overlaid ranging from dark purple to bright yellow denoting a normalized low to high elevation. LiDAR data and satellite images are provided from~\cite{lidar_germany} and~\cite{satellite_germany} respectively. }\label{fig:ch3_rooftop}
 \end{figure}
 \unskip
 
@@ -1203,8 +1200,7 @@ A single beam/point is deemed an outlier and removed if its left and right neigh
 %     \centering\includegraphics[width=.95\linewidth]{chapter_3_polylidar3d/imgs/kitti/kitti_results-kitti_f.pdf}
 %     \caption{\label{fig:ch3_kitti_f}}
 %   \end{subfigure}
-  \caption[Example of Polylidar3D used with the KITTI autonomous driving dataset]{Polygon extraction from KITTI unorganized 3D point cloud data acquired on a moving vehicle~\cite{geiger_vision_2013}. Four scenes %mdpi: the subfigure b repeat, please add the subfigure c. %JC_Author:Completed
-   (\textbf{a},\textbf{b},\textbf{c},\textbf{d}) are shown, each with two subimages. The~top subimage shows polygons projected into the color image while the bottom image shows 3D point cloud and surface polygon(s) from a bird's eye view. Obstacles on the ground such as the light and signal in (\textbf{a}) are extracted as (orange) holes. }\label{fig:ch3_kitti}
+  \caption[Example of Polylidar3D used with the KITTI autonomous driving dataset]{Example of Polylidar3D used with the KITTI autonomous driving dataset~\cite{geiger_vision_2013}. Four scenes (\textbf{a},\textbf{b},\textbf{c},\textbf{d}) are shown, each with two subimages. The~top subimage shows polygons projected into the color image while the bottom image shows 3D point cloud and surface polygon(s) from a bird's eye view. Obstacles on the ground such as the light and signal in (\textbf{a}) are extracted as (orange) holes. }\label{fig:ch3_kitti}
 \end{figure}
 
 
@@ -1306,8 +1302,7 @@ The first scene is composed of 2246 frames (74 s) with the camera traversing fro
     \label{fig:ch3_rgbd_main_floor}
   \end{subfigure}
 
-  \caption[Example of Polylidar3D used with \ac{RGBD} cameras]{Real-time polygon extraction from an \ac{RGBD} camera. %There is no explanation for (a-b) in the figure. %JC_Author: Added (a,b) reference
- Four scenes are shown from the basement (\textbf{a}) and main floor (\textbf{b}) datasets. Color and depth frames are shown side by side for each scene. Polygons are projected onto the color image. Green denotes the exterior hull, and~orange denotes any interior holes in the~polygon.}\label{fig:ch3_rgbd}
+  \caption[Example of Polylidar3D used with \ac{RGBD} cameras]{Examples of Polylidar3D used with \ac{RGBD} cameras. Four scenes are shown from the basement (\textbf{a}) and main floor (\textbf{b}) datasets. Color and depth frames are shown side by side for each scene. Polygons are projected onto the color image. Green denotes the exterior hull, and~orange denotes any interior holes in the~polygon.}\label{fig:ch3_rgbd}
 \end{figure}
 
 The second scene is composed of 2735 frames (91 s) with the camera moving on the main floor through dining area, kitchen, and~living room. The~camera is pointed in many directions and with many dominant planar surfaces extracted as polygons. Figure~\ref{fig:ch3_rgbd}b shows several still images captured. The~first and second images show Polylidar3D capturing three planar segments on walls and a ceiling. A~lamp and an art stand break up extracted planar segments with the polygons forming around them. For~the third image, Polylidar3D does not distinguish the wall from the chalkboard because the depth difference is too small after the RealSense post-processing filters are applied.  The~fourth image shows Polylidar3D extracting curtains and a lower portion of a wall as one flat surface which surrounds the fruit basket. The~floor is not captured because its resulting polygon did not mean minimum area constraints. The~adjacent wall to the left did not meet planarity constraints with the window forming a separate segment which in itself was too small and filtered. 
@@ -1394,7 +1389,7 @@ The illustrated example uses the highest noise level (4 mdeg tangential standard
     \centering\includegraphics[width=.75\linewidth]{chapter_3_polylidar3d/imgs/synpeb_var4_polygons_raw.png}
     \caption{\label{fig:ch3_synpeb_e}Polylidar3D Generated~Polygons}
   \end{subfigure}
-  \caption[Example of Polylidar3D used with organized point clouds]{Example SynPEB scene with the highest noise level. Point cloud, generated mesh, and~mesh  smoothed through Laplacian and bilateral filtering are shown in (\textbf{a}--\textbf{c}), respectively.  Planes and polygons generated by Polylidar3D are shown in (\textbf{d},\textbf{e}). Red, green, and~yellow blocks in (\textbf{d}) represent missed, spurious, and~oversegmented~planes.}\label{fig:ch3_synpeb_pics}
+  \caption[Example of using Polylidar3D on a SynPEB scene with the highest noise level]{Example of using Polylidar3D on a SynPEB scene with the highest noise level. Point cloud, generated mesh, and~mesh  smoothed through Laplacian and bilateral filtering are shown in (\textbf{a}--\textbf{c}), respectively.  Planes and polygons generated by Polylidar3D are shown in (\textbf{d},\textbf{e}). Red, green, and~yellow blocks in (\textbf{d}) represent missed, spurious, and~oversegmented~planes.}\label{fig:ch3_synpeb_pics}
 \end{figure}
 
 We used the training set to tune our methods parameters including mesh smoothing (Laplacian and bilateral filter), dominant plane normal estimation (FastGA), and~plane/polygon extraction. We~found that the most important parameter was the number of iterations of Laplacian smoothing needed. We trained a linear regression model to predict the most suitable number of iterations given an estimate of point cloud noise. All parameters used for test set reproduction are shown in Table~\ref{table:ch3_synpeb_parameters}. Note that the significant number of noisy distinct planes, up~to 72, required a higher than expected refinement level for FastGA and an increased focus on~smoothing.
@@ -1587,7 +1582,7 @@ Figure~\ref{fig:ch3_mesh_example}a,b show the polygons output from Polylidar3D o
     \centering\includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_3_polylidar3d/imgs/meshes/mesh_polylidar3d_examples-mesh_mainfloor_one.pdf}
     \caption{\label{fig:ch3_mesh_example_d}}
   \end{subfigure}
-  \caption[Example of Polylidar3D used with user defined meshes]{Polygon extraction from meshes of an indoor home environment. (\textbf{a},\textbf{b}) show results on a basement mesh which has a smoother approximation and less noise; (\textbf{c},\textbf{d}) show results on a significantly larger, denser, and~nosier mesh of the main~floor. }\label{fig:ch3_mesh_example}
+  \caption[Example of Polylidar3D used with user defined meshes]{Example of Polylidar3D used with user defined meshes. Meshes are of an indoor home environment. (\textbf{a},\textbf{b}) show results on a basement mesh which has a smoother approximation and less noise; (\textbf{c},\textbf{d}) show results on a significantly larger, denser, and~nosier mesh of the main~floor. }\label{fig:ch3_mesh_example}
 \end{figure}
 \unskip
 
@@ -1606,7 +1601,7 @@ Figure~\ref{fig:ch3_mesh_parallel}a shows the speedup and execution timings of t
     \centering\includegraphics[width=.95\linewidth]{chapter_3_polylidar3d/imgs/meshes/mainfloor_speedup.pdf}
     \caption{\label{fig:ch3_mesh_parallel_b}Main Floor (Dense Mesh)}
   \end{subfigure}
-  \caption[Results of parallel speedup and execution timing of Polylidar3D]{Results of parallel speedup and execution timing of plane/polygon extraction with up to eight threads. Both basement (\textbf{a}) and main floor meshes (\textbf{b}) are analyzed. Solid lines indicate parallel speedup and link to the left $y$-axis while the dashed lines indicate execution time and link to the right $y$-axis. The~color indicates number of dominant plane (DP) normals~extracted.}\label{fig:ch3_mesh_parallel}
+  \caption[Results of parallel speedup and execution timing of Polylidar3D]{Results of parallel speedup and execution timing of Polylidar3D. Both basement (\textbf{a}) and main floor meshes (\textbf{b}) are analyzed. Solid lines indicate parallel speedup and link to the left $y$-axis while the dashed lines indicate execution time and link to the right $y$-axis. The~color indicates number of dominant plane (DP) normals~extracted.}\label{fig:ch3_mesh_parallel}
 \end{figure}
 \unskip
 

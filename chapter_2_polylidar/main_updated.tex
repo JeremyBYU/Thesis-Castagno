@@ -25,7 +25,7 @@ This chapter presents Polylidar, an efficient algorithm to transform 2D point se
     \caption{}
     \label{fig:ch2_realsense}
   \end{subfigure}
-  \caption[Demonstration of Polylidar]{(a) Convex hull of a point set (red); (b) MultiPolygon extraction using Polylidar (green).
+  \caption[Demonstration of Polylidar]{Demonstration of Polylidar. (a) Convex hull of a point set (red); (b) MultiPolygon extraction using Polylidar (green).
   (c) Polygon extraction from a plane segmented point cloud from an Intel RealSense RGBD camera capturing paper towel rolls on a basement floor. 
   Note that Polylidar also identifies holes (orange).}
   \label{fig:ch2_convex_concave} 
@@ -126,7 +126,7 @@ Polylidar begins with the Delaunator library \cite{noauthor_github_2018} perform
     \caption{}
     \label{fig:ch2_delaunator_ds}
   \end{subfigure}
-  \caption[Delaunay triangulation example]{(a) Triangulation of a square point set using Delaunator \cite{noauthor_github_2018} with output data structure indexed by half-edge ids in (b).  HE=half-edge, PI=point index, $t$=triangle. Grey edges show shared edges decomposed individually.}
+  \caption[Delaunay triangulation example]{Delaunay triangulation example. (a) Triangulation of a square point set using Delaunator \cite{noauthor_github_2018} with output data structure indexed by half-edge ids in (b).  HE=half-edge, PI=point index, $t$=triangle. Grey edges show shared edges decomposed individually.}
   \label{fig:ch2_delaunator} 
 \end{figure}
 
@@ -157,7 +157,7 @@ An iterative plane extraction procedure inspired from \cite{cao_roof_2017} gener
     \caption{}
     \label{fig:ch2_plane_extraction_b}
   \end{subfigure}
-  \caption[Region growing example from triangulation]{(a) Example of two regions extracted denoted by orange and blue. Triangles $t_0$ and $t_1$ are one region while $t_4$ and $t_5$ are another. (b) Two regions are also extracted with a shared vertex.}
+  \caption[Region growing example from triangulation]{Region growing example from triangulation. (a) Example of two regions extracted denoted by orange and blue. Triangles $t_0$ and $t_1$ are one region while $t_4$ and $t_5$ are another. (b) Two regions are also extracted with a shared vertex.}
   \label{fig:ch2_plane_extraction} 
 \end{figure}
 
@@ -194,7 +194,7 @@ Data structure initialization is shown in Algorithm \ref{alg:ch2_boundary_edges}
     \caption{}
     \label{fig:ch2_hashmap}
   \end{subfigure}
-  \caption[Representation of boundary half-edge set, extreme point, and point index hash map]{(a) The boundary half-edge set is marked in blue and point index 21 (PI21), the farthest point on the x-axis, is noted. (b) A sample of the resulting point index hash map, $PtE$ is shown. Note that the display order has been arbitrarily chosen.  }
+  \caption[Polylidar datastructures]{Polylidar datastructures. (a) The boundary half-edge set is marked in blue and point index 21 (PI21), the farthest point on the x-axis, is noted. (b) A sample of the resulting point index hash map, $PtE$ is shown. Note that the display order has been arbitrarily chosen.  }
   \label{fig:ch2_algorithm1_visual} 
 \end{figure}
 
@@ -325,7 +325,7 @@ On rare occasions the extreme point may have more than one outgoing half edge, m
     \caption{}
     \label{fig:ch2_example2_choice}
   \end{subfigure}
-  \caption[Overview of boundary following procedure]{(a) Edge selection for Fig. \ref{fig:ch2_algorithm1_visual}a.  HE70 leads to point index PI10 during shell extraction. Half-edges HE28 and HE42 leave PI10. The correct edge to follow (HE42) has the greatest angle with HE70. (b) If the extreme point has two outgoing edges (HE1, HE2), choose the edge with largest angle difference with the unit vector [0,1]. This is edge HE2. (c) Edge case of two holes sharing the same vertex at PI16. The outer shell (green) is already extracted. (d) When traversing from HE19 to point index PI16, two outgoing edges (HE0 and HE29) are found. Edge HE29  with the largest angle difference from HE19 is chosen. }
+  \caption[Polylidar boundary following procedure]{Polylidar boundary following procedure. (a) Edge selection for Fig. \ref{fig:ch2_algorithm1_visual}a.  HE70 leads to point index PI10 during shell extraction. Half-edges HE28 and HE42 leave PI10. The correct edge to follow (HE42) has the greatest angle with HE70. (b) If the extreme point has two outgoing edges (HE1, HE2), choose the edge with largest angle difference with the unit vector [0,1]. This is edge HE2. (c) Edge case of two holes sharing the same vertex at PI16. The outer shell (green) is already extracted. (d) When traversing from HE19 to point index PI16, two outgoing edges (HE0 and HE29) are found. Edge HE29  with the largest angle difference from HE19 is chosen.}
   \label{fig:ch2_example1} 
 \end{figure}
 
@@ -481,7 +481,7 @@ Spatialite &           2.2 & 1.5 & 6.3 &  13333.0 & 2486.6  &   16386.5 \\
     \centering
       \includegraphics[width=0.80\linewidth]{chapter_2_polylidar/imgs/RealSensePictures-scene_08_stack.pdf}
       \includegraphics[width=0.80\linewidth]{chapter_2_polylidar/imgs/RealSensePictures-scene_11_stack.pdf}
-  \caption[Extracting a polygon from a plane-segmented RGBD point cloud]{Two example scenes (top/bottom) from RGBD benchmark. A point cloud is generated from depth image (right) and manually segmented to include only the ground floor. The polygonal output of Polylidar is shown in the RGB image (left). Green is the hull, orange represents holes. }
+  \caption[Extracting a polygon from a plane-segmented RGBD point cloud]{Extracting a polygon from a plane-segmented RGBD point cloud. Two example scenes (top/bottom) from RGBD benchmark. A point cloud is generated from depth image (right) and manually segmented to include only the ground floor. The polygonal output of Polylidar is shown in the RGB image (left). Green is the hull, orange represents holes. }
   \label{fig:ch2_realsense_benchmark} 
 \end{figure}
 
@@ -539,14 +539,14 @@ Figure \ref{fig:ch2_ca_output} shows a visual comparison of CA concave polygon o
     \caption{}
     \label{fig:ch2_hi_acc}
   \end{subfigure}
-  \caption[Execution and accuracy results from state shape benchmark]{Concave hull extraction results. Rows from top to bottom correspond to outlines of California (CA) (a, b, c), and Hawaii (HI) (d, e, f) with random holes inserted. The first column shows ground truth polygons with circular holes in orange. The second column shows execution time as a function of number of 2D points provided. The third column shows shape error as a function of number of 2D points provided. Dashed lines show results where holes were placed inside the polygon outline, while solid lines show results with no holes. PostGIS cannot handle MultiPolygons thus was not tested for HI.}
+  \caption[Execution and accuracy results from state shape benchmark]{Execution and accuracy results from state shape benchmark. Rows from top to bottom correspond to outlines of California (CA) (a, b, c), and Hawaii (HI) (d, e, f) with random holes inserted. The first column shows ground truth polygons with circular holes in orange. The second column shows execution time as a function of number of 2D points provided. The third column shows shape error as a function of number of 2D points provided. Dashed lines show results where holes were placed inside the polygon outline, while solid lines show results with no holes. PostGIS cannot handle MultiPolygons thus was not tested for HI.}
   \label{fig:ch2_compare_algs_all} 
 \end{figure}
 
 \begin{figure}[!ht] 
     \centering
       \includegraphics[clip, trim=0.5cm 1.2cm 0.0cm 0.0cm, width=0.35\linewidth]{chapter_2_polylidar/imgs/ouput_ca.pdf}
-  \caption[Visual comparison of different polygon extraction methods]{Concave polygon output from Polylidar/CGAL (left), Spatialite (center), and PostGIS (right).  Input to each algorithm was a 4000 point set sampled from the California (CA) polygon with holes per Figure \ref{fig:ch2_compare_algs_all}a.}
+  \caption[Visual comparison of different polygon extraction methods]{Visual comparison of different polygon extraction methods. Concave polygon output from Polylidar/CGAL (left), Spatialite (center), and PostGIS (right).  Input to each algorithm was a 4000 point set sampled from the California (CA) polygon with holes per Figure \ref{fig:ch2_compare_algs_all}a.}
   \label{fig:ch2_ca_output} 
 \end{figure}
 
@@ -652,7 +652,7 @@ low   &    15.5 & 3.0 & 25.0 &       4.7 & 0.2 & 9.9 \\
     \caption{}
     \label{fig:ch2_low_convexity}
   \end{subfigure}
-  \caption[Example of high and low convexity polygons]{(a) Example of a high convexity polygon; CV = 86.1\% (b)  and a low convexity polygon; CV = 26.2\%}
+  \caption[Example of high and low convexity polygons]{Example of high and low convexity polygons. (a) High convexity polygon; CV = 86.1\%. (b) Low convexity polygon; CV = 26.2\%.}
   \label{fig:ch2_convexity} 
 \end{figure}
 
