@@ -34,6 +34,12 @@
 % \DeclareCaptionLabelFormat{subcaptionlabel}{\normalfont(\textbf{#2}\normalfont)}
 % \captionsetup[subfigure]{labelformat=subcaptionlabel}
 
+% Chapter 6
+\newcommand{\xhdr}[1]{\vspace{5pt} \noindent {\textbf{#1} }}
+\usepackage{makecell}
+\newcommand{\head}[2]{\multicolumn{1}{>{\centering\arraybackslash}p{#1}}{\textbf{#2}}}
+\usepackage{textcomp}
+
 % All Chapters
 \usepackage{etoolbox}
 \AtBeginEnvironment{algorithm}{\setstretch{1.0}}
@@ -65,9 +71,9 @@
 % }
 
 \committee{
-  Professor Ella Atkins, Chair,\\
-  Professor Nadine Sarter, \\
-  Assistant Professor Maani Ghaffari Jadidi, \\
+  Professor Ella Atkins, Chair\\
+  Assistant Professor Maani Ghaffari Jadidi \\
+  Professor Nadine Sarter \\
   Professor Quentin Stout
 }
 

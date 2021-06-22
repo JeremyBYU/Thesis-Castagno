@@ -428,7 +428,12 @@
     % Larger upper margin for first page of front matter
        % Heading
        \begin{center} \textbf{\uppercase{#3}} \end{center} %
-    }{}    % Insert the text.
+    }{
+      % Jeremy Castagno 06/22/21 - Rackham says acknowledgement must have not have italics
+      \centerline{\large\bf #3} %
+      \vspace{2ex} %
+      %  \begin{center}\textbf{#3}\end{center} %
+    }    % Insert the text.
     }
 
     #1 %
@@ -496,7 +501,8 @@
 % Command that holds the value text of the acknowledgments
 \newcommand{\@acknowledgments}{}
 % Command that sets the acknowledgments style
-\newcommand{\@acknowledgmentsstyle}{\@frontpagestyle}
+% \newcommand{\@acknowledgmentsstyle}{\@frontpagestyle} % JC - Previous formatting. Invalid according to Rackham.
+\newcommand{\@acknowledgmentsstyle}{4} % Jeremy Castagno 6/22/21. Make acknowledgement the new style of "4". Bold, Center (no italics). See Line 433.
 % Command that sets the width of the acknowledgments text area
 \newcommand{\@acknowledgments@width}{1}
 
@@ -527,7 +533,7 @@
  \phantomsection\addcontentsline{toc}{chapter}{Acknowledgments}
  % Insert the text and formatting.
  \insertfront{\@acknowledgments %
-  }{\@acknowledgmentsstyle}{Acknowledgments}{\@acknowledgments@width}
+  }{\@acknowledgmentsstyle}{ACKNOWLEDGMENTS}{\@acknowledgments@width}
 }
 
 

@@ -33,23 +33,21 @@ Conventional fixed-wing emergency landing sites such as open fields and empty ro
 
 \section{UAS Emergency Landing Background}
 
-% Talk about the type of situations we are interested in handling
-% Want to talk about how others approach planning. Sensor based planning, map based planning.  
-% Talk about how rooftops have not been considered. How modelling rooftop has not been done very much.
+
 % How looking at usable area is a big deal
-% Talk about need a planner that considers both the convention and non-conventional sources. The need to account for risk fo the landing site and the distance?
-
-
-% What causes emergencies, how is it currently handled, why its insufficient
-% Whtas being proposed to find alternative landing sites
-% How are they being found
 % With rooftop you now have hundreds. Need an efficient planner to choose the best one.
 
-
-\ac{UAS} may experience a number of anomalies requiring emergency landing such as low battery energy, lost communication link, adverse weather, sensor or actuator failure, or operator emergency landing directives. Currently available \ac{UAS} emergency recovery capabilities are limited to simple methods such as loitering or returning to a predefined way point such as the launch location \cite{Stansbury2015, mejias_alvarez_forced_2009}. However, loitering or returning to a distant way point may present a higher level of risk to overflown population and property instead of landing at nearby alternative sites. For this reason emergency landing research has held a long term focus on autonomous landing site selection and trajectory generation.
-The landing site selection process is typically accomplished by utilizing on-board sensors or a database of prepared/unprepared landing sites \cite{warren_enabling_2015, ten_harmsel_emergency_2017}.  A prepared landing site is any area that has been made ready for an aircraft landing, e.g., runways, heliports, and vertiports. Improvements to the terrain surface are made to ensure suitable size, shape, and slope characteristics while obstructions are marked or removed. Unprepared landing sites do not have such improvements and include fields, roadways, and rooftops as proposed in this dissertation. A touchdown point is the exact geographic point within a landing site where the aircraft lands. 
-
-
+\ac{UAS} may experience a number of anomalies requiring emergency landing such as low battery energy, lost communication link, adverse weather, sensor or actuator failure, or operator emergency landing directives. Currently available \ac{UAS} emergency recovery capabilities are limited to simple methods such as loitering or returning to a predefined way point such as the launch location \cite{Stansbury2015, mejias_alvarez_forced_2009}. However, loitering or returning to a distant way point may present a higher level of risk to overflown population and property instead of landing at nearby alternative sites. For this reason emergency landing research has held a long term focus on autonomous landing site selection and trajectory generation. This paper defines landing site terms as follows. 
+\begin{definition}[Prepared Landing Site]
+An area designated for aircraft landing, e.g., runways, heliports, and vertiports. Surface improvements ensure suitable size, shape, and slope characteristics.  Markers maximize visibility. Protective barriers and routine inspections minimize probability of obstacles/debris.
+\end{definition}
+\begin{definition}[Unprepared Landing Site]
+An open area with no improvements or protections, e.g., fields, roadways, and rooftops. Landing requires a visual assessment to identify or validate a suitable touchdown point.
+\end{definition}
+\begin{definition}[Touchdown Point]
+The geographic point within a landing site area where the aircraft intends to first contact the surface.
+\end{definition}
+The landing site selection process is typically accomplished by utilizing on-board sensors or a database of prepared/unprepared landing sites \cite{warren_enabling_2015, ten_harmsel_emergency_2017}.
 \paragraph{On-board Sensors}
 
 On-board exteroceptive sensors including camera, radar, and LiDAR can provide a wealth of information about the surrounding environment for use in emergency landing planning. However, the range and field-of-view of the sensor will limit the amount of useful data available. Vision-based systems that employ monocular cameras are widely used because they are lightweight and low cost \cite{jin_-board_2016}. Much research focuses on finding landing pads or predefined targets within images using computer vision techniques \cite{yang_autonomous_2014}. Unprepared and unstructured landing sites are found by identifying flat surfaces with sufficient size and shape characteristics within images \cite{warren_enabling_2015}. Many of these methods find unprepared landing sites from a single image or from multiple images. Single image methods utilize techniques like Canny edge detectors and assume homogeneous textures indicate planarity \cite{Wu2018, YuFeiShen2013}. \ac{SfM} algorithms may convert multiple images into points clouds to constructs height maps for planarity assessment \cite{forster_continuous_2015, desaraju_vision-based_2015}. LiDAR sensors offer a significant increases in range, precision, and accuracy but at the cost of increased expense and weight. Fully autonomous landing of helicopters utilizing only on-board LiDAR have been shown \cite{scherer_autonomous_2012, theodore_flight_2006}. A fusion of sonar and LiDAR for small UAS landing site identification has also shown to be effective at finding unprepared landing sites \cite{papa_uas_2018}. 
@@ -231,7 +229,7 @@ Our research approach begins with developing methods for extracting non-convex p
 % The final risk-optimal landing site/path pair is sent to a navigation controller.
 \begin{figure}[t]
     \centering
-    \includegraphics[width=0.80\linewidth]{chapter_1_intro/imgs/Challenge_Overview-thesis_overview-v2.pdf}
+    \includegraphics[width=0.80\linewidth]{chapter_1_intro/imgs/Challenge_Overview-thesis_overview.pdf}
     \caption{Overview of dissertation topics and structure.}
     \label{fig:ch1_thesis_overview}
 \end{figure}

@@ -30,7 +30,7 @@ The sensor package is shown in Figure \ref{fig:ch7_sensor_package_pic}. The pack
     \centering\includegraphics[page=3,clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_7_experiments/imgs/sensor_package.pdf}
     \caption{\label{fig:ch7_sensor_package_b}Underside View}
   \end{subfigure}
-  \caption[Sensor Package Components]{Sensor Package Components}\label{fig:ch7_sensor_package_pic}
+  \caption[Sensor package components]{Sensor Package Components}\label{fig:ch7_sensor_package_pic}
 \end{figure}
 
 \subsection{Sensor Coordinate Frames}
@@ -40,7 +40,7 @@ The coordinate frames of the L515 LiDAR and T265 tracking sensors are shown in F
 \begin{figure}[!htb]
   \centering
   \includegraphics[page=1,clip,trim=0cm 1cm 0cm 1cm,width=.45\linewidth]{chapter_7_experiments/imgs/sensor_frames.pdf}
-  \caption[Sensor Package Coordinate Frames]{Sensor Package Coordinate Frames}\label{fig:ch7_sensor_frames}
+  \caption[Sensor package coordinate frames]{Sensor Package Coordinate Frames}\label{fig:ch7_sensor_frames}
 \end{figure}
 Volume integration as described in Section \ref{sec:ch7_volume_integration} requires the LiDAR camera intrinsics and extrinsics. The intrinsics of the L515 are factory calibrated and provided by the RealSense SDK \cite{noauthor_github_2020-4}. The T265 pose provides the extrinsics $\mathbf{H}^{T}_{WT}$  of the T265 sensor with respect to \{WT\}. This pose must be appropriately transformed to create the extrinsics of the L515 camera in the world NED frame:
 \begin{align*}
@@ -55,7 +55,7 @@ We utilize the M330 quadrotor designed at UMICH A2SYS Lab for all flight experim
 \begin{figure}[!htb]
   \centering
   \includegraphics[page=1,clip,trim=0cm 0cm 0cm 0cm,width=.50\linewidth]{chapter_7_experiments/imgs/drone_with_sensor_package.pdf}
-  \caption[Sensor Package Mounted Underneath Drone]{The sensor package is mounted directly underneath the drone. The beagle bone blue autopilot, motion capture markers, and drone body frame \{B\} are indicated.}\label{fig:ch7_drone_frame}
+  \caption[Sensor package mounted underneath drone]{The sensor package is mounted directly underneath the drone. The beagle bone blue autopilot, motion capture markers, and drone body frame \{B\} are indicated.}\label{fig:ch7_drone_frame}
 \end{figure}
 
 We continue to use the \ac{MCS} for drone position control because the T265 sensors accuracy, precision, and reliability have note been fully tested for flight experiments. The T265 is only used to generate a mesh of the environment to give a final touchdown point command to the drone. Note that the T265 sensor initializes the \{WNED\} frame during startup. Therefore the drone is positioned such that the \ac{MCS} coordinate frame is aligned with \{WNED\} before every flight. However, there will be a marginal height offset ($<$ 10cm) between these frames because the T265 is mounted higher than the ground plane. All commanded touchdown points will be given in the \{WNED\} frame.
@@ -75,7 +75,7 @@ All experiments were performed inside the University of Michigan's Ford Robotics
     \caption{\label{fig:ch7_workspace_b}}
   \end{subfigure}
 
-  \caption[Photo of Environmental Setup]{(\subref{fig:ch7_workspace_a}) Photo of environment setup. (\subref{fig:ch7_workspace_b}) Ground truth measurement of environment}\label{fig:ch7_workspace}
+  \caption[Photo of flight lab and obstacle placement]{(\subref{fig:ch7_workspace_a}) Photo of flight lab and obstacle placement. (\subref{fig:ch7_workspace_b}) Ground truth measurement of environment}\label{fig:ch7_workspace}
 \end{figure}
 
 \subsection{Hardware and Software Integration}\label{sec:ch7_software}
@@ -134,15 +134,15 @@ Five hand-carry tests were performed in the Flight Lab. An identical software su
     \caption{\label{fig:ch7_mesh_b}}
   \end{subfigure}
   
-  \begin{subfigure}[t]{.30\linewidth}
+  \begin{subfigure}[t]{.33\linewidth}
     \centering  \includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_7_experiments/imgs/man_poly_1.pdf}
     \caption{\label{fig:ch7_man_poly_a}}
   \end{subfigure}
-  \begin{subfigure}[t]{.30\linewidth}
+  \begin{subfigure}[t]{.33\linewidth}
     \centering  \includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_7_experiments/imgs/man_poly_3.pdf}
     \caption{\label{fig:ch7_man_poly_b}}
   \end{subfigure}
-   \caption[Real-time Constructed Meshes and Polygons During Hand Carry Test]{(a,b) Examples of real-time constructed meshes, polygons, and touchdown points from two hand carry tests. Polygon shown in green/orange and touchdown circle in blue. (c,d) Comparisons of the ground truth polygon (dashed purple) versus extracted polygons.} \label{fig:ch7_mesh_handcarry}
+   \caption[Real-time constructed meshes and polygons during hand carry test]{(a,b) Examples of real-time constructed meshes, polygons, and touchdown points from two hand carry tests. Polygon shown in green/orange and touchdown circle in blue. (c,d) Comparisons of the ground truth polygon (dashed purple) versus extracted polygons.} \label{fig:ch7_mesh_handcarry}
 %   (\subref{fig:ch7_mesh_a}, \subref{fig:ch7_mesh_b}) 
 \end{figure}
 
@@ -173,15 +173,15 @@ Figures~\ref{fig:ch7_flight_mesh_a}\subref{fig:ch7_flight_mesh_b} show the meshe
     \caption{\label{fig:ch7_flight_mesh_b}}
   \end{subfigure}
   
-  \begin{subfigure}[t]{.30\linewidth}
+  \begin{subfigure}[t]{.35\linewidth}
     \centering  \includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_7_experiments/imgs/flight_poly_1.pdf}
     \caption{\label{fig:ch7_flight_poly_a}}
   \end{subfigure}
-  \begin{subfigure}[t]{.30\linewidth}
+  \begin{subfigure}[t]{.35\linewidth}
     \centering  \includegraphics[clip,trim=0cm 0cm 0cm 0cm,width=.99\linewidth]{chapter_7_experiments/imgs/flight_poly_2.pdf}
     \caption{\label{fig:ch7_flight_poly_b}}
   \end{subfigure}
-  \caption[Real-time Constructed Meshes and Polygons During Flight Test]{(a,b) Examples of real-time constructed meshes, polygons, and touchdown points from two flight tests. Polygon shown in green/orange and touchdown circle in blue. (c,d) Comparisons of the ground truth polygon (purple) versus extracted polygons. }\label{fig:ch7_mesh_flight}
+  \caption[Real-time constructed meshes and polygons during flight test]{(a,b) Examples of real-time constructed meshes, polygons, and touchdown points from two flight tests. Polygon shown in green/orange and touchdown circle in blue. (c,d) Comparisons of the ground truth polygon (purple) versus extracted polygons. }\label{fig:ch7_mesh_flight}
 %   (\subref{fig:ch7_mesh_a}, \subref{fig:ch7_mesh_b}) 
 \end{figure}
 
@@ -221,19 +221,19 @@ This section provides accuracy results of the T265 pose predictions in compariso
 \begin{figure}[!ht]
     \centering  
     \includegraphics[page=1,clip,trim=0cm 0cm 0cm 0cm,width=.45\linewidth]{chapter_7_experiments/imgs/flight_path_t265_mcs.pdf}
-    \caption[Trajectory of Drone from Motion Capture System versus T265]{Trajectory of Drone from Motion Capture System versus T265}\label{fig:ch7_flight_path_3d}
+    \caption[Trajectory of drone from Motion Capture System (MCS) versus T265]{Trajectory of Drone from Motion Capture System versus T265}\label{fig:ch7_flight_path_3d}
 \end{figure}
 
 \begin{figure}[!ht]
     \centering  
     \includegraphics[page=1,clip,trim=0cm 0cm 0cm 0cm,width=.95\linewidth]{chapter_7_experiments/imgs/t265_gt_graphs_v2.pdf}
-    \caption[Comparison of Motion Capture System versus T265]{Flight \#1 comparison of Motion Capture System (MCS) versus T265}\label{fig:ch7_t265}
+    \caption[Comparison of Motion Capture System (MCS) versus T265]{Flight \#1 comparison of Motion Capture System (MCS) versus T265}\label{fig:ch7_t265}
 \end{figure}
 The mean absolute trajectory error is calculated for each flight and displayed in Table \ref{table:ch7_ate}. The position and rotation error are computed following procedures in \cite{zhang_tutorial_2018}. The average length of each flight experiment is approximately 17.2m. The position and rotational error is low for the the first and second flight but markedly higher in the third flight. The third flight lost altitude tracking near the beginning of the fight but recovered after 5 seconds.
 
 \begin{table}[h]
 \centering
-\caption{Absolute Trajectory Error (ATE) for T265}\label{table:ch7_ate}
+\caption{Mean Absolute Trajectory Error (ATE) for T265}\label{table:ch7_ate}
 \begin{tabular}{@{}lccc@{}}
 \toprule
 Trial    & Length (m) & Position Mean ATE (m) & Rotation Mean ATE (deg) \\ \midrule
