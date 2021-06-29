@@ -10,7 +10,7 @@ Planar points clouds may be converted to convex polygons~\cite{biswas_planar_201
     \label{fig:ch3_polylidar_overview}
 \end{figure}
 
-This chapter presents Polylidar3D, a~non-convex polygon extraction algorithm which takes as input either unorganized 3D point clouds (e.g., airborne LiDAR point clouds), organized point clouds (e.g.,~range~images), or~user provided meshes. The~non-convex polygons extracted represent flat surfaces in an environment, while interior holes represent obstacles on these surfaces.~Figure~\ref{fig:ch3_polylidar_overview}~provides an overview of Polylidar3D's data input, front-end, back-end, and~output.  Currently only one planar direction can be extracted from unorganized 3D point clouds while all other 3D data inputs do not have this limitation. The~front-end transforms input data into a half-edge triangular mesh.  This~representation provides a common level of abstraction offering increased efficiency for back-end operations. The~back-end is composed of four core algorithms: mesh smoothing, dominant plane normal estimation, planar segment extraction, and~polygon extraction.  Polylidar3D outputs planar triangular segments, sets of flat connected triangles, and~their polygonal representations. Polylidar3D~is extremely fast, typically executing in a few milliseconds. It makes use of CPU multi-threading and GPU acceleration when available. Polylidar3D is a substantial extension to Polylidar, the~authors' 2D algorithm that transforms 2D point sets into polygons~\cite{castagno_polylidar_2020}. Our previous Polylidar algorithm only operated on 2D point sets and offered no parallelism. 
+This chapter presents Polylidar3D, a~non-convex polygon extraction algorithm which takes as input either unorganized 3D point clouds (e.g., airborne LiDAR point clouds), organized point clouds (e.g.,~range~images), or~user provided meshes. The~non-convex polygons extracted represent flat surfaces in an environment, while interior holes represent obstacles on these surfaces.~Figure~\ref{fig:ch3_polylidar_overview}~provides an overview of Polylidar3D's data input, front-end, back-end, and~output.  Currently only one planar direction can be extracted from unorganized 3D point clouds while all other 3D data inputs do not have this limitation. The~front-end transforms input data into a half-edge triangular mesh.  This~representation provides a common level of abstraction offering increased efficiency for back-end operations. The~back-end is composed of four core algorithms: mesh smoothing, dominant plane normal estimation, planar segment extraction, and~polygon extraction.  Polylidar3D outputs planar triangular segments, sets of flat connected triangles, and~their polygonal representations. Polylidar3D~is extremely fast, typically executing in a few milliseconds. It makes use of CPU multi-threading and GPU acceleration when available. Polylidar3D is a substantial extension to Polylidar, the 2D algorithm presented above. The baseline Polylidar algorithm only operated on 2D point sets and offered no parallelism. 
 The primary contributions of this chapter are:
 
 \begin{itemize}
@@ -96,7 +96,7 @@ Biswas et al.~\cite{biswas_planar_2012} represents flat surfaces as convex polyg
 Each plane segment is decomposed into  a set of convex polygons. Each polygon is progressively built through scan-lines; a new polygon is generated when convexity constraints are not met. This allows a concave plane to be represented by multiple convex polygons. 
 Lee et al.~\cite{lee_indoor_2012-1} generates non-convex polygons from range images. The~range image is first planar-segmented using an eight-way flood fill algorithm. This involves region growing which accounts for the normal vector to each point. Each of the planar segments is then converted to a non-convex polygon. Exterior boundary pixels of a plane segment are sampled and neighboring samples connected to create a non-convex polygon. However interior holes in the plane segments are not explicitly captured as shown in Figure ~\ref{fig:ch3_convex_concave}c. Trevor et al.~\cite{trevor2013efficient} performs a similar polygon extraction procedure through boundary tracing of the exterior~hull. 
 
-Non-convex polygons with holes may be generated through a variety of methods, many under the name of concave hulls~\cite{edelsbrunner_shape_1983, furieri_spatialite_2017, open_source_geospatial_foundation_postgis_2019}. Many of these methods strictly operate on 2D data, requiring~the 3D planar point cloud segments be projected to the best fit geometric plane to produce 2D point sets. Holz et al.~\cite{lee_fast_2013} proposes this technique and the use of $\alpha$-shapes to extract such polygons~\cite{edelsbrunner_shape_1983}.  We~developed a faster open source polygon extraction algorithm, Polylidar, which extracts non-convex polygons with holes from 2D point sets~\cite{castagno_polylidar_2020}. The point set is converted to a 2D mesh through Delaunay triangulation, and~triangles are subsequently filtered by edge length creating the ``shape'' of the point set. This~filtered mesh is then converted to a polygon through boundary following while accounting for holes. Benchmarks demonstrate that our algorithm is a minimum of four times faster than leading methods~\cite{polylidar_benchmark_concave}. This chapter extends Polylidar to operate directly on 3D data, performing planar segmentation and polygon extraction in parallel. This integration allows Polylidar3D to skip expensive Delaunay triangulation previously required for organized point clouds as shown in Section ~\ref{sec:ch3_methods_mesh_opc}.  Planar segments represented as non-convex polygons with holes gives the following advantages:
+Non-convex polygons with holes may be generated through a variety of methods, many under the name of concave hulls~\cite{edelsbrunner_shape_1983, furieri_spatialite_2017, open_source_geospatial_foundation_postgis_2019}. Many of these methods strictly operate on 2D data, requiring~the 3D planar point cloud segments be projected to the best fit geometric plane to produce 2D point sets. Holz et al.~\cite{lee_fast_2013} proposes this technique and the use of $\alpha$-shapes to extract such polygons~\cite{edelsbrunner_shape_1983}.  In Chapter \ref{ch:polylidar} we developed a faster open source polygon extraction algorithm, Polylidar, which extracts non-convex polygons with holes from 2D point sets. The point set is converted to a 2D mesh through Delaunay triangulation, and~triangles are subsequently filtered by edge length creating the ``shape'' of the point set. This~filtered mesh is then converted to a polygon through boundary following while accounting for holes. Benchmarks demonstrate that our algorithm is a minimum of four times faster than leading methods~\cite{polylidar_benchmark_concave}. This chapter extends Polylidar to operate directly on 3D data, performing planar segmentation and polygon extraction in parallel. This integration allows Polylidar3D to skip expensive Delaunay triangulation previously required for organized point clouds as shown in Section ~\ref{sec:ch3_methods_mesh_opc}.  Planar segments represented as non-convex polygons with holes gives the following advantages:
 
 \begin{enumerate}
     \item Significantly reduced memory requirements, on~the order of square root (perimeter vs area).
@@ -531,7 +531,7 @@ The following subsections describe the process to approximate a sphere using an 
 
 \subsubsection{Refined~Icosahedron}\label{sec:ch3_methods_fastga_ico}
 
-A geodesic polyhedron is first constructed by using an icosahedron as the base model approximation of a unit sphere. The~icosahedron is composed of 12 vertices and 20 faces and can be seen on the far left in Figure~\ref{fig:ch3_fastga_refinement}. This polyhedron is refined by recursively dividing each face into four equilateral triangles and then projecting the new vertices onto the surface of a sphere. The~number of iterations or levels of recursion is user configurable with higher levels better approximating a sphere. The~Class I geodesic polyhedron is defined with the Schläfli symbol $\{3,5+\}_{1,0}$ with frequency doubling at each level~\cite{wenninger_spherical_1999}. Figure~\ref{fig:ch3_fastga_refinement} shows refinement up to level four while Table~\ref{table:ch3_fastga_refinement} displays the change in number of vertices, triangles, and~approximate angular separation between each triangle. We denote each triangle as the cell or bucket of the histogram of S2. The~number of cells, $n$, and~their properties described below are  fixed once a refinement level is~chosen.
+A geodesic polyhedron is first constructed by using an icosahedron as the base model approximation of a unit sphere. The~icosahedron is composed of 12 vertices and 20 faces and can be seen on the far left in Figure~\ref{fig:ch3_fastga_refinement}. This polyhedron is refined by recursively dividing each face into four equilateral triangles and then projecting the new vertices onto the surface of a sphere. The~number of iterations or levels of recursion is user configurable with higher levels better approximating a sphere. This is a Class I geodesic polyhedron defined with the Schläfli symbol $\{3,5+\}_{1,0}$ with frequency doubling at each level~\cite{wenninger_spherical_1999}. Figure~\ref{fig:ch3_fastga_refinement} shows refinement up to level four while Table~\ref{table:ch3_fastga_refinement} displays the change in number of vertices, triangles, and~approximate angular separation between each triangle. We denote each triangle as the cell or bucket of the histogram of S2. The~number of cells, $n$, and~their properties described below are  fixed once a refinement level is~chosen.
 
 \begin{figure}[H]
     \centering
@@ -1022,7 +1022,7 @@ A GA with refinement level four (5120 triangle cells) was used for all tests. Th
 
 \begin{table}[H]
     \centering
-    \caption{Execution Time Comparisons for Synthetic and Real World~Datasets} \label{table:ch3_results_fastga}%mdpi: please confirm the format of the table. %JC_Author: Acceptable format 
+    \caption{Execution time comparisons for synthetic and real world~datasets} \label{table:ch3_results_fastga}%mdpi: please confirm the format of the table. %JC_Author: Acceptable format 
    
        
        % \caption{}\label{table:ch3_results_fastga_a}
@@ -1109,7 +1109,7 @@ All parameters used for this dataset are shown in Table~\ref{table:ch3_rooftop_p
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D Parameters for Rooftop~Detection.}\label{table:ch3_rooftop_parameters}
+\caption{Polylidar3D parameters for rooftop~detection.}\label{table:ch3_rooftop_parameters}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1210,7 +1210,7 @@ Roads are not truly flat; they often have elevation changes such as a raised cen
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D Parameters for~KITTI.}\label{table:ch3_kitti_parameters}
+\caption{Polylidar3D parameters for~KITTI.}\label{table:ch3_kitti_parameters}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1236,7 +1236,7 @@ Polylidar3D processed 6608 frames from 24 recorded ``drives'' from the raw KITTI
 
 \begin{table}[H]
 \centering
-\caption{Mean Execution Timings (ms) of Polylidar3D on~KITTI}
+\caption{Mean execution timings (ms) of Polylidar3D on~KITTI}
 \label{table:ch3_kitti_timings}
 \begin{tabular}{@{}ccccc@{}}
 \toprule
@@ -1256,7 +1256,7 @@ We used an Intel RealSense D435i to capture depth and RGB frames in two home env
 
 \begin{table}[H]
 \centering
-\caption{Intel RealSense SDK Post-processing Filter~Parameters.}\label{table:ch3_realsense_parameters}
+\caption{Intel RealSense SDK post-processing filter~parameters.}\label{table:ch3_realsense_parameters}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1270,7 +1270,7 @@ Threshold     & max distance = 2.5 m  \\ \bottomrule
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D Parameters for RealSense~\ac{RGBD}}\label{table:ch3_rgbd_parameters}
+\caption{Polylidar3D parameters for RealSense~\ac{RGBD}}\label{table:ch3_rgbd_parameters}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1397,7 +1397,7 @@ We used the training set to tune our methods parameters including mesh smoothing
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D parameters for the SynPEB benchmark test~set.}\label{table:ch3_synpeb_parameters}
+\caption{Polylidar3D parameters for the SynPEB benchmark test~set}\label{table:ch3_synpeb_parameters}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1447,7 +1447,7 @@ Table~\ref{table:ch3_synpeb_timings} shows mean execution timings for each Polyl
 
 \begin{table}[H]
 \centering
-\caption{Mean Execution Timings (ms) and Accuracy of Polylidar3D on~SynPEB.}
+\caption{Mean execution timings (ms) and accuracy of Polylidar3D on~SynPEB}
 \label{table:ch3_synpeb_timings}
 \resizebox{\columnwidth}{!}{
 \begin{tabular}{@{}cccccccc@{}}
@@ -1470,7 +1470,7 @@ Table~\ref{table:ch3_results_lapalcian} shows the results of our Laplacian filte
 % \usepackage{booktabs}
 \begin{table}[H]
 \centering
-\caption{Execution timing (ms) for one and five iterations of Laplacian~filtering.}\label{table:ch3_results_lapalcian}
+\caption{Execution timing (ms) for one and five iterations of Laplacian~filtering}\label{table:ch3_results_lapalcian}
 
 \begin{tabular}{@{}ccccc@{}}
 \toprule
@@ -1490,7 +1490,7 @@ Table~\ref{table:ch3_results_bilateral} shows execution timing results of our bi
 
 \begin{table}[H]
 \centering
-\caption{Execution timing (ms) for one and five iterations of bilateral~filtering.}\label{table:ch3_results_bilateral}
+\caption{Execution timing (ms) for one and five iterations of bilateral~filtering}\label{table:ch3_results_bilateral}
 \begin{tabular}{@{}cccc@{}}
 \toprule
 \textbf{Data \& Size}    & \textbf{CPU-S}       & \textbf{CPU-M}           & \textbf{GPU}      \\ \midrule
@@ -1535,7 +1535,7 @@ We apply Polylidar3D on two meshes of an indoor home environment.  Both meshes w
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D Parameters for the Basement~Mesh.}\label{table:ch3_mesh_parameters_a}
+\caption{Polylidar3D parameters for the basement~mesh}\label{table:ch3_mesh_parameters_a}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule
@@ -1548,7 +1548,7 @@ Poly. Filtering      & $\alpha = 0.01$, $\beta_{neg}$ = 0.025, $\beta_{pos}$ = 0
 
 \begin{table}[H]
 \centering
-\caption{Polylidar3D Parameters for the Main Floor~Mesh.}\label{table:ch3_mesh_parameters_b}
+\caption{Polylidar3D parameters for the main floor~mesh}\label{table:ch3_mesh_parameters_b}
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Algorithm}        & \textbf{Parameters}                                                          \\ \midrule

@@ -13,12 +13,12 @@ A primary safety concern is ensuring a robust urgent landing capability \cite{wi
     \centering
   \begin{subfigure}{.40\linewidth}
     \centering
-    \includegraphics[clip, trim=0.0cm 0cm 0cm 0.55cm, width=0.95\linewidth]{chapter_5_mapping/imgs/challenge_urban-Page-2.jpg}
+    \includegraphics[page=1,clip, trim=0.0cm 0cm 0cm 0.0cm, width=0.95\linewidth]{chapter_1_intro/imgs/Motivation.pdf}
     \caption{}
     \label{fig:ch1_challenge_urban}
   \end{subfigure}
   \begin{subfigure}{.40\linewidth}
-    \centering\includegraphics[width=.95\linewidth]{chapter_1_intro/imgs/roof_shape_obstacle.pdf}
+    \centering\includegraphics[page=2, width=.95\linewidth]{chapter_1_intro/imgs/Motivation.pdf}
     \caption{}
     \label{fig:ch1_roof_shape_obstacle}
   \end{subfigure}
@@ -37,7 +37,7 @@ Conventional fixed-wing emergency landing sites such as open fields and empty ro
 % How looking at usable area is a big deal
 % With rooftop you now have hundreds. Need an efficient planner to choose the best one.
 
-\ac{UAS} may experience a number of anomalies requiring emergency landing such as low battery energy, lost communication link, adverse weather, sensor or actuator failure, or operator emergency landing directives. Currently available \ac{UAS} emergency recovery capabilities are limited to simple methods such as loitering or returning to a predefined way point such as the launch location \cite{Stansbury2015, mejias_alvarez_forced_2009}. However, loitering or returning to a distant way point may present a higher level of risk to overflown population and property instead of landing at nearby alternative sites. For this reason emergency landing research has held a long term focus on autonomous landing site selection and trajectory generation. This paper defines landing site terms as follows. 
+\ac{UAS} may experience a number of anomalies requiring emergency landing such as low battery energy, lost communication link, adverse weather, sensor or actuator failure, or operator emergency landing directives. Currently available \ac{UAS} emergency recovery capabilities are limited to simple methods such as loitering or returning to a predefined waypoint such as the launch location \cite{Stansbury2015, mejias_alvarez_forced_2009}. However, loitering or returning to a distant waypoint may present a higher level of risk to the overflown population and property compared to landing at nearby alternative sites. For this reason, emergency landing research has held a long term focus on autonomous landing site selection and trajectory generation. This dissertation defines related terms as follows. 
 \begin{definition}[Prepared Landing Site]
 An area designated for aircraft landing, e.g., runways, heliports, and vertiports. Surface improvements ensure suitable size, shape, and slope characteristics.  Markers maximize visibility. Protective barriers and routine inspections minimize probability of obstacles/debris.
 \end{definition}
@@ -47,20 +47,20 @@ An open area with no improvements or protections, e.g., fields, roadways, and ro
 \begin{definition}[Touchdown Point]
 The geographic point within a landing site area where the aircraft intends to first contact the surface.
 \end{definition}
-The landing site selection process is typically accomplished by utilizing on-board sensors or a database of prepared/unprepared landing sites \cite{warren_enabling_2015, ten_harmsel_emergency_2017}.
+The landing site selection process is typically accomplished by utilizing on-board sensors or a database of prepared/unprepared landing sites \cite{warren_enabling_2015, ten_harmsel_emergency_2017}.  Prepared landing sites can be assumed capable of supporting a safe landing provided no other traffic is present.  Unprepared landing sites can be mapped {\em a priori} or identified in real-time.  Unprepared sites are not protected thus must be confirmed safe prior to touchdown.
 \paragraph{On-board Sensors}
 
-On-board exteroceptive sensors including camera, radar, and LiDAR can provide a wealth of information about the surrounding environment for use in emergency landing planning. However, the range and field-of-view of the sensor will limit the amount of useful data available. Vision-based systems that employ monocular cameras are widely used because they are lightweight and low cost \cite{jin_-board_2016}. Much research focuses on finding landing pads or predefined targets within images using computer vision techniques \cite{yang_autonomous_2014}. Unprepared and unstructured landing sites are found by identifying flat surfaces with sufficient size and shape characteristics within images \cite{warren_enabling_2015}. Many of these methods find unprepared landing sites from a single image or from multiple images. Single image methods utilize techniques like Canny edge detectors and assume homogeneous textures indicate planarity \cite{Wu2018, YuFeiShen2013}. \ac{SfM} algorithms may convert multiple images into points clouds to constructs height maps for planarity assessment \cite{forster_continuous_2015, desaraju_vision-based_2015}. LiDAR sensors offer a significant increases in range, precision, and accuracy but at the cost of increased expense and weight. Fully autonomous landing of helicopters utilizing only on-board LiDAR have been shown \cite{scherer_autonomous_2012, theodore_flight_2006}. A fusion of sonar and LiDAR for small UAS landing site identification has also shown to be effective at finding unprepared landing sites \cite{papa_uas_2018}. 
+On-board exteroceptive sensors including camera, radar, and LiDAR can provide a wealth of information about the surrounding environment for use in emergency landing planning. However, the range and field-of-view of the sensor will limit the amount of useful data available. Vision-based systems that employ monocular cameras are widely used because they are lightweight and low cost \cite{jin_-board_2016}. Much research focuses on finding landing pads or predefined targets within images using computer vision techniques \cite{yang_autonomous_2014}. Unprepared and unstructured landing sites are found by identifying flat surfaces with sufficient size and shape characteristics within images \cite{warren_enabling_2015}. Many of these methods find unprepared landing sites from a single image or from multiple images. Single image methods utilize techniques like Canny edge detectors and assume homogeneous textures indicate planarity \cite{Wu2018, YuFeiShen2013}. \ac{SfM} algorithms may convert multiple images into points clouds to constructs height maps for planarity assessment \cite{forster_continuous_2015, desaraju_vision-based_2015}. LiDAR sensors offer a significant increase in range, precision, and accuracy but at the cost of increased expense and weight. Fully autonomous landing of helicopters utilizing only on-board LiDAR has been demonstrated \cite{scherer_autonomous_2012, theodore_flight_2006}. A fusion of sonar and LiDAR for small UAS landing site identification has also shown to be effective at finding unprepared landing sites \cite{papa_uas_2018}. However, all such methods require unprepared landing sites to be within range of on-board sensors.
 
 
 
 \paragraph{On-board Database}
 
-The increasing amount of data collection, low-cost storage, and cloud-based infrastructure provides new opportunities for \ac{UAS} risk management. A \ac{GIS} allows free or low-cost consumption of a variety of geographic data including elevation data, man-made structures, land use type, and population data.  Table \ref{table:ch1_datasources} lists \ac{GIS} database sources and their use in prior research to support \ac{UAS} emergency landing. These prior work demonstrate combining and analyzing a variety of data sources to identify unprepared landing sites and accompanying maps for trajectory generation. Additionally, risk models are formulated allowing an autonomous decision framework to choose from multiple candidate landing sites.
+Increased data availability, low-cost storage, and accessible cloud-based infrastructure provide new opportunities for \ac{UAS} risk management. A \ac{GIS} allows free or low-cost access to a variety of geographic data including elevation maps, man-made structures, land use, and population density.  Table \ref{table:ch1_datasources} lists \ac{GIS} database sources and their use in prior research to support \ac{UAS} emergency landing. Prior work demonstrates combining and analyzing a variety of data sources to identify unprepared landing sites and accompanying maps for trajectory generation. Additionally, risk models are formulated allowing an autonomous decision framework to choose from multiple candidate landing sites.
 
 \begin{table}[ht]
 \centering
-\caption{Datasources proposed for supporting UAS contingency management.}
+\caption{Data sources proposed for small UAS contingency management plans.}
 \label{table:ch1_datasources}
 % \resizebox{\columnwidth}{!}{
 \begin{tabular}{@{}lll@{}}
@@ -92,7 +92,7 @@ Information Type & Reference & Source \\
 
 \paragraph{Rooftop Landing}
 
-All references in Table \ref{table:ch1_datasources} strictly focus on identifying and assessing risk for terrain-based landing sites such as open fields or roadways. Per. \cite{jin_-board_2016} there has been significantly less research conducted on using building rooftops for landings. Only emerging small UAS are sufficiently lightweight to land on a roof without risking structural damage or collapse. Ref. \cite{li_development_2015} proposed rooftop landing methods that rely on pre-positioned landing pads that guide landing site selection and pose estimation. However, this approach assumes a rooftop has already been established with algorithm specific landing pads which is unlikely within cities. Ref. \cite{desaraju_vision-based_2015} instead uses a monocular camera and employs a dense motion stereo approach for 3D reconstruction while assessing planarity and slope for appropriately-sized landing sites. However, this method is limited to identifying rooftop landing sites only within the camera field of view and at low altitudes. Our work shows that there may be hundreds of viable rooftop landing sites within 200 meters of a \ac{UAS} urgent landing event in dense urban cities.
+All references in Table \ref{table:ch1_datasources} strictly focus on identifying and assessing risk for terrain-based landing sites such as open fields or roadways. Per. \cite{jin_-board_2016} there has been significantly less research conducted on using building rooftops for landings. Only emerging small UAS are sufficiently lightweight to land on an unprepared roof without risking structural damage or collapse. Ref. \cite{li_development_2015} proposed rooftop landing methods that rely on pre-positioned landing pads to guide landing site selection and pose estimation. However, this approach assumes a rooftop has already been established as a prepared site, whereas only a few manned helicopter vertiports have actually been established in each urban area today. Ref. \cite{desaraju_vision-based_2015}  uses a monocular camera and employs a dense motion stereo approach for 3D reconstruction while assessing planarity and slope for appropriately-sized landing sites. However, this method is limited to identifying rooftop landing sites only within the camera field of view and at low altitudes. Our work shows that there may be hundreds of viable rooftop landing sites within 200 meters of a small \ac{UAS} randomly positioned in a dense urban environment.
 
 % building owners in cities will pay for such an expense and thus will significantly reduce the number of rooftop landing sites
 
@@ -128,7 +128,9 @@ All references in Table \ref{table:ch1_datasources} strictly focus on identifyin
 
 \section{Geographic Information System Background}
 
-A \acf{GIS} is a framework that analyze geographic data to solve problems including economic, environmental, and social \cite{antenucci_geographic_1991}. Geographic data includes any data that has geographic location with a coordinate system to locate features on the earth. This coordinate system allows heterogeneous data to align with one another to create multi-layered maps. This dissertation utilizes three main \ac{GIS} data types: raster, vector, and point cloud data. First, a brief overview of common \ac{GIS} coordinate systems are provided.
+A \acf{GIS} is a framework to acquire, label, and update geographic data that model economic, environmental, and social properties \cite{antenucci_geographic_1991}. Each GIS data record is marked by a geographic location in an Earth-referenced coordinate frame.  Earth-referenced coordinate systems allow heterogeneous data to be aligned in  multi-layer maps. This dissertation utilizes three main \ac{GIS} data types: raster, vector, and point cloud data.  Publicly available point cloud data are becoming increasingly available worldwide from both regional and federal governments. Figure \ref{fig:ch1_gis_types} shows \ac{GIS} data examples.
+
+% A brief overview of common \ac{GIS} coordinate systems is provided below.
 
 
 \begin{figure}[!htb]
@@ -148,14 +150,14 @@ A \acf{GIS} is a framework that analyze geographic data to solve problems includ
   \caption[Common data types used in GIS]{Common data types used in \ac{GIS}}\label{fig:ch1_gis_types}
 \end{figure}
 
-\paragraph{Coordinate Reference Systems}
+\paragraph{Reference Coordinate Systems}
 % \subsection{Coordinate Systems}
 
-% The most widely used \acf{GCS} is WGS84, which includes the definition of the coordinate system's fundamental and derived constants, the ellipsoidal (normal) Earth Gravitational Model (EGM), and a description of the associated World Magnetic Model (WMM) \cite{wgs84}. WGS84 is measured in degrees of longitude (x-coordinates) and latitude (y-coordinates) where positive values correspond to north of the equator and east of the prime meridian, respectively. However, this spherical coordinate system is unsuitable for use in metric distance and area calculations. Therefore \emph{projected} coordinate systems are used that map the earth's spherical surface onto a two-dimensional Cartesian coordinate plane. These are called map projections.
+%The most widely used \acf{GCS} is WGS84, which includes the definition of the coordinate system's fundamental and derived constants, the ellipsoidal (normal) Earth Gravitational Model (EGM), and a description of the associated World Magnetic Model (WMM) \cite{wgs84}. WGS84 is measured in degrees of longitude (x-coordinates) and latitude (y-coordinates) where positive values correspond to north of the equator and east of the prime meridian, respectively. However, this spherical coordinate system is unsuitable for use in metric distance and area calculations. Therefore \emph{projected} coordinate systems are used that map the earth's spherical surface onto a two-dimensional Cartesian coordinate plane. These are called map projections.
 
-The most widely used \acf{GCS} is WGS84 \cite{wgs84} that is measured in degrees of longitude (x-coordinates) and latitude (y-coordinates) where positive values correspond to north of the equator and east of the prime meridian, respectively. This spherical coordinate system is unsuitable for use in metric distance and area calculations needed for landing site selection. Therefore \emph{projected} coordinate systems are used that map the earth's spherical surface onto a two-dimensional Cartesian coordinate plane.
-% called map projections.
-These map projection will have distortion in the fundamental spatial properties of distance, area, shape, or direction. However map projections have been devised to minimize or completely remove distortions for certain spatial properties to suit particular purposes \cite{GIS_demystified}. This dissertation will utilize the Universal Transverse Mercator (UTM) system unless otherwise noted. 
+The most widely used \acf{GCS} is WGS84 \cite{wgs84} measured in degrees of latitude  and longitude where positive values correspond to North of the Equator and East of the Prime Meridian, respectively. This spherical coordinate system is unsuitable for use in metric distance and area calculations needed for landing site selection so projected coordinate systems map the spherical surface to a two-dimensional Cartesian  planes called map projections from which distortions can be removed \cite{GIS_demystified}.
+%These map projection will have distortion in the fundamental spatial properties of distance, area, shape, or direction. However map projections have been devised to minimize or completely remove distortions for certain spatial properties to suit particular purposes \cite{GIS_demystified}. 
+This dissertation utilizes the Universal Transverse Mercator (UTM) system unless otherwise noted. 
 % There exists many map projection which are standardized and used throughout the world globally, nationally, and regionally. An example global map projection is the Universal Transverse Mercator (UTM) system. This dissertation will utilize the UTM system unless otherwise noted.
 Data from disparate coordinate systems may be overlaid and aligned by transforming coordinates from one coordinate reference system to another. These transformation are done by specialized software, such as PROJ4 \cite{proj_contributors_proj_2018}.
 
@@ -164,8 +166,11 @@ Data from disparate coordinate systems may be overlaid and aligned by transformi
 \paragraph{Raster Data}
 % \subsection{Raster Data}
 
-A raster is composed of a matrix of cells organized into rows and columns, where each cell represents information. Examples of common rasters includes images, digital terrain elevation models, and rasterized population density maps. Imagery can be captured by satellite, \ac{UAS}, or from light piloted aircraft.  Figure \ref{fig:ch1_gis_type_a} shows an example high resolution satellite image. Satellite data offer global coverage and is both freely and commercial available with the highest resolution currently offered at 30 cm/pixel \cite{2041-210X.12973}.  Aerial imagery from aircraft and UAV can be collected with significantly higher spatial resolutions, as high as 9 cm/pixel \cite{SHAO2021126954}. 
-There are two coordinate systems within a raster: the (u,v) pixel position of each cell and the corresponding (x,y) map projection position. An affine matrix is used to convert between the two coordinate systems such that every pixel corresponds to a precise location on the surface of the earth.
+A raster is composed of a matrix of cells organized into rows and columns, where each cell represents information. Common rasters include images, digital terrain elevation models, and rasterized population density maps. 
+Imagery can be captured by satellite or aircraft.  
+%Figure \ref{fig:ch1_gis_type_a} shows an example high resolution satellite image. 
+Satellite data offer global coverage with the highest resolution currently offered at 30 cm/pixel \cite{2041-210X.12973}.  Aerial imagery has resolutions as high as 2.5 cm/pixel \cite{SHAO2021126954, 2041-210X.12973}. 
+%There are two coordinate systems within a raster: the (u,v) pixel position of each cell and the corresponding (x,y) map projection position. An affine matrix is used to convert between the two coordinate systems such that every pixel corresponds to a precise location on the surface of the earth.
 % An affine matrix $A$ is used to convert between the two coordinate systems such that every pixel in the raster has a known world position:
 
 % \begin{align}
@@ -180,22 +185,24 @@ There are two coordinate systems within a raster: the (u,v) pixel position of ea
 
 % This dissertation uses satellite images and terrain elevation models.
 
-\paragraph{Vector Data}
+%\paragraph{Vector Data}
 % \subsection{Vector Data}
 
-Vector data provides a more precise representation of the location and shape of world features in comparison to raster data \cite{GIS_demystified}. Common vector features include streets, park/field outlines, and building footprints as seen in Google Maps or \ac{OSM}. Vector features are constructed as ordered pairs of (x,y) vertices which reside on a map projection plane.  A vector feature is represented by one of four types of geometric shapes: point, polyline, linear ring, or polygon. This dissertation follows the Open Geospatial Consortium (OGC) standard \cite{herring_opengis_2006-1} for defining these geometric types which are summarized as follows. A point represents a single (x,y) position in coordinate space. A polyline is an ordered list of points where each consecutive pair of points defines a line segment. A linear ring is a polyline that is both closed and simple. This mandates a linear ring to have non-intersecting line segments that join to form a closed path. A valid polygon must have a single exterior linear ring representing the hull of the polygon and a set of linear rings (possibly empty) representing holes inside the polygon. Figure \ref{fig:ch1_gis_type_b} shows a polygon of a building footprint.
+%Vector data provides a more precise representation of the location and shape of world features in comparison to raster data \cite{GIS_demystified}. Common vector features include streets, park/field outlines, and building footprints as seen in Google Maps or \ac{OSM}. Vector features are constructed as ordered pairs of (x,y) vertices which reside on a map projection plane.  A vector feature is represented by one of four types of geometric shapes: point, polyline, linear ring, or polygon. This dissertation follows the Open Geospatial Consortium (OGC) standard \cite{herring_opengis_2006-1} for defining these geometric types which are summarized as follows. A point represents a single (x,y) position in coordinate space. A polyline is an ordered list of points where each consecutive pair of points defines a line segment. A linear ring is a polyline that is both closed and simple. This mandates a linear ring to have non-intersecting line segments that join to form a closed path. A valid polygon must have a single exterior linear ring representing the hull of the polygon and a set of linear rings (possibly empty) representing holes inside the polygon. Figure \ref{fig:ch1_gis_type_b} shows a polygon of a building footprint.
 
 % Additionally no two rings in the boundary may cross and rings may only intersect at a singular point.
 
 % This dissertation focuses on the creation of polygons.
 \paragraph{Point Cloud Data}
 % \subsection{3D Point Cloud Data}
-A point cloud is a collection of 3D points defined in a Cartesian reference frame. These points represent the (x,y,z) coordinates of an underlying sampled surface. Point clouds in \ac{GIS} are often generated with a top-down vantage point from aerial vehicles outfitted with \ac{LiDAR} sensors. A region may be surveyed by a small aircraft with on-board \ac{LiDAR}, \ac{GPS}, and an \ac{INS}. The laser scanner transmits pulses of light to the ground surface which are reflected back and their travel time is used to calculate the distance between the laser scanner and the ground. These scans from the entire flight are then stitched together in a final georeferenced product called an airborne \ac{LiDAR} point cloud. Publicly available point cloud are becoming increasingly available worldwide from both regional and federal governments. Figure \ref{fig:ch1_gis_type_c} shows a section of a LiDAR point cloud.
+A point cloud is a collection of 3D points defined in a Cartesian reference frame. %These points represent the (x,y,z) coordinates of an underlying sampled surface. 
+Point clouds in \ac{GIS} are often generated with a top-down vantage point from aircraft outfitted with \ac{LiDAR}, \ac{GPS}, and an \ac{INS}.  \ac{LiDAR} scans are stitched together in an airborne \ac{LiDAR} point cloud. 
+%Publicly available point cloud data are becoming increasingly available worldwide from both regional and federal governments. Figure \ref{fig:ch1_gis_type_c} shows a section of a LiDAR point cloud.
 
 
 \section{Problem Statement}
 
-This dissertation aims to address the following challenges:
+This dissertation addresses the following challenges:
 
 \begin{enumerate}[noitemsep]
     \itemsep0em 
@@ -211,7 +218,7 @@ Previous research has proposed the use of public \ac{GIS} datasets such as satel
 
 % Map data is widely available in vector form, such as polygons, which describes features such as fields, parks, and building outlines \cite{openstreetmap_contributors_planet_2017}.  Such polygons can be efficiently stored and indexed such that spatial queries may efficiently computed in an embedded database \cite{furieri_spatialite_2017}. 
 
-This dissertation proposes to process existing \ac{GIS} data to extract safe landing sites and risk evaluate for landing site selection. To accomplish this several computational geometry algorithms have been developed to enable efficient extraction of flat surfaces as non-convex polygons. The overall structure of this dissertation is shown in Figure \ref{fig:ch1_thesis_overview} and can be summarized as accomplishing the following seven tasks:
+This dissertation proposes to process existing \ac{GIS} data to extract safe landing sites and risk evaluate for landing site selection. To accomplish this computational geometry algorithms have been developed to enable efficient extraction of flat surfaces as non-convex polygons. The overall structure of this dissertation is shown in Figure \ref{fig:ch1_thesis_overview} and can be summarized as accomplishing the following seven tasks:
 % This dissertation assumes these urgent landing scenarios are without loss-of-control, for example: low battery energy, lost communication link, adverse weather, non-essential sensor or actuator failure, operator emergency landing directive, and non-cooperative aircraft nearby.
 
 \begin{enumerate}[noitemsep]
@@ -221,108 +228,18 @@ This dissertation proposes to process existing \ac{GIS} data to extract safe lan
     \item Assimilate publicly available GIS data such as satellite images, airborne LiDAR point clouds, and building outlines into an urgent landing site database with associated risk metrics as well as occupancy maps for path planning. (Ch. 5)
     \item Create a multi-goal planner to efficiently search candidate sites and account for landing site risk as well as flight path risk to that site. The planner identifies a landing site/path pair to minimize combined \emph{total} risk as well as computation time for this search. (Ch. 5)
     \item Create a real-time touchdown point selection algorithm to verify a landing zone on approach. Construct a high fidelity simulated city for testing. (Ch. 6)
-    \item Perform real-world experiments to verify the planned touchdown location is safe in real-time using on-board \ac{LiDAR}. (Ch. 7)
+    \item Perform flight experiments to verify the planned touchdown location is safe in real-time using on-board \ac{LiDAR}. (Ch. 7)
 \end{enumerate}
 
-Our research approach begins with developing methods for extracting non-convex polygons from 2D \& 3D data in Chapters \ref{ch:polylidar} and \ref{ch:polylidar3d}, respectively. Though the chapters present methods and examples which are general to many domains, this thesis will highlight their use for rooftop surface extraction. Chapter \ref{ch:roofshape} presents our methods of labelling rooftop shapes with a machine learning framework by utilizing satellite image and airborne LiDAR point clouds.  Chapter \ref{ch:maplanding} integrates polygon extraction and roof shape prediction in order to create an emergency landing site database that uniquely includes rooftops. We propose several risk metrics that allow a multi-goal planner to choose the a risk-minimal landing site and path/pair. Chapter \ref{ch:landingsim} proposes methods to validate a landing site on approach by using on-board LiDAR and camera sensors. We extend Polylidar3D to integrate with semantic segmentation and show improved robustness from individual sensor failure. Finally, Chapter \ref{ch:experiments} experimentally evaluates the use of Polylidar3D for real-time touchdown point selection with on-board LiDAR.
+Our research approach begins with developing methods for extracting non-convex polygons from 2D \& 3D data in Chapters \ref{ch:polylidar} and \ref{ch:polylidar3d}, respectively. Though the chapters present methods and examples which are general to many domains, this thesis will highlight their use for rooftop surface extraction. Chapter \ref{ch:roofshape} presents our methods of labelling rooftop shapes with a machine learning framework by utilizing satellite image and airborne LiDAR point clouds.  Chapter \ref{ch:maplanding} integrates polygon extraction and roof shape prediction in order to create an emergency landing site database that uniquely includes rooftops. We propose several risk metrics that allow a multi-goal planner to choose the risk-minimal landing site and path/pair. Chapter \ref{ch:landingsim} proposes methods to validate a landing site on approach by using on-board LiDAR and camera sensors. We extend Polylidar3D to integrate with semantic segmentation and show improved robustness from individual sensor failure. Finally, Chapter \ref{ch:experiments} experimentally evaluates the use of Polylidar3D for real-time touchdown point selection with on-board LiDAR.
 
 % The final risk-optimal landing site/path pair is sent to a navigation controller.
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.80\linewidth]{chapter_1_intro/imgs/Challenge_Overview-thesis_overview.pdf}
-    \caption{Overview of dissertation topics and structure.}
+    \caption[Overview of dissertation topics and structure]{Overview of dissertation topics and structure.}
     \label{fig:ch1_thesis_overview}
 \end{figure}
-
-
-% A summary of each chapter and i contributions are discussed in the following chapters:
-% \emph{How to efficiently construct databases from publicly available data to identify minimal-risk landing site for sUAS.}. Our previous stated observation of flat rooftop motivates 
-
-% Numerous public datasets exist to aid construction of maps for aircraft urgent landing including satellite images, airborne LiDAR point clouds, census data, and existing building outlines. Our first goal is to efficiently transform this raw data into a risk evaluated landing site database which may be used for landing site selection and path planning.  Previous research has used such data to identity terrain based landing but none to our knowledge has focused on extracting flat rooftops \cite{atkins_emergency_2006, meuleau_emergency_2009, sankararaman_towards_2017, di_donato_evaluating_2017}. Our second goal is the construction of an efficient multi-goal planner which will account for both the intrinsic landing site risk as well as path risk. 
-
-% \paragraph{Polygons from 2D Point Sets}
-
-% We present a novel method for extracting non-convex polygon with interior holes form 2D point sets. 
-% Characterizing the shape of a set of 2D points $\mathcal{P}$ has been a long-term focus of computational geometry research. A convex hull is defined as the smallest convex polygon that fully encapsulates all points in a set $\mathcal{P}$ as shown in Figure \ref{fig:ch1_convex_concave_1}.  Although widely used to estimate shape, point sets with non-convex distributions are poorly characterized by a convex hull \cite{duckham_efficient_2008}.  Convex hull over-estimation can be a serious issue when the points represent physical objects, e.g., obstacle free navigable areas. Several algorithms have been developed to construct shapes that ``fit'' or ``cover'' point sets more closely. These shapes are often termed non-convex polygons or concave hulls. 
-
-% The most notable examples of these algorithms are $\alpha$-shape \cite{edelsbrunner_shape_1983}, Spatialite concave hull \cite{furieri_spatialite_2017}, and PostGIS concave hull \cite{open_source_geospatial_foundation_postgis_2019}. Each is widely used in the computational geometry and GIS communities. These methods can extract the exterior boundary of a point set and also interior holes.  However, many of these methods are extremely slow motivating this dissertation to create an efficient non-convex (multi)polygon extraction algorithm called Polylidar. A key insight of this work is a novel boundary following method that contrasts computationally-expensive geometric unions of triangles. Real-world and synthetic benchmarks are presented to comparatively evaluate Polylidar speed and accuracy. Results show comparable accuracy and more than four times speedup compared to other open source concave polygon extraction methods. An example polygon from Polylidar is shown in Figure \ref{fig:ch1_convex_concave_2}.
-
-% % This dissertation uses the Open GeoSpatial Consortium (OGC) standard \cite{herring_opengis_2006-1} for defining \textit{linear ring} and \textit{polygon}. A linear ring is a consecutive list of points that is both closed and simple. This requires a linear ring to have non-intersecting line segments that join to form a closed path. The key components of a valid polygon are a single exterior linear ring representing the \emph{shell} of the polygon and a set of linear rings (possibly empty) representing \emph{holes} inside the polygon. 
-
-
-% \begin{figure}[t]
-
-%   \begin{subfigure}[t]{.22\linewidth}
-%     \centering\includegraphics[width=.95\linewidth]{chapter_3_polylidar3d/imgs/concave_vs_convex_lettera_1.pdf}
-%     \caption{\label{fig:ch1_convex_concave_1}}
-%   \end{subfigure}
-%   \begin{subfigure}[t]{.22\linewidth}
-%     \centering\includegraphics[width=.95\linewidth]{chapter_3_polylidar3d/imgs/concave_vs_convex_lettera_3.pdf}
-%     \caption{\label{fig:ch1_convex_concave_2}}
-%   \end{subfigure}
-%   \begin{subfigure}[t]{.26\linewidth}
-%     \centering\includegraphics[width=.95\linewidth]{chapter_1_intro/imgs/rooftop_example_simple.pdf}
-%     \caption{\label{fig:ch1_rooftop_polygon}}
-%   \end{subfigure}
-%   \begin{subfigure}[t]{.26\linewidth}
-%     \centering\includegraphics[width=.95\linewidth]{chapter_1_intro/imgs/mesh_example_simple.pdf}
-%     \caption{\label{fig:ch1_mesh_polygon}}
-%   \end{subfigure}
-%   \caption[Illustration of various polygons]{(a,b) Examples of a convex hull (red) and a non-convex polygon with holes from a 2D point set. (c,d) Examples of Polylidar3D's non-convex multi-polygon extraction from airborne LiDAR point clouds (colored by height) and a user provided mesh, respectively}\label{fig:ch1_polygon_examples}
-% \end{figure}
-
-
-% \paragraph{Polygons from 3D Data}
-
-% Flat surfaces are pervasive in engineered structures and also occur in natural terrain. For example, structures such as walls, floors, rooftops, and roadways are often flat or ``flat-like". 
-% % Similarly, home and office furnishings are typically composed of multiple flat surfaces.
-% Sensors such as LiDAR and RGBD cameras generate dense 3D point clouds of these predominately flat surface environments. This observation has been exploited for tasks in localization and mapping \cite{pathak_online_2010},  digital preservation with Photogrammetry and laser scanning \cite{malihi_3d_2016, lerma_terrestrial_2010, balsa-barreiro_generation_2018}, and point cloud registration \cite{rusinkiewicz_efficient_2001}. Planar segmentation techniques are often used to group points belonging to a common flat surface \cite{feng_fast_2014, pham_geometrically_2016-1, schaefer_maximum_2019}. However points clouds are dense incurring high computational cost when used directly in higher level tasks. Planar point clouds can be converted to lower dimensional representations such as polygons.
-% % Polygons reduce map size, accelerate matching for localization \cite{lee_indoor_2012-1}, and support model reconstruction and object detection \cite{cao_roof_2017}. 
-
-% Prior work has investigated transforming planar points clouds to convex polygons \cite{biswas_planar_2012,poppinga_fast_2008}.  Non-convex polygons can be generated using techniques such as $\alpha$-shapes but operate strictly on 2D data, requiring the projection of each 3D planar point cloud and expensive triangulation \cite{lee_fast_2013, edelsbrunner_shape_1983}. Pixel-level boundary following of organized point clouds (e.g., range images) can be used to extract non-convex polygons but often only captures the exterior shell of the polygon \cite{lee_indoor_2012-1}. These methods do not capture interior holes in a polygon needed to capture obstacles on flat surfaces. 
-
-% % Finally, many of the proposed solutions are limited in their use of 3D data, only working on range images and unable to handle unorganized forms of 3D data.
-
-% This dissertation introduces Polylidar3D, a non-convex polygon extraction algorithm that takes as input either unorganized 3D point clouds (e.g., airborne LiDAR point clouds), organized point clouds (e.g., range images), or user-provided meshes. A core idea of this work is to transform all data inputs into a half-edge triangular mesh for which planar segmentation and polygon extraction may occur in parallel. Dominant plane normals are identified and used to parallelize and regularize planar segments in the mesh. Triangles having similar normals to a dominant plane are grouped. Each group (in parallel) then performs region growing accounting for normal orientation, Euclidean distance, and point to plane distance. Immediately after a plane has been segmented a polygon extraction task is dynamically spawned. The result is a general and extremely fast framework for non-convex polygon extraction of 3D data. Polylidar3D is used in this dissertation to extract polygonal representations of flat rooftop surfaces and generated meshes as shown in Figure \ref{fig:ch1_polygon_examples}c,d.
-
-
-% % Speed is an important consideration for many of the applications mentioned previously. Parallel algorithms written for multi-core CPUs and GPUs should be used to reduce latency. 
-
-
-
-% \paragraph{Roof Shape Classification}
-
-
-
-% % Satellite images and 3D point cloud data from airborne LiDAR sensors provide complementary data on buildings. High resolution satellite images offer rich information content and are generally available worldwide.  However, extracting 3D building information from 2D images is difficult due to occlusion, poor contrast, shadows, and skewed image perspectives \cite{zhou_seamless_2014}. LiDAR point clouds provide depth and intensity measurements that capture the features of roof shapes, yet LiDAR does not offer other world feature information from ambient lighting intensity and color. LiDAR point cloud data are often processed and converted to digital surface models (DSM) representing the top surface layer of any terrain.
-
-% In an effort to identify suitable flat-like rooftops for urgent landing, our approach is to first predict the roof shapes of all buildings in cities by fusing satellite and LiDAR data with machine learning techniques. % Such classification will allow identification of rooftops suitable for landing, but also be generally beneficial for the \ac{GIS} community. % solar power panel placement, localization for UAS, 
-% Classical machine learning algorithms such as support vector machines (SVM), logistic regression, and decision trees are often used in these classification scenarios but invariably face computational complexity challenges caused by the high dimensionality found in GIS data sources.   To employ these algorithms, a reduction in dimensionality through feature selection is often performed. Prior work has performed roof classification through Support Vector Machine (SVM) and Random Forest classifiers by reducing a digital surface model (DSM) image of a roof to a set of handcrafted features \cite{mohajeri_city-scale_2018, assouline_building_2017}. Recent work has used Convolutional Neural Networks (CNN) to process satellite images and/or building DSMs to predict roof shape \cite{partovi_roof_2017, alidoost_knowledge_2016}.
-
-% This dissertation processes satellite images, airborne LiDAR point clouds, and city map  building outlines to generate both a LiDAR image and a cropped satellite image of each building. CNNs are independently trained for each modality to extract high level features for roof shape prediction. Features from both images are then fused to train a random forest classifier. This research contributes the first large multi-city annotated dataset of over 4,500 rooftops to train, validate, and test models.  Example annotated rooftops are shown in Figure \ref{fig:ch1_rooftop_shape_examples}. Several CNN models and classical machine learning algorithms are evaluated.
-
-% \begin{figure}[t]
-% \centering
-% \includegraphics[width=0.99\textwidth]{chapter_4_roofshape/imgs/RoofShapes.pdf}
-% \caption[Satellite and LiDAR depth images of common rooftops]{Satellite (RGB) and LiDAR example images of roof shapes.}
-% \label{fig:ch1_rooftop_shape_examples}
-% \end{figure}
-
-
-% \paragraph{Map based Planner}
-
-
-% % Urban areas typically do not offer classic emergency landing sites such as unpopulated open fields. This requires a planner to consider unconventional yet safe alternatives.
-
-% % We propose flat building rooftops as viable urgent landing sites for small UAS. During landing site selection, a map-based planner must be able to assess \emph{landing site risk} posed to the aircraft and bystanders at touchdown. The UAS may pose risk to people and property it overflies enroute, so the planner must also assess \emph{path risk} once the landing flight plan is known.  Landing site and path risk together offer an estimate of \emph{total risk}.
-
-% Map data used for urgent landing planning must have high integrity and low-latency access to support timely decision making. This dissertation proposes an offline data processing pipeline and online multi-objective, multi-goal landing planner that enable a UAS to minimize total risk when a nearby landing is required. Landing site and local area map information is pre-processed and stored onboard.  Roof shape classifiers and Polylidar3D are both used to identify flat-like rooftops and extract landing surfaces as polygons. Geometric algorithms are used to process flat rooftop polygons to find the largest inscribed circle that maximizes distance to obstacles and defines optimal touchdown location on each flat roof.  A multi-goal real-time landing planner explores available ground and rooftop landing sites likely to minimize overall total risk while greedily pruning options known to have higher risk.  Pareto fronts over landing site and path risk are generated for three urban regions: Witten, Germany; Ann Arbor, Michigan; and mid-town Manhattan in New York City. We statistically analyze results with respect to availability and quality of landing sites as well as execution time of the map-based planner.
-
-% \paragraph{Landing Site Identification and Selection Experiments (In Progress and Proposed)}
-
-% A small UAS should utilize available sensors to verify a safe touchdown point upon approach to a landing site. We build upon our previous methods for offline landing site identification and selection to  use on-board sensors generating point clouds in real-time. Prior work has investigated converting these point clouds to 2D disparity grids \cite{desaraju_vision-based_2015} or probabilistic elevation maps \cite{forster_continuous_2015}. These methods then apply computer vision kernels over the grids to smooth and identify ``flat'' touchdown points. 
-% % Sensors such as LiDAR, RGBD cameras, or monocular cameras utilizing Structure from Motion (SfM) can generate 3D point clouds of the landing site. 
-% An alternative to operating over a discretized image space is modelling the 3D mesh of the roof. Polylidar3D can be used to rapidly construct a surface mesh and extract polygonal representations of all flat surfaces while accounting for obstacles. Afterward the largest inscribed circle in each polygon is defined. For the final dissertation,  flight experiments with small multicopter UAS carrying LiDAR sensors will be conducted to demonstrate and evaluate real-time map generation for landing site safety validation (in areas with small UAS landing site maps) or real-time landing identification and selection (in areas without small UAS landing site maps). Tests will be conducted in the M-Air netted flight facility where motion capture can provide ground truth data to be compared with UAS-generated landing site maps and decisions. 
 
 
 \section{Contributions and Innovations}
@@ -351,22 +268,6 @@ Specific innovations of this dissertation are: % things that have taken time / e
 \end{itemize}
 
 
-% Open Source C++ libraries (with Python bindings) are released at the following links:
-
-% \begin{itemize}
-%     \item Contribution 1 - {\small{ \url{https://github.com/JeremyBYU/polylidar/tree/polylidar2d}}}
-%     \item Contribution 2 - {\small{ \url{https://github.com/JeremyBYU/polylidar}}}
-%     \item Contribution 3 - {\small{\url{https://github.com/JeremyBYU/FastGaussianAccumulator}}}
-%     \item Contribution 7 - TBD
-% \end{itemize}
-
-% Open Data sets are released at the following links:
-
-% \begin{itemize}
-%     \item Classified Roof Shape - {\small \url{https://www.mdpi.com/1424-8220/18/11/3960/s1}}
-% \end{itemize}
-
-
 \section{Products}
 
 Publications, software, and datasets connected to this dissertation are:
@@ -386,9 +287,9 @@ Publications, software, and datasets connected to this dissertation are:
 
 \vspace{0.20cm}
 \begin{itemize}[noitemsep]
-    \item J. Castagno, Y. Yao, E. Atkins, ``Autonomous Rooftop Touchdown Point Selection". \emph{Journal of Intelligent Robot Systems}. Submitted under Review. 
+    \item J. Castagno, Y. Yao, E. Atkins, ``Autonomous Rooftop Touchdown Point Selection". \emph{Journal of Intelligent Robot Systems}. Submitted, Under Review. 
     \item J. Castagno, M. Romano, P. Kuevor, and E. Atkins, ``Multi-UAV Wildire Boundary Estimation using a Semantic Segmentation Neural Network,” \emph{Journal of Aerospace Information Systems}, vol. 18, no. 5, pp. 231–249, 2021, doi: 10.2514/1.I010912.
-    \item J. Castagno and E. Atkins, ``Map-Based Planning for Small Unmanned Aircraft Rooftop Landing (In Press)," in \emph{Handbook on Reinforcement Learning and Control}, Springer, 2021. In Press.
+    \item J. Castagno and E. Atkins, ``Map-Based Planning for Small Unmanned Aircraft Rooftop Landing," in \emph{Handbook on Reinforcement Learning and Control}, Springer, 2021. doi:10.1007/978-3-030-60990-0.
     \item J. Castagno and E. Atkins, “Polylidar3D - Fast Polygon Extraction from 3D Data," \emph{Sensors}, vol. 20, no. 17, Art. no. 17, Jan. 2020, doi: 10.3390/s20174819.
     \item J. Castagno and E. Atkins, “Polylidar - Polygons From Triangular Meshes," \emph{IEEE Robotics and Automation Letters}, vol. 5, no. 3, pp. 4634–4641, Jul. 2020, doi: 10.1109/LRA.2020.3002212.
     \item J. Castagno and E. Atkins, “Roof Shape Classification from LiDAR and Satellite Image Data Fusion Using Supervised Learning," \emph{Sensors}, vol. 18, no. 11, Art. no. 11, Nov. 2018, doi: 10.3390/s18113960.

@@ -229,7 +229,7 @@ Figure \ref{fig:ch5_all_flat_buildings} shows results of our roof prediction mod
 Airborne LiDAR point cloud data is used to determine planarity, shape, and extent of potential \ac{UAS} landing site surfaces.  %Polygon outlines are constructed of proposed landing sites. 
 Proposed polygonal landing sites are buildings with predicted flat-like roof shapes and terrain locations with land use keywords listed in Table \ref{table:ch5_terrain_property_costs}.  A point-in-polygon ray casting algorithm is used to generate the point set $P_{ls}$ \cite{samosky_sectionviewsystem_1993} where point clouds only reside in the outline of the landing site. 
 
-Next, flat surface extraction from $P_{ls}$ is performed using the Polylidar3D algorithm developed by the authors in \cite{castagno_polylidar3d_2020}. The algorithm works by generating triangular meshes of an input point cloud, filtering triangles by planarity and edge length, extracting subsets of the mesh which are spatially connected, and finally converting the mesh to a polygon format. Polylidar3D is configurable by user provided planarity constraints and maximum triangle edge length. This guarantees the polygon can represent flat surfaces with interior holes denoting obstacles. Highlights of this procedure are shown in Figure \ref{fig:ch5_example_usable}. 
+Next, flat surface extraction from $P_{ls}$ is performed using the Polylidar3D algorithm developed by the authors in Chapter \ref{ch:polylidar3d}. The algorithm works by generating triangular meshes of an input point cloud, filtering triangles by planarity and edge length, extracting subsets of the mesh which are spatially connected, and finally converting the mesh to a polygon format. Polylidar3D is configurable by user provided planarity constraints and maximum triangle edge length. This guarantees the polygon can represent flat surfaces with interior holes denoting obstacles. Highlights of this procedure are shown in Figure \ref{fig:ch5_example_usable}. 
 
 After the flat region is extracted, e.g., the orange polygon in Figure \ref{fig:ch5_example_usable}c, this polygon is buffered inward and simplified as denoted by dashed lines. The buffering process is defined as the Minkowski difference of the polygon with a circle with radius equal to a buffer distance \cite{agarwal2002polygon}. We set the buffer distance to 0.5 meters which contracts the exterior hull and expands the interior holes.  Afterwards we use the Douglas-Peucker's simplification algorithm to remove redundant vertices and ``smooth'' the polygon \cite{douglas_algorithms_1973}.
 % Both the simplification and buffering process is performed by the GEOS library.
@@ -309,7 +309,7 @@ Terrain cost $C_t$ approximates the risk posed to the vehicle due to landing on 
 
 \begin{table}[!ht]
 \centering
-\caption{Terrain Type and Property Cost}
+\caption{Terrain type and property cost}
 \label{table:ch5_terrain_property_costs}
 \begin{tabular}{p{1.5cm}p{4.7cm}p{1.6cm}p{1.7cm}}
 \hline\noalign{\smallskip}
@@ -424,7 +424,7 @@ r_p = \frac{g(n_g)}{R}
 \begin{figure}[!t]
   \centering
   \includegraphics[width=0.75\linewidth]{chapter_5_mapping/imgs/architecture_planning.pdf}
-  \caption{Flow chart of proposed map-based planner.}
+  \caption[Flow chart of proposed map-based planner]{Flow chart of proposed map-based planner.}
   \label{fig:ch5_architecture_overview}
 \end{figure}
 
@@ -626,7 +626,7 @@ Landing site databases and path planning obstacle maps were generated for the ci
 
 \begin{table}[ht]
 \centering
-\caption{Satellite, LiDAR, and Building Data Sources}\label{table:ch5_data_sources}
+\caption{Satellite, LiDAR, and building data sources}\label{table:ch5_data_sources}
 \begin{tabular}{c@{\qquad}cc@{\qquad}cc@{\qquad}c}
   \hline\noalign{\smallskip}
   City & Satellite & LiDAR & Buildings \\
@@ -641,7 +641,7 @@ Landing site databases and path planning obstacle maps were generated for the ci
 
 \begin{table}[ht]
 \centering
-\caption[Emergency Landing Case Study Parameters]{All Case Study Parameters}
+\caption[Emergency landing case study parameters]{Emergency landing case study parameters}
 \label{table:ch5_weights}
 \begin{tabular}{@{}llll@{}}
 \hline\noalign{\smallskip}
@@ -685,7 +685,7 @@ The operating regions are approximately $1500\times1500$, $1500\times1300$, and 
 %   \rule{\linewidth}{\dimexpr 2\linewidth+2\baselineskip+6pt}
    \caption{New York}\label{fig:ch5_ny_all_risk}
  \end{subfigure}
- \caption[Maps of landing sites and associated risk.]{Maps of landing sites and associated risk. Landings site risk for the cities of Ann Arbor (a), Witten (b), and New York (c). Landing sites are color-coded from low risk (light yellow) to high risk (dark orange). Touchdown sites are denoted by blue circles. Maps from \copyright OpenStreetMap contributors and \copyright CARTO. License: Open Database License: https://www.openstreetmap.org/copyright}\label{fig:ch5_all_ls_risk}
+ \caption[Maps of landing sites and associated risk]{Maps of landing sites and associated risk. Landings site risk for the cities of Ann Arbor (a), Witten (b), and New York (c). Landing sites are color-coded from low risk (light yellow) to high risk (dark orange). Touchdown sites are denoted by blue circles. Maps from \copyright OpenStreetMap contributors and \copyright CARTO. License: Open Database License: https://www.openstreetmap.org/copyright}\label{fig:ch5_all_ls_risk}
 \end{figure}
 
 
@@ -727,7 +727,7 @@ Pareto plots are also provided for each of these case studies in Fig. \ref{fig:c
 
 \begin{table}[ht]
 \centering
-\caption[Emergency Landing Case Study Locations]{Case Study Locations}
+\caption[Emergency landing case study locations]{Emergency landing case study locations}
 \label{table:ch5_case_studies}
 \begin{tabular}{c@{\qquad}c@{\qquad}c}
 \hline\noalign{\smallskip}

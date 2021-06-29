@@ -33,7 +33,7 @@ This chapter presents Polylidar, an efficient algorithm to transform 2D point se
 
 
 
-We show that the Polylidar algorithm is approximately 4 times faster than leading open source approaches for concave polygon extraction. Polylidar's speed is attributed to rapidly identifying boundary edges (shell and holes) and then performing  boundary following to ensure a valid polygon is returned. 
+We show that the Polylidar algorithm is approximately four times faster than leading open source approaches for concave polygon extraction. Polylidar's speed is attributed to rapidly identifying boundary edges (shell and holes) and then performing  boundary following to ensure a valid polygon is returned. 
 
 
 Contributions of this chapter are:
@@ -66,7 +66,7 @@ PostGIS is a geospatial database of computational geometry routines such as the 
 
 \begin{table}[ht]
 \centering
-\caption{Concave Hull Extraction Methods}
+\caption{Concave hull extraction methods}
 \label{table:ch2_compare_alg}
 \begin{tabular}{ccc}
 \hline
@@ -441,7 +441,7 @@ Each implementation contains its own parameter(s) modified to minimize $L^2$ err
 
 \begin{table}[ht]
 \centering
-\caption{Parameters for Test Cases}
+\caption{Parameters for test cases}
 \label{table:ch2_params}
 \begin{tabular}{@{}cccccc@{}}
 \toprule
@@ -461,7 +461,7 @@ Point clouds were generated with an Intel RealSense D435i camera at 424X240 reso
 
 \begin{table}[!ht]
 \centering
-\caption{RGBD Plane Segmented Point Clouds}
+\caption{RGBD plane segmented point clouds benchmark results}
 \label{table:ch2_rgbd_results}
 \begin{tabular}{lcccccc}
 \toprule
@@ -570,7 +570,7 @@ The ``A'' in Figure \ref{fig:ch2_convex_concave}b shows an example capital lette
  
 \begin{table}[!ht]
 \centering
-\caption{Alphabet Letter Results, 26 Shapes}
+\caption{Alphabet letter benchmark results, 26 shapes}
 \label{table:ch2_alphabet_tests}
 \begin{tabular}{lcccccc}
 \toprule
@@ -603,7 +603,7 @@ As polygon convexity ($CV$) decreases Polylidar shape estimation accuracy also d
 
 \begin{table}[ht!]
 \centering
-\caption{Random Tests; $CV$ = Convexity Metric}
+\caption{Random polygon tests; $CV$ = Convexity Metric}
 \label{table:ch2_random_tests}
 \begin{tabular}{@{}lcccccc@{}}
 \toprule
@@ -679,7 +679,7 @@ The benchmarks above indicate that Polylidar is the faster concave (multi)polygo
 
 \begin{table}[ht]
 \centering
-\caption{Algorithm Timings - Mean of 30 runs in milliseconds}
+\caption{Algorithm timings - Mean of 30 runs in milliseconds}
 \label{table:ch2_disc_subtimings}
 \begin{tabular}{@{}ccccc@{}}
 \toprule

@@ -279,7 +279,7 @@ to Inceptionv3, with the Inception-ResNet architecture combining the previous ar
 \begin{figure*}[h]
 \centering
 \includegraphics[width=0.95\textwidth]{chapter_4_roofshape/imgs/CNN_Template.pdf}
-\caption{CNN architecture templates.}
+\caption[\ac{CNN} architecture templates]{CNN architecture templates.}
 \label{fig:cnn_architectures}
 \end{figure*}
 
@@ -287,7 +287,7 @@ Training initializes base layer weights with their respective parent architectur
 
 
 \begin{table}[H]
-\caption{CNN architectures and hyperparameters.}\label{table:cnn_arch}
+\caption{CNN architectures and hyperparameters}\label{table:cnn_arch}
 \centering
 %% \tablesize{} %% You can specify the fontsize here, e.g.  \tablesize{\footnotesize}. If commented out \small will be used.
 \begin{tabular}{@{}lll@{}}
@@ -313,7 +313,7 @@ The best \ac{CNN} models are used to extract high level image features as input 
 % This final model will be able to distinguish between a variety of roof shapes given satellite and LIDAR data.  However, in the hope of improving classification of flat-like roofs for UAS rooftop landing, a final test will be employed where flat-like roof are collapsed together.  In addition the model will be configured to reduce the false positive rate of the model (incorrectly labeling a roof as flat) by adjusting the \emph{confidence} threshold required in making a classification. This will invariably lead to a higher false negative rate (missing flat roofs), but give us much greater confidence that a roof labeled flat-like by the model is correctly identified.
 
 \begin{table}[H]
-\caption{SVM and random forest training configurations.}\label{table:classic_params}
+\caption{SVM and random forest training configurations}\label{table:classic_params}
 \centering
 %% \tablesize{} %% You can specify the fontsize here, e.g.  \tablesize{\footnotesize}. If commented out \small will be used.
 \begin{tabular}{@{}ll@{}}
@@ -358,7 +358,7 @@ The geographic regions used in the following case studies are chosen to maximize
 
 \begin{table}[H]
 \centering
-\caption{Satellite, LiDAR, and building data sources.}\label{table:data_sources}
+\caption{Satellite, LiDAR, and building data sources}\label{table:data_sources}
 \resizebox{\columnwidth}{!}{
 \begin{tabular}{c@{\qquad}cc@{\qquad}cc@{\qquad}c}
   \toprule
@@ -403,7 +403,7 @@ Models that require both input modalities for prediction must have a single labe
 
 \begin{table}[ht]
 \centering
-\caption{Breakdown of roof labels by city.}\label{table:city_roofs}
+\caption{Breakdown of roof labels by city}\label{table:city_roofs}
 \begin{tabular}{c@{\qquad}cc@{\qquad}c}
 % \begin{tabular}{@{}llll@{}}
 \toprule
@@ -448,7 +448,7 @@ All training was performed on the University of Michigan Flux system, providing 
         \caption{LiDAR Input}
         \label{fig:lidar_val}
     \end{subfigure}
-    \vspace{-12PT}
+    % \vspace{-12PT}
 
     \caption[Results of CNN networks on validation set]{Results of CNN networks on validation set. Colors indicate the base model used while the horizontal axis specifies whether a fully connected layer is part of the architecture. (\textbf{a}) RGB (satellite) image input and (\textbf{b}) LiDAR image input.}
     \label{fig:cnn_val}
@@ -458,7 +458,7 @@ The best performing model for LiDAR input was  Resnet50 with a validation set ac
 
 \begin{table}[H]
 \centering
-\caption{Best CNN model architectures.}\label{table:best_cnn_arch}
+\caption{Best CNN model architectures}\label{table:best_cnn_arch}
 \begin{tabular}{llll}
 \toprule
 \textbf{Input} & \textbf{Base Model}       & \textbf{FC Layer?} & \textbf{Frozen Layers} \\ \midrule
@@ -486,7 +486,7 @@ Using the best performing models, as shown in Table \ref{table:best_cnn_arch}, a
         \caption{LiDAR Input}
         \label{fig:lidar_multi_data}
     \end{subfigure}
-    \vspace{-12pt}
+    % \vspace{-12pt}
 
     \caption[Accuracy between region-specific and combined training datasets]{Accuracy between region-specific and combined training datasets. Results labeled ``combined dataset'' are trained on images from both Witten and Manhattan. Validation set accuracy on the vertical axis is specific to the region indicated on the horizontal axis. (\textbf{a}) RGB (satellite) image input and (\textbf{b}) LiDAR image input.}
     \label{fig:cnn_multi}
@@ -517,7 +517,7 @@ Three SVM model outliers can be seen for all three inputs. The RGB outlier model
 
 \begin{table}[H]
 \centering
-\caption{Best Classifiers using CNN extracted features.}\label{table:best_ml_models}
+\caption{Best Classifiers using CNN extracted features}\label{table:best_ml_models}
 \resizebox{\columnwidth}{!}{
 \begin{tabular}{lllc}
 \toprule
