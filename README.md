@@ -36,13 +36,11 @@ You can have custom short captions to be displayed in the table of contents. Sim
 Use an acronym for the first time with: `\acf{sUAS}`. Subsequent used can then be `\ac{sUAS}`. All acryonyms are defined in `misc\acronym_list.tex`
 
 
-## TODO
-Compression Issues:
+## Notes
 
-Only compress images. Medium JPEG Compression. 250-300 PPI.
+### Compression:
 
+When using Adobe, ONLY compress Images. Medium JPEG Compression. 250-300 PPI.
+Don't compress fonts.
 
-Font Issues with Compression:
-Redo picture of s2ID model in Polylidar3D. Something with fonts?
-Redo Figure 6.4? Make transparent background?
 

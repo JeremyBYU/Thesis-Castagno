@@ -6,6 +6,7 @@
 % \usepackage[redeflists]{IEEEtrantools}
 \usepackage{booktabs}
 \usepackage{subcaption}
+\usepackage{pdfpages}
 \usepackage{enumitem}
 \usepackage{amsmath}
 \usepackage{bm}
@@ -44,7 +45,7 @@
 \usepackage{etoolbox}
 \AtBeginEnvironment{algorithm}{\setstretch{1.0}}
 
-\title{Mapping and Real-time Navigation \\ with application to Small UAS Urgent Landing}
+\title{Mapping and Real-time Navigation \\ with Application to Small UAS Urgent Landing}
 
 % Author name
 \author{Jeremy D. Castagno}
@@ -93,6 +94,7 @@
 % \hidelistoftables
 % \hidelistofalgorithms
 \hidelistofmaps
+\hidededication
 \hidelistofillustrations
 \hidelistofappendices
 \hidelistofabbreviations
@@ -148,11 +150,11 @@
  \label{ch:conclusions}
  \input{chapter_8_conclusion/main_updated}
 
-% \appendix
+\appendix
 
-% \chapter{Proof of Optimality of Multi-Goal Planner}
-%  \label{ch:proof_multi_goal}
-%  \input{appendix_1/main}
+\chapter{Source Code Summary}
+ \label{ch:polyliar3d_src}
+ \input{appendix_1/main_updated}
 
 
 

@@ -62,7 +62,7 @@ We continue to use the \ac{MCS} for quadrotor position control because the T265 
 
 \subsection{Environment}
 
-All experiments were performed inside the University of Michigan's Ford Robotics Building Fly Lab. Four obstacles were placed on the floor including three boxes and one small ladder. The environment, obstacle labelling, and origin frame are shown in Figure \ref{fig:ch7_workspace_a}. Obstacle dimensions were measured using a ruler and placed at known positions within the environment. An overlay of the environment and obstacles is shown in Figure \ref{fig:ch7_workspace_b}. The workspace was limited to a $3.5m\times3.5m$ box centered at the \ac{MCS} origin and represents the safely navigable region for the drone also within \ac{MCS} view. Together the workspace and obstacles form a ground truth polygon to assess the accuracy of any proposed landing area created by Polylidar3D.
+All experiments were performed inside the University of Michigan's Ford Robotics Building Fly Lab. Four obstacles were placed on the floor including three boxes and one small ladder. The environment, obstacle labelling, and origin frame are shown in Figure \ref{fig:ch7_workspace_a}. Obstacle dimensions were measured using a ruler and placed at known positions within the environment. An overlay of the environment and obstacles is shown in Figure \ref{fig:ch7_workspace_b}. The workspace was limited to a $3.5m\times3.5m$ box centered at the \ac{MCS} origin and represents the safely navigable region for the drone also within \ac{MCS} view. Together the workspace and obstacles form a ground truth polygon to assess the accuracy of any proposed landing area created by Polylidar3D. The obstacles were chosen to have a mix of convex and non-convex shapes to challenge our polygon extraction methods. The size and placement of the obstacles were selected to prevent overloading the workspace and to provide an open area for landing. In future experiments we will diversify obstacles and their placement to further challenge our proposed methods.
 
 \begin{figure}[!htb]
   \centering
@@ -105,13 +105,13 @@ The urgent landing software is composed of four main programs: \texttt{RS-Pub}, 
 \begin{figure}[!tb]
     \centering  
     \includegraphics[page=1,clip,trim=0cm 0cm 0cm 0cm,width=.90\linewidth]{chapter_7_experiments/imgs/SoftwareOverview-v2.pdf}
-    \caption[Overview of hardware interfaces and software architecture]{Overview of hardware interfaces and software architecture}\label{fig:ch7_software}
+    \caption[Overview of hardware interfaces and software architecture]{Overview of hardware interfaces and software architecture.}\label{fig:ch7_software}
 \end{figure}
 
 \begin{figure}[!tb]
     \centering  
     \includegraphics[page=1,clip,trim=0cm 0cm 0cm 0cm,width=.95\linewidth]{chapter_7_experiments/imgs/SensorPackage_TUI.pdf}
-    \caption[Picture of terminal user interface for urgent landing]{Picture of terminal user interface for urgent landing}\label{fig:ch7_tui}
+    \caption[Picture of terminal user interface for urgent landing]{Picture of terminal user interface for urgent landing.}\label{fig:ch7_tui}
 \end{figure}
 
 \section{Experimental Results for Touchdown Point Selection}
@@ -150,7 +150,7 @@ Figures~\ref{fig:ch7_man_poly_a},\subref{fig:ch7_man_poly_b} display the same po
 
 \subsection{Flight Tests} \label{sec:ch7_results_flight}
 
-Three flight tests were conducted with the sensor package payload. In all experiments a \ac{PIC} had manual control of the quadrotor to execute a flight path shown in Figure \ref{fig:ch7_flight_path}. This box pattern allowed full coverage of the workspace by the L515 LiDAR during the integration process.  A flow diagram of the experiment protocol is shown in Figure \ref{fig:ch7_flight_protocol}.  After scanning the environment, the urgent landing protocol was activated which extracted a mesh of the environment, found the optimal touchdown point, and began autonomous trajectory generation, navigation and landing procedures. In all flight tests the quadrotor successfully found the touchdown point and landed. Each flight experiment took approximately 75 seconds.
+Three flight tests were conducted with the sensor package payload. In all experiments a University of Michigan graduate student with remote piloting experience acted as \ac{PIC} and manually controlled the quadrotor to execute the flight path shown in Figure \ref{fig:ch7_flight_path}. This box pattern allowed full coverage of the workspace by the L515 LiDAR during the integration process.  A flow diagram of the experiment protocol is shown in Figure \ref{fig:ch7_flight_protocol}.  After scanning the environment, the urgent landing protocol was activated which extracted a mesh of the environment, found the optimal touchdown point, and began autonomous trajectory generation, navigation and landing procedures. In all flight tests the quadrotor successfully found the touchdown point and landed. Each flight experiment took approximately 75 seconds.
 
 
 \begin{figure}[!htb]
@@ -184,16 +184,16 @@ Figures~\ref{fig:ch7_flight_mesh_a},\subref{fig:ch7_flight_mesh_b} show the mesh
 
 \begin{figure}[!htb]
   \centering
-  \begin{subfigure}[t]{.28\linewidth}
-    \centering  \includegraphics[page=1,clip,trim=3.5cm 3cm 3.5cm 1.4cm,width=.99\linewidth]{chapter_7_experiments/imgs/mesh_flight.pdf}
+  \begin{subfigure}[t]{.29\linewidth}
+    \centering  \includegraphics[page=1,clip,trim=3.5cm 3cm 3.5cm 1.0cm,width=.99\linewidth]{chapter_7_experiments/imgs/mesh_flight.pdf}
     \caption{\label{fig:ch7_flight_mesh_a}}
   \end{subfigure}
-  \begin{subfigure}[t]{.28\linewidth}
-    \centering  \includegraphics[page=2,clip,trim=3.5cm 3cm 3.5cm 1.4cm,width=.99\linewidth]{chapter_7_experiments/imgs/mesh_flight.pdf}
+  \begin{subfigure}[t]{.29\linewidth}
+    \centering  \includegraphics[page=2,clip,trim=3.5cm 3cm 3.5cm 1.0cm,width=.99\linewidth]{chapter_7_experiments/imgs/mesh_flight.pdf}
     \caption{\label{fig:ch7_flight_mesh_b}}
   \end{subfigure}
-  \begin{subfigure}[t]{.28\linewidth}
-    \centering  \includegraphics[page=3,clip,trim=3.5cm 3cm 3.5cm 1.4cm,width=.99\linewidth]{chapter_7_experiments/imgs/mesh_flight.pdf}
+  \begin{subfigure}[t]{.29\linewidth}
+    \centering  \includegraphics[page=3,clip,trim=3.5cm 3cm 3.5cm 1.0cm,width=.99\linewidth]{chapter_7_experiments/imgs/mesh_flight.pdf}
     \caption{\label{fig:ch7_flight_mesh_c}}
   \end{subfigure}
   
@@ -212,8 +212,6 @@ Figures~\ref{fig:ch7_flight_mesh_a},\subref{fig:ch7_flight_mesh_b} show the mesh
   \caption[Real-time constructed meshes and polygons during flight test]{Real-time constructed meshes and polygons during flight test. (a,b,c) Meshes, polygons, and touchdown points from three flight tests, respectively. The polygon is shown in green/orange and touchdown circle in blue. (c,d,e) Comparisons of the ground truth polygon (purple) versus extracted polygons. }\label{fig:ch7_mesh_flight}
 %   (\subref{fig:ch7_mesh_a}, \subref{fig:ch7_mesh_b}) 
 \end{figure}
-
-
 
 
 \subsection{Execution Time} \label{sec:ch7_results_execution_time}
@@ -240,7 +238,7 @@ For each test approximately 111 \ac{RGBD} frames were integrated into a voxel vo
 \end{table}
 
 
-\subsection{Trajectory Error Analysis of Intel T265}\label{sec:ch7_results_t265_accuracy}
+\subsection{Trajectory Error Analysis of Intel RealSense T265}\label{sec:ch7_results_t265_accuracy}
 
 % The Intel RealSense T265 utilizes an unknown closed source visual odometry algorithm with loop closure. A primary benefit is that the camera itself contains an on-board ASIC to perform all SLAM calculations to output the 6DOF pose. This reduces the computational burden for flight controllers or other companion boards. The product was released in 2020 with recent papers investigating its tracking performance \cite{ouerghi:hal-02567816, 10.1007/978-3-030-70740-8_14}. However, to the authors knowledge no accuracy results have been reported when mounted on \ac{sUAS} with motion capture for ground truth estimates.
 
@@ -287,4 +285,4 @@ Flight \#3 & 17.9       & 0.35                  & 3.7                     \\ \bo
 
 Multiple experiments were conducted to validate our proposed methods for real-time touchdown point selection. We developed a sensor package that holds an Intel RealSense L515 LiDAR, RealSense T265 Tracking Camera, and an Odyssey x86 \acf{SBC}. Together they provide depth data, localization and mapping, and the computational power necessary for our landing software. The sensor package was both hand-carried and flown with a quadrotor in an obstacle cluttered indoor environment. Accurate meshes of the environment were generated in real-time for which landing sites were extracted as polygons. The polygons representing safe landing areas were compared against the ground truth map and found to be accurate. In every experiment a safe landing zone was found which correctly minimized risk. 
 
-Future experimental work should be conducted to integrate a semantic neural network with Polylidar3D as proposed in Chapter \ref{ch:landingsim}. Data of real-world and synthetic environments should be captured and labelled to train the proposed network. The Odyssey board should be swapped with a \ac{SBC} with an on-board \ac{GPU} to provide minimal inference time for semantic segmentation. Further flight experiments above real-world city rooftops can then be conducted to further validate our touchdown point selection algorithm.
+Future work should be performed to expand upon the diversity and placement of obstacles in the workspace.  For example, adding larger more non-convex obstacles with holes in the center will further challenge our methods to more fully verify their efficacy. In addition, highly cluttered environments should be tested to verify our touchdown point selection algorithm will only select safe landing points. The size of the environment, the number of obstacles, and obstacle shape complexity will have an impact on the computation time needed for our landing software. Further work should be performed to quantify this relationship and determine its impact.  Experimental work should also be conducted to integrate a semantic neural network with Polylidar3D as proposed in Chapter \ref{ch:landingsim}. Data of real-world and synthetic environments should be captured and labelled to train the proposed network. The Odyssey board should be swapped with a \ac{SBC} with an on-board \ac{GPU} to provide minimal inference time for semantic segmentation. Further flight experiments above real-world city rooftops can then be conducted to further validate our touchdown point selection algorithm.

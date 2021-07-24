@@ -1,5 +1,4 @@
 \section{Introduction}
-% Unmanned Aircraft Systems (UAS) or drones are expected to proliferate in low-altitude airspace over the coming decade. Drones have been proposed to offer fast package delivery, perform inspections, and entertain. The FAA estimates over 1.25 million small \ac{UAS} were flown in 2018 \cite{federal_aviation_administration_unmanned_2019}, far exceeding the number of registered manned aircraft in the USA.  Low-altitude operation of \ac{UAS} in urban areas will require flight near buildings and over people. Safety must be a top priority for system designers and regulators as UAS will pose new risks to the overflown population.
 
 A primary safety concern for \ac{UAS} is ensuring a robust emergency landing capability \cite{winnefeld_unmanned_2011, degarmo_issues_2013}.  Emergency landing requires landing site selection, trajectory planning, and stable flight control to actually reach the selected site \cite{atkins_emergency_2006}. It is possible a \ac{UAS} may identify a safe site within sensor range allowing for an immediate landing.  However, when no safe site is within range the \ac{UAS} must devote time and energy to exploring sites beyond sensor range or else utilize pre-processed data to identify a safe site \cite{ten_harmsel_emergency_2017, ochoa_fail-safe_2017}.  An onboard database of maps including landing sites can be incorporated into an efficient autonomous decision making framework.  For example, Refs.  \cite{atkins_emergency_2006, meuleau_emergency_2009}  and \cite{sankararaman_towards_2017} utilize airborne flight risk models to build emergency landing plans for fixed-wing and urban flight operations, respectively. We call such a decision making framework a map-based planner.
 
@@ -14,7 +13,7 @@ The chapter is structured as follows. Section \ref{sec:ch5_background} provides 
 \section{Background}\label{sec:ch5_background}
 
 % {\color{blue}Break up background into local sensing and data based planning. Dont break up by authors, break by topic. Include picture of map-based planner Ella created}
-Emergency landing planning is typically accomplished with either onboard sensor-based planning or map-based planning \cite{warren_enabling_2015, ten_harmsel_emergency_2017}.  Sensor-based planners rely strictly on real-time data streams while map-based planner use information previously gathered and stored onboard. Planners using a combination of maps and onboard sensors can capitalize on both data sources \cite{ten_harmsel_emergency_2017}.  Section \ref{sec:ch5_local_sensor} outlines sensor-based planning while an overview of map-based planning is presented in Section \ref{sec:ch5_map_based_planning}. Sec \ref{sec:ch5_multi_goal_bg} provides background on multi-goal planning which our map-based planner utilizes. A meta-level framework to unify sensor and map-based planning has been proposed for general (fixed-wind) aviation \cite{atkins_emergency_2006} as well as multicopter \ac{UAS} \cite{ten_harmsel_emergency_2017} as shown in Fig. \ref{fig:ch5_meta-level-planner}. This planner relies on local sensor data to land if the immediate area is safe but calls a map-based planner otherwise. Sensor and map based methods can be merged to capitalize on each other's strengths. Previous work all focuses on open landscapes and/or runways and considers only a single landing site in each planning epoch. We propose map-based planning with consideration of rooftop landing sites and dual risks from landing path and site for the first time in this chapter.  Previous research in sensor-based planning, map-based planning, and multi-goal planning is summarized below.
+Emergency landing planning is typically accomplished with either onboard sensor-based planning or map-based planning \cite{warren_enabling_2015, ten_harmsel_emergency_2017}.  Sensor-based planners rely strictly on real-time data streams while map-based planner use information previously gathered and stored onboard. Planners using a combination of maps and onboard sensors can capitalize on both data sources \cite{ten_harmsel_emergency_2017}.  Section \ref{sec:ch5_local_sensor} outlines sensor-based planning while an overview of map-based planning is presented in Section \ref{sec:ch5_map_based_planning}. Sec \ref{sec:ch5_multi_goal_bg} provides background on multi-goal planning which our map-based planner utilizes. A meta-level framework to unify sensor and map-based planning has been proposed for general (fixed-wind) aviation \cite{atkins_emergency_2006} as well as multicopter \ac{UAS} \cite{ten_harmsel_emergency_2017} as shown in Fig. \ref{fig:ch5_meta-level-planner}. This planner relies on local sensor data to land if the immediate area is safe but calls a map-based planner otherwise. Sensor and map based methods can be merged to capitalize on each other's strengths. Previous work all focuses on open landscapes and/or runways and considers only a single landing site in each planning epoch. We propose map-based planning with consideration of rooftop landing sites and dual risks from both the landing site and its path for the first time in this chapter.  Previous research in sensor-based planning, map-based planning, and multi-goal planning is summarized below.
 \begin{figure}[ht]
 \includegraphics[scale=.65]{chapter_5_mapping/imgs/meta-level-planner.pdf}
 \centering
@@ -49,9 +48,6 @@ Ref. \cite{primatesta_ground_2020} proposes generation of a 2D risk map that qua
 We propose an emergency landing framework that uses both a landing site database and a 3D risk grid to evaluate landing site risk and path risk as independent metrics. Our work is focused on Vertical Take-Off and Landing (VTOL) \ac{UAS} that might require an urgent landing but still have sufficient flight control to stably follow a prescribed path to touchdown. We provide a  multi-goal planner to trade off risk of landing sites with risk-optimal paths to each site while efficiently finding the minimum total risk solution. We uniquely identify usable area on flat rooftops using machine learning and computational geometry techniques. Previous efforts to quantify an \emph{area} risk of a landing site approximated risk as length or area of a site's buffered geometry \cite{di_donato_evaluating_2017}. However not all area in a landing site is suitable for landing. For example, many rooftops have obstacles such as air conditioning units, vents, and rooftop entrances. Additionally, the choice of a singular touchdown point at a chosen landing site is often simplified to be the centroid or pseudo-centroid of the site or cell \cite{di_donato_evaluating_2017, mejias_alvarez_forced_2009}. However both of these choices do not represent the optimal touchdown location with respect to ensuring flatness and distance from obstacles. We formulate the problem of choosing a touchdown position as finding the largest inscribed circle in its 2D polygon representation. Circle placement guarantees landing target coordinates are maximally separated from any obstacle or edge. 
 
 
-% Selecting the landing zone point furthest from any obstacle is similar to the poles of inaccessibility (PIA) problem studied in \cite{garcia2007poles}. This problem requires finding the point within a 2D polygon that is furthest away from any border. Ref. \cite{polylabel} refines the work in \cite{garcia2007poles} to guarantee global optimality to a specified precision. Key contributions in \cite{polylabel} are the use of quadtrees to divide the search space and a heuristic that efficiently prunes non-optimal landing sites. Our definition of optimality inherits from this work and guarantees a selected flat landing zone is the furthest point away from any obstacle to a specified precision. Note that obstacles in landing zone are represented by holes/cutouts in the polygon and are accounted for. Our work effectively combines these techniques to identify flat landing zones to determine the optimal landing site location.
-
-
 \subsection{Multi-Goal Planning}\label{sec:ch5_multi_goal_bg}
 
 Multi-goal planning has two different  definitions:
@@ -63,7 +59,7 @@ A visual representation of these definitions is shown in Figure \ref{fig:ch5_mg_
 
 An objective or cost function may consider both the cost of a start/goal path and also the worth of the goal itself. Ref. \cite{sarne_multi-goal_2010} investigates efficient methods to conduct search for multiple agents seeking different products in a free market.  The authors propose a multi-goal planner that maximizes expected overall utility from the set of opportunities found (e.g., products/goals) minus the costs associated with finding that set. In this work the worth or value of a goal is probabilistic and can only be ascertained through search. The objective function aims to balance goal achievement reward against the cost of obtaining that goal.
 
-In our work multiple landing sites (goals) will typically be identified. Risk is a function of path to each site as well as the site itself. Our objective is to find the singular goal/path pair which minimizes the combined risk of the landing site and a flight path from the initial \ac{UAS} location to that site. 
+In our work multiple landing sites (goals) will typically be identified. Risk is a function of the path to each site as well as the site itself. Our objective is to find the singular goal/path pair which minimizes the combined risk of the landing site and a flight path from the initial \ac{UAS} location to that site. 
 % Section \ref{sec:ch5_multi_goal_search_all} describes our proposed planner which finds the optimal landing site/path pair while minimizing the time to find it.
 % Note that this process is conservative (i.e., the returned areas guarantee that minimum-area constraints are satisfied). However, it is not “optimal”. For example, one region might support several different circular landing areas, but only one will be returned by the algorithm. Moreover, candidate areas may have a larger simply connected region in a location different from the one returned.
 
@@ -108,7 +104,7 @@ An emergency landing requires first identifying safe nearby landings sites.  Cit
 Our proposed flight planner requires the vehicle to execute a stable approach to an emergency landing site.  Failure scenarios can be detected and handled in time to execute a controlled landing. Scenarios in which an urgent landing can be achieved without loss-of-control include: low battery energy, lost communication link, adverse weather, non-essential sensor or actuator failure, operator emergency landing directive, and non-cooperative aircraft nearby.  The methods and optimization techniques discussed in this chapter can be used for any VTOL aircraft. The case studies and simulations presented are specific to a multicopter in an urban environment.
 
 % \subsection{Importing Open Street Map Data}
-Steps required to construct a database of buildings and suitable ground-based landing zones (e.g., parks, fields, etc.) from  OpenStreetMap (OSM) are described in our previous work \cite{castagno_comprehensive_2018}.  This database is geospatial, in the sense that each row refers to a geographic entity (e.g., building or field) with polygonal shape. Meta data is also captured about each entity, e.g., height and land use. 
+Steps required to construct a database of buildings and suitable ground-based landing zones (e.g., parks, fields, etc.) from  \ac{OSM} are described in our previous work \cite{castagno_comprehensive_2018}.  This database is geospatial, in the sense that each row refers to a geographic entity (e.g., building or field) with polygonal shape. Meta data is also captured about each entity, e.g., height and land use. 
 
 \section{Preliminaries}\label{sec:ch5_preliminaries}
 
@@ -162,13 +158,13 @@ The search space is limited to cells within the the radial footprint $R$ to boun
 
 \section{Landing Site Database}\label{sec:ch5_landing_site_database}
 
- Data is fused from OSM, LiDAR, and satellite image sources to construct a feature-rich landing site database. Figure \ref{fig:ch5_overview_processing} provides an overview of the data processing pipeline that provides the features needed to construct a landing site database with risk metrics and maps.
+ Data is fused from \ac{OSM}, LiDAR, and satellite image sources to construct a feature-rich landing site database. Figure \ref{fig:ch5_overview_processing} provides an overview of the data processing pipeline that provides the features needed to construct a landing site database with risk metrics and maps.
 % Our previous paper \cite{Castagno2018ICUAS} outlines procedures for extracting data from \ac{OSM}to construct a geospatial database that describes landing sites as simple polygons with labelled attributes, e.g. landuse and height. 
-Below, Section \ref{sec:ch5_flat_like} summarizes the machine learning (ML) process detailed in \cite{castagno_comprehensive_2018} to identify flat-like rooftops from which landing sites are identified. Section \ref{sec:ch5_usable_area} describes our procedure to refine each landing site by determining usable area. Section \ref{sec:ch5_method_circle} describes a method to compute the touchdown location on large flat surfaces. Landing site risk models are described in Section \ref{sec:ch5_risk_model}.
+Below, Section \ref{sec:ch5_flat_like} summarizes the \ac{ML} process detailed in Chapter \ref{ch:roofshape} to find flat-like rooftops from which landing sites are identified. Section \ref{sec:ch5_usable_area} describes our procedure to refine each landing site by determining usable area. Section \ref{sec:ch5_method_circle} describes a method to compute the touchdown location on large flat surfaces. Landing site risk models are described in Section \ref{sec:ch5_risk_model}.
 
 \subsection{Flat-like Roof Identification}\label{sec:ch5_flat_like}
 %  Chapter  authors have previously published data and ML models for predicting roof shape by fusing building outlines, satellite images, and airborne LiDAR data \cite{castagno_roof_2018}.
-Information on building roof shape is sparse in existing  databases. Chapter 4 shows that a total accuracy of 86\% is achievable when evaluating a trained ML pipeline on independent test sets. By adjusting the confidence threshold to 50\%, precision and recall of 95\% and 75\% can be achieved in classifying flat-like roofs in cities.  This chapter employs the roof shape prediction model from Chapter 4 to label building roof shapes for subsequent landing site identification. High precision is necessary to assure that few false positives will be identified. Note that offline map building allows  human inspection of city-wide rooftop landing sites to assure each identified unsafe site is pruned prior to landing site database use by a UAS.
+Information on building roof shape is sparse in existing  databases. Chapter 4 shows that a total accuracy of 86\% is achievable when evaluating a trained \ac{ML} pipeline on independent test sets. By adjusting the confidence threshold to 50\%, precision and recall of 95\% and 75\% can be achieved in classifying flat-like roofs in cities.  This chapter employs the roof shape prediction model from Chapter 4 to label building roof shapes for subsequent landing site identification. High precision is necessary to assure that few false positives will be identified. Note that offline map building allows  human inspection of city-wide rooftop landing sites to assure each identified unsafe site is pruned prior to landing site database use by a UAS.
 
 \begin{figure}[!ht]
  \centering
@@ -231,7 +227,7 @@ Proposed polygonal landing sites are buildings with predicted flat-like roof sha
 
 Next, flat surface extraction from $P_{ls}$ is performed using the Polylidar3D algorithm developed by the authors in Chapter \ref{ch:polylidar3d}. The algorithm works by generating triangular meshes of an input point cloud, filtering triangles by planarity and edge length, extracting subsets of the mesh which are spatially connected, and finally converting the mesh to a polygon format. Polylidar3D is configurable by user provided planarity constraints and maximum triangle edge length. This guarantees the polygon can represent flat surfaces with interior holes denoting obstacles. Highlights of this procedure are shown in Figure \ref{fig:ch5_example_usable}. 
 
-After the flat region is extracted, e.g., the orange polygon in Figure \ref{fig:ch5_example_usable}c, this polygon is buffered inward and simplified as denoted by dashed lines. The buffering process is defined as the Minkowski difference of the polygon with a circle with radius equal to a buffer distance \cite{agarwal2002polygon}. We set the buffer distance to 0.5 meters which contracts the exterior hull and expands the interior holes.  Afterwards we use the Douglas-Peucker's simplification algorithm to remove redundant vertices and ``smooth'' the polygon \cite{douglas_algorithms_1973}.
+After the flat surface is extracted as the orange polygon in Figure \ref{fig:ch5_example_usable}c, the polygon is buffered inward and simplified as denoted by dashed lines. The buffering process is defined as the Minkowski difference of the polygon with a circle with radius equal to a buffer distance \cite{agarwal2002polygon}. We set the buffer distance to 0.5 meters which contracts the exterior hull and expands the interior holes.  Afterwards we use the Douglas-Peucker's simplification algorithm to remove redundant vertices and ``smooth'' the polygon \cite{douglas_algorithms_1973}.
 % Both the simplification and buffering process is performed by the GEOS library.
 Narrow flat surfaces can be removed in this process as shown near the (6, 17) point in subfigure (c). The final output of this procedure is a set of polygons denoting flat and obstacle free surfaces.
 
@@ -371,9 +367,9 @@ This work requires risk assessment for landings sites and paths over small radia
 
 % \subsection{Obstacle Occupancy and Risk Mapping}\label{sec:ch5_occupancy_map}
 
-Let the city occupancy and risk map generated for path planning be denoted $R_{map}$. This map is a dense 3D voxel structure of size $M\times N \times K$, where the rows, columns and slices are $M, N$ and $K$ respectively. Each cell is indexed by triplet $(i, j, k)$  returning occupancy and risk information for a specific position. Publicly available airborne point cloud data or digital surface maps (DSM) may be used as the primary data source to construct $R_{map}$. A DSM is a raster where each pixel holds a height value above Earth's Mean Sea Level (MSL) including buildings and foliage. Such data sources are often georeferenced in a projected coordinate system which minimizes distortion of shape, area, or distance. This Cartesian coordinate system is ideal for path planning thus is carried into the voxel map. The rest of this procedure assumes the use of a DSM with equal pixel resolution and associated affine transformation matrix to convert from pixel space to the local Cartesian frame.
+Let the city occupancy and risk map generated for path planning be denoted $R_{map}$. This map is a dense 3D voxel structure of size $M\times N \times K$, where the rows, columns and slices are $M, N$ and $K$ respectively. Each cell is indexed by triplet $(i, j, k)$  returning occupancy and risk information for a specific position. Publicly available airborne point cloud data or a \ac{DSM} may be used as the primary data source to construct $R_{map}$. A \ac{DSM} is a raster where each pixel holds a height value above Earth's Mean Sea Level (MSL) including buildings and foliage. Such data sources are often georeferenced in a projected coordinate system which minimizes distortion of shape, area, or distance. This Cartesian coordinate system is ideal for path planning thus is carried into the voxel map. The rest of this procedure assumes the use of a \ac{DSM} with equal pixel resolution and associated affine transformation matrix to convert from pixel space to the local Cartesian frame.
 
-The procedure begins with a city DSM of size $M\times N$. The minimum and maximum height, $z_{min}$ and $z_{max}$, are computed from the DSM. The value of $z_{max}$ is bounded at 400 feet above local terrain level in this work. Note that FAA Part 107 restricts flying small \ac{UAS} more than 400 feet above the tallest nearby obstacle \cite{federal_aviation_administration_code_2016}. An affine transformation matrix $A$ is generated for $R_{map}$:
+The procedure begins with a city \ac{DSM} of size $M\times N$. The minimum and maximum height, $z_{min}$ and $z_{max}$, are computed from the \ac{DSM}. The value of $z_{max}$ is bounded at 400 feet above local terrain level in this work. Note that FAA Part 107 restricts flying small \ac{UAS} more than 400 feet above the tallest nearby obstacle \cite{federal_aviation_administration_code_2016}. An affine transformation matrix $A$ is generated for $R_{map}$:
 % please double check weather I am interpreting this FAA rule correctly
 \begin{align}
         A = \begin{bmatrix} \label{eq:ch5_affine_matrix}
@@ -383,11 +379,11 @@ The procedure begins with a city DSM of size $M\times N$. The minimum and maximu
         \end{bmatrix}  \\
         \begin{bmatrix}x & y & z  \end{bmatrix}^T = A \cdot \begin{bmatrix}i & j & k  \end{bmatrix}^T \label{eq:ch5_affine_equation}
 \end{align}
-where $x_{min}$, $x_{res}$, $y_{max}$, and $y_{res}$ are provided by the DSM affine matrix. Eq. \ref{eq:ch5_affine_equation} performs the conversion from 3D voxel space to the local Caretesian coordinate system.  
+where $x_{min}$, $x_{res}$, $y_{max}$, and $y_{res}$ are provided by the \ac{DSM} affine matrix. Eq. \ref{eq:ch5_affine_equation} performs the conversion from 3D voxel space to the local Caretesian coordinate system.  
 % The values of $x_{res}$, $y_{res}$, and $z_{res}$ are all equal and will set to 2 meter/pixel. 
 The number of slices, K, is equal to $\floor*{\frac{z_{max} - z_{min}}{z_{res}}}$. An $M \times N \times K$ data structure storing unsigned 8 bit integers is zero initialized to represent $R_{map}$.
 
-The occupancy map is generated similar to \cite{ten_harmsel_emergency_2017} where each $(i,j)$ cell in the DSM is matched to an $R_{map}$ cell $(i, j, k)$. The index $k$ is calculated by $\floor*{\frac{DSM(i,j) - z_{min}}{z_{res}}}$. All cells in $R_{map}$ at the $(i,j)$ position and below the $k$ slice are then set to the value 255 to indicate an obstacle exists. This is done for each pixel in the DSM until a full 3D occupancy map is generated for $R_{map}$.  Afterwards a potential field cost is applied to $R_{map}$ which fills empty cells near each obstacle cell with nonzero risk values.  Three possible levels of potential field risk are assigned to an empty cell based upon its shortest Manhattan distance to an obstacle cell. Distances of one, two, and three provide integer risk values of 254, 170, and 85 respectively. An example 3D grid of New York City is shown in Figure \ref{fig:ch5_ny_voxel_map}.
+The occupancy map is generated similar to \cite{ten_harmsel_emergency_2017} where each $(i,j)$ cell in the \ac{DSM} is matched to an $R_{map}$ cell $(i, j, k)$. The index $k$ is calculated by $\floor*{\frac{DSM(i,j) - z_{min}}{z_{res}}}$. All cells in $R_{map}$ at the $(i,j)$ position and below the $k$ slice are then set to the value 255 to indicate an obstacle exists. This is done for each pixel in the \ac{DSM} until a full 3D occupancy map is generated for $R_{map}$.  Afterwards a potential field cost is applied to $R_{map}$ which fills empty cells near each obstacle cell with nonzero risk values.  Three possible levels of potential field risk are assigned to an empty cell based upon its shortest Manhattan distance to an obstacle cell. Distances of one, two, and three provide integer risk values of 254, 170, and 85 respectively. An example 3D grid of New York City is shown in Figure \ref{fig:ch5_ny_voxel_map}.
 
 \begin{figure}[ht]
   \centering
@@ -756,56 +752,7 @@ Witten case studies are shown in Figure \ref{fig:ch5_all_scenarios_map}c,d.   Th
 
 New York City case studies are shown in Figure \ref{fig:ch5_all_scenarios_map}e,f. A clear difference from the prior city case studies is the increased number of landing sites that are available. In New York hundreds of flat rooftops offer viable landing site options. However it should be noted that quantity does not necessarily imply quality as many of these landing sites have high landing site risk. Case study 2 shows the fortunate situation where the \ac{UAS} failure is next to a low risk landing site causing the elbow shape Pareto front in the last row/col in Figure \ref{fig:ch5_all_pareto_plots}. This point (marked in red) is selected by our planner because it provides the minimum total risk.
 
-% \begin{figure}[h]
-%     \centering
-%     \includegraphics[clip, trim=0.2cm 0cm 0cm 0cm, width=300pt]{chapter_5_mapping/imgs/annarbor_pareto.pdf}
-%     \caption{Pareto Frontier}
-%     \label{fig:ch5_aa_pareto_plots}
-% \end{figure}
 
-
-% \begin{figure}[h]
-%     \centering
-%       \begin{subfigure}[b]{0.47\linewidth}
-%         \centering\includegraphics[clip, width=150pt, height=150pt]{chapter_5_mapping/imgs/annarbor_scenario_2.png}
-%         \caption{\label{fig:ch5_aa_map1}}
-%       \end{subfigure}
-%       \begin{subfigure}[b]{0.47\linewidth}
-%         \centering\includegraphics[width=150pt, height=150pt]{chapter_5_mapping/imgs/annarbor_scenario_4.png}
-%         \caption{\label{fig:ch5_aa_map2}}
-%       \end{subfigure}
-%          \caption{Maps of Ann Arbor for failure Scenario 1 (a) and 2 (b).  Failure position of the \ac{UAS} is indicated by the green marker. Landing site risk is colorized from low (yellow) to high (dark orange) risk, with associated touchdown sites marked as blue circles. The lowest risk landing sites are ranked and marked with blue numbered icons. Our planners chosen landing site is marked in red which trades off between landing site and path risk. Map from \copyright OpenStreetMap contributors and \copyright CARTO.}
-%      \label{fig:ch5_aa_scenarios_map}
-% \end{figure}
-
-
-% DONT use subfigure captions, the image is too big and wont find on the page
-% Unless we somehow break it apart
-
-% Map from \copyright OpenStreetMap contributors and \copyright CARTO.
-
-
-
-
-
-
-% \begin{figure}[ht]
-%   \centering
-%   \begin{subfigure}[b]{0.95\linewidth}
-%     \centering\includegraphics[clip, trim=0.2cm 0cm 0cm 0cm, width=300pt]{chapter_5_mapping/imgs/annarbor_pareto.pdf}
-%     \caption{\label{fig:ch5_aa_pareto}}
-%   \end{subfigure}
-%   \begin{subfigure}[b]{0.47\linewidth}
-%     \centering\includegraphics[clip, width=150pt, height=150pt]{chapter_5_mapping/imgs/annarbor_scenario_2.png}
-%     \caption{\label{fig:ch5_aa_map1}}
-%   \end{subfigure}
-%   \begin{subfigure}[b]{0.47\linewidth}
-%     \centering\includegraphics[width=150pt, height=150pt]{chapter_5_mapping/imgs/annarbor_scenario_4.png}
-%     \caption{\label{fig:ch5_aa_map2}}
-%   \end{subfigure}
-%   \caption{stuff}
-%   \label{fig:ch5_aa_scenarios}
-% \end{figure}
 
 
 
@@ -852,20 +799,7 @@ Figure \ref{fig:ch5_random_stats}b displays the number of milliseconds needed to
 
 Figure \ref{fig:ch5_random_stats}c shows multi-goal planner execution time in milliseconds.  Mean planning times are 2.0, 3.1, and 9.4 milliseconds for Ann Arbor, Witten, and New York, respectively. Although the mean is low, all cities have a long tail distribution, with New York requiring up to 166 milliseconds in one scenario. Some scenarios take longer than average because the 3D octile distance heuristic underestimates true path length particularly in New York due to of its many high rise buildings presenting obstacles to be avoided. The degraded heuristic affects the planner in two ways: A* path planning takes longer due to substantial search node expansion, and the multi-goal planner must search for more landing sites to prove the risk-optimal site is found. Figure \ref{fig:ch5_random_stats}d shows the number of landing sites searched by the multi-goal planner, i.e., the number of loop iterations in Algorithm \ref{alg:ch5_multi_goal}. Each of these iterations requires an independent A* path planning procedure. The worst case is found in New York with 11 planning iterations requiring an overall multi-goal planning time of 166ms.  
 
-% \begin{table}[h]
-% \centering
-% \caption{Multi Goal Planning Time}
-% \label{table:ch5_planning_time}
-% \begin{tabular}{@{}lccc@{}}
-% \hline\noalign{\smallskip}
-% City      & mean & std  & max   \\ 
-% \noalign{\smallskip}\hline\noalign{\smallskip}
-% Ann Arbor & 2.0  & 4.1  & 60.7  \\
-% Witten    & 3.1  & 6.2  & 59.8  \\
-% New York  & 9.4  & 19.6 & 165.8 \\ 
-% \noalign{\smallskip}\hline\noalign{\smallskip}
-% \end{tabular}
-% \end{table}
+
 
 
 \begin{figure*}[ht]
@@ -897,71 +831,13 @@ Figure \ref{fig:ch5_random_stats}c shows multi-goal planner execution time in mi
 \section{Discussion and Future Work}
 
 
-% Results show that buildings with flat rooftops can be found through a neural network and flat surfaces isolated with Polylidar3D.  Optimal touchdown points can be computed and used to augments existing conventional landing site databases. This   Monte Carlo simulations indicate that our proposed multi-goal planner is able to efficiently search and find a risk-optimal landing site/path pair in less than 100 ms on average in a variety of cities and failure positions. 
-
 The presented landing site risk model evaluates risk to both the vehicle and nearby property. Vehicle risk currently includes terrain type, planarity, and area size metrics. However, future work should investigate load bearing capability of buildings, ingress and egress clearance and complexity, wind patterns, and the direction of abort paths \cite{scherer_autonomous_2012}. The risk to overflown population could not be calculated in this chapter because population density data at high spatial resolution is not widely publicly available.  Census records have low spatial resolution and do not accurately represent population distribution during the day. Anonymized call detail records can be used to augment this data to create temporal population models but are only available as sample datasets in a few regions \cite{di_donato_evaluating_2017}. Additionally, the population models must have high spatial resolution in order to discriminate between landing sites within the small radial footprints needed for sUAS urgent landing. This data will allow a more complete picture of the risk to humans especially when coupled with building sheltering factors \cite{melnyk_third-party_2014-1}.
 
-This is unfortunate because the authors, like others \cite{ancel_real-time_2017, di_donato_evaluating_2017}, view the risk to humans as the most critical component when assessing risk. Such data will allow a more complete picture of the risk to humans when searching for landing sites in small radial footprints. 
+The risk models presented in this chapter closely follow multiattribute utility theory while substituting utility maximization for risk minimization\cite{Wickens2015}. This theory assumes that the overall risk of a decision is the sum of the magnitude of each attribute multiplied by a risk score. These magnitudes are subjective and require thoughtful human determination. However, humans in urgent problem solving situations do not have time to consider all factors and often rely on simplified heuristics or shortcuts \cite{2003_technical_review_human_error}. Decisions generated with heuristics are often acceptable (satisficing), quickly determined, but non-optimal \cite{wickens_5_1988}. Results from this chapter indicate that our proposed multi-goal planner is quick, providing a risk-optimal landing site/path decision in less than 100ms. Future work should be performed to gather expert pilot opinions on whether the proposed metrics are sufficient and if additional metrics are needed. Participant will also rank, categorize, and group the most important attributes. Scenarios similar to the presented case studies can be shown where pilots will choose a landing site/path pair. A fully integrated visualization of 2D maps, 3D environments, and risk graphs can be presented to allow research participants to make informed decisions. The interface will be designed such that participants can dynamically adjust rankings and/or weights of attributes to visualize changing Pareto frontiers. The results of this work will inform attribute and weight definitions in our final risk models.
 
-The risk models presented in this chapter closely follow multiattribute utility theory while substituting utility maximization for risk minimization\cite{Wickens2015}. This theory assumes that the overall risk of a decision is the sum of the magnitude of each attribute multiplied by a risk score. These magnitudes are subjective and require thoughtful human determination. However, humans in urgent problem solving situations do not have time to consider all factors and often rely on simplified heuristics or shortcuts \cite{2003_technical_review_human_error}. Decisions generated with heuristics are often acceptable (satisficing), quickly determined, but non-optimal \cite{wickens_5_1988}. Results from this chapter indicate that our proposed multi-goal planner is quick, providing a risk-optimal landing site/path decision in less than 100ms. Future work should be performed to gather expert pilot opinions on whether the proposed metrics are sufficient and if additional metrics are needed. Participant will also rank, categorize, and group the most important attributes. Scenarios similar to the presented case studies can be shown where pilots will choose a landing site/path pair. A fully integrated visualization of 2D maps, 3D environments, and risk graphs can be presented to allow research participants to make informed decisions. The interface will be designed such that participants can dynamically adjust rankings and/or weights of attributes to visualize changing Pareto frontiers.
+In the event of an emergency, our proposed emergency planner can operate locally and autonomously; a data-link for remote operator action is not required. However, it may be desirable to give a time-limited opportunity for a remote human operator to participate in the emergency response process. Some failure scenarios may pose high-risk toward humans requiring an immediate decision (i.e., sub-second) for landing. These situations do not allow elaborate human interaction with an emergency planner interface; we must prioritize the necessary speed of the autonomous system against the value a human operator may provide. A simple interface displaying the optimal landing site/path pair with a confirmation or ``go'' button may be used in such situations. These confirmation displays are often used in high risk situations, e.g., the Iron Dome autonomous weapons system where a human operator has less than one second to confirm the launch of intercepting missiles against incoming short-range rockets \cite{docherty2012losing}. However, many \ac{sUAS} failures will not pose immediate high risk to overflown populations such that prompt human feedback may be beneficial. Humans in this role should \emph{not} focus on low level details of landing site identification or flight planning. Instead they act in a supervisory role by choosing the best course of action that is presented \cite{gutzwiller_human-computer_2015}.
 
-% The presented case studies demonstrate the trade-off between landing site and path risk through Pareto frontiers. Numerous risk-minimal landing sites are available in cities. However a singular site must be chosen that balances both objectives. This weighting criterion is subjective and is often the product of human value judgement. The appr
-
-
-
-% The addition of rooftop landing sites greatly expanded the number of available landing sites. 
-
-% Should we consider anythign but population?
-% Real-time Risk Assessment Framework for Unmanned Aircraft System (UAS) Traffic Management (UTM)
-% Although financial impacts ofUAS crashes can be substantial,5(e.g., \ac{UAS} replacement value, repair of damage to property, environmentalcleanup costs, etc.)  within the URAF methodology only the human safety or loss of life was considered asthe risk assessment metric
-
-
-
-% Improvement to landing site risk
-%     Need population information that is more dynamic. Static pop. information is only useful at night.
-%     Need information about the materials of the landing site
-%     Need information about the use of the landing site (school, busy park, open field)
-%     Need information about the complexity of landing site area (ingress). E.g many obstacles, nearby power lines, etc.
-  
-  
-% ** Evaluation Landing Site Risk ***  
-% From Here: https://www.sciencedirect.com/science/article/pii/S0921889012001509#br000085
-% The ground conditions that need to be considered for assessing an LZ are
-%     minimum size of the site
-%     skid contact
-%     static stability on ground based on the center of gravity of the aircraft
-%     load bearing capability of the contact surface
-%     loose foreign objects (FOD) and vegetation surrounding the site
-%     clearance of aircraft/rotor with surrounding terrain and objects
-
-% while the approach conditions are the
-%     clearance of the path with respect to the terrain
-%     wind direction
-%     direction of the abort paths.
-
-% The ground path needs to be evaluated for traversability cost and path length.
-% Additionally the algorithm also checks that an abort path that deviates by at most 45° from the approach is obstacle free. This is an added measure of safety because we can abort an approach at any time by following the abort path from the current altitude.
-
-% ** End ***
-
-% Propose work where landing sites and case studies are presented to experience pilots. Design questionaries (debriefing forms) about what landing sites are best.
-
-
-% Accident investigations and empirical studies suggest that high stress levels cantrigger attentional narrowing
-
-% % The Effects of High Stress on Attention: A First Step Toward Triggering Attentional Narrowing in Controlled Environments 
-% % not only did participants detect fewer deviations, but it took them longer to correctthe deviations and their responses were less accurate.
-
-% Challenging the assumptions that distance and risk of a landing site are the primary factors when determining an optimal path. 
-% Weather - Weather:  As noted in the National Transportation Safety Board (NTSB) aviation accident database [40], adverse weather conditions (e.g., wind, visibility/ceiling, turbulence, up/downdraft, wind shear, thermal lift, icing, lighting, etc.) accounted for approximately 20\% of total aircraft accidents from 2003 through 2007. But does weater play a factor in such localized areas and conditions?
-% Ingress and Egress Paths
-
-% Discuss Human factor stuff here
-
-% Future Work on Rooftops for sheltering rates:
-% The Range Safety Group28proposed employing the building classes givenin Table 6 for their vulnerability models.  The vulnerability models define the relationship between object(e.g., UAS) mass, ballistic coefficient, and the effective casualty area.  Figure 5 provides the model used fora class B roof.  A more detailed discussion regarding the development and use of the vulnerability modelscan be found in the FAA Flight Safety Analysis Handbook34and in Safety Design for Operations.35
-
-
+For this purpose, an intuitive user interface for our emergency planner should be carefully defined. The type, amount, and form of information presented should be balanced with cognitive strain humans encounter during time-sensitive, high risk, and uncertain situations \cite{2003_technical_review_human_error}. Research indicates that humans in this ``problem-solving'' mode look for cues from data, perform hypothesis generation and selection, and finally action selection \cite{wickens_5_1988}. Therefore our user interface should be limited to elements that successfully aid humans through this decision making process. First, our emergency planner interface should have separate \emph{pre-takoff configuration} and \emph{emergency action selection} screens. The pre-takeoff screen allows a user to configure the mission specific constraints and attribute rankings for risk minimization during landing site selection. Constraints such as flight altitude, flight time, landing site distance, and landing site type (e.g., prepared or unprepared) should be able to be removed and added through the interface. Additionally, users may select an option to bias landing site rank to those closer to a critical destination point (e.g., a hospital) rather than being near the \ac{sUAS} itself. A slider can also be presented that changes the ranking of landing sites based on landing site or path risk metrics. This screen may be information dense as time is not a constraint during this pre-flight process. In contrast, the emergency action selection screen must afford quick operator selection. For example, showing all available landing sites, which may total more than 300, is not recommended because it is likely to overwhelm and distract the user. Instead, the top ranked sites should be presented to the operator to bring attention to the most likely of choices. Concise summary views of each landing sites and their paths should be presented. Future work should gather opinions of pilots and user interface design engineers to begin the process of both interface designs.
 
 \section{Conclusion}\label{sec:ch5_conclusion}
 

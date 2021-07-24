@@ -155,7 +155,7 @@ A \acf{GIS} is a framework to acquire, label, and update geographic data that mo
 
 %The most widely used \acf{GCS} is WGS84, which includes the definition of the coordinate system's fundamental and derived constants, the ellipsoidal (normal) Earth Gravitational Model (EGM), and a description of the associated World Magnetic Model (WMM) \cite{wgs84}. WGS84 is measured in degrees of longitude (x-coordinates) and latitude (y-coordinates) where positive values correspond to north of the equator and east of the prime meridian, respectively. However, this spherical coordinate system is unsuitable for use in metric distance and area calculations. Therefore \emph{projected} coordinate systems are used that map the earth's spherical surface onto a two-dimensional Cartesian coordinate plane. These are called map projections.
 
-The most widely used \acf{GCS} is WGS84 \cite{wgs84} measured in degrees of latitude  and longitude where positive values correspond to North of the Equator and East of the Prime Meridian, respectively. This spherical coordinate system is unsuitable for use in metric distance and area calculations needed for landing site selection so projected coordinate systems map the spherical surface to a two-dimensional Cartesian  planes called map projections from which distortions can be removed \cite{GIS_demystified}.
+The most widely used \acf{GCS} is WGS84 \cite{wgs84} measured in degrees of latitude  and longitude where positive values correspond to North of the Equator and East of the Prime Meridian, respectively. This spherical coordinate system is unsuitable for use in metric distance and area calculations needed for landing site selection so projected coordinate systems map the spherical surface to a two-dimensional Cartesian  planes called map projections \cite{GIS_demystified}.
 %These map projection will have distortion in the fundamental spatial properties of distance, area, shape, or direction. However map projections have been devised to minimize or completely remove distortions for certain spatial properties to suit particular purposes \cite{GIS_demystified}. 
 This dissertation utilizes the Universal Transverse Mercator (UTM) system unless otherwise noted. 
 % There exists many map projection which are standardized and used throughout the world globally, nationally, and regionally. An example global map projection is the Universal Transverse Mercator (UTM) system. This dissertation will utilize the UTM system unless otherwise noted.
@@ -185,10 +185,11 @@ Satellite data offer global coverage with the highest resolution currently offer
 
 % This dissertation uses satellite images and terrain elevation models.
 
-%\paragraph{Vector Data}
-% \subsection{Vector Data}
+\paragraph{Vector Data}
 
-%Vector data provides a more precise representation of the location and shape of world features in comparison to raster data \cite{GIS_demystified}. Common vector features include streets, park/field outlines, and building footprints as seen in Google Maps or \ac{OSM}. Vector features are constructed as ordered pairs of (x,y) vertices which reside on a map projection plane.  A vector feature is represented by one of four types of geometric shapes: point, polyline, linear ring, or polygon. This dissertation follows the Open Geospatial Consortium (OGC) standard \cite{herring_opengis_2006-1} for defining these geometric types which are summarized as follows. A point represents a single (x,y) position in coordinate space. A polyline is an ordered list of points where each consecutive pair of points defines a line segment. A linear ring is a polyline that is both closed and simple. This mandates a linear ring to have non-intersecting line segments that join to form a closed path. A valid polygon must have a single exterior linear ring representing the hull of the polygon and a set of linear rings (possibly empty) representing holes inside the polygon. Figure \ref{fig:ch1_gis_type_b} shows a polygon of a building footprint.
+Vector data provides a more precise representation of the location and shape of world features in comparison to raster data \cite{GIS_demystified}. Common vector features include streets, park/field outlines, and building footprints. Vector features are constructed as ordered pairs of (x,y) vertices which reside on a map projection plane.  A vector feature may be represented as points, polylines, or polygons. 
+
+% This dissertation follows the Open Geospatial Consortium (OGC) standard \cite{herring_opengis_2006-1} for defining these geometric types which are summarized as follows. A point represents a single (x,y) position in coordinate space. A polyline is an ordered list of points where each consecutive pair of points defines a line segment. A linear ring is a polyline that is both closed and simple. This mandates a linear ring to have non-intersecting line segments that join to form a closed path. A valid polygon must have a single exterior linear ring representing the hull of the polygon and a set of linear rings (possibly empty) representing holes inside the polygon. Figure \ref{fig:ch1_gis_type_b} shows a polygon of a building footprint.
 
 % Additionally no two rings in the boundary may cross and rings may only intersect at a singular point.
 
@@ -254,7 +255,7 @@ Specific contributions of this dissertation include: % things that have taken ti
   \item A fast open source dominant plane normal estimation library, FastGA,  using a novel Gaussian Accumulator with efficient search.
   \item A deep learning framework for predicting roof shapes from a fusion of satellite image, airborne LiDAR point cloud, and existing building outline data. Over 4,500 buildings rooftops spanning three cities were manually classified  for training, validation, and testing.
   \item A multi-goal planner that guarantees a risk-optimal solution is found rapidly by avoiding exploration of high-risk options. Plans are optimized over a combination of landing site and path risk metrics.
-  \item Experimental UAS results of real-time landing site validation or identification/selection with Polylidar3D.
+  \item Experimental UAS results of real-time landing site validation with touchdown point selection using Polylidar3D.
 \end{itemize}
  
 Specific innovations of this dissertation are: % things that have taken time / effort
@@ -277,21 +278,21 @@ Publications, software, and datasets connected to this dissertation are:
 \vspace{0.20cm}
 \begin{itemize}[noitemsep]
     \item J. Castagno, C. Ochoa, and E. Atkins, ``Comprehensive Risk-based Planning for Small Unmanned Aircraft System Rooftop Landing,” in 2018 \emph{International Conference on Unmanned Aircraft Systems} (ICUAS), Jun. 2018, pp. 1031–1040, doi: 10.1109/ICUAS.2018.8453483.
-    \item K. McDonough, J. Castagno, and J. Player, ``RANGR: Risk Aware Navigation and Gudiance Resilience,” presented at the \emph{AUVSI Xponential}, Denver, CO, USA, May 2018.
+    \item K. McDonough, J. Castagno, J. Player, and E. Atkins, ``RANGR: Risk Aware Navigation and Guidance Resilience,” presented at the \emph{AUVSI Xponential}, Denver, CO, USA, May 2018.
 	\item J. Castagno and E. M. Atkins, ``Automatic Classification of Roof Shapes for Multicopter Emergency Landing Site Selection,” in 2018 \emph{Aviation Technology, Integration, and Operations Conference, American Institute of Aeronautics and Astronautics}, 2018.
 \end{itemize}
 
-\vspace{0.25cm}
+\vspace{1.5cm}
 
 \textbf{Journal}
 
 \vspace{0.20cm}
 \begin{itemize}[noitemsep]
-    \item J. Castagno, Y. Yao, E. Atkins, ``Autonomous Rooftop Touchdown Point Selection". \emph{Journal of Intelligent Robot Systems}. Submitted, Under Review. 
+    \item J. Castagno, Y. Yao, and E. Atkins, ``Autonomous Rooftop Touchdown Point Selection". \emph{Journal of Intelligent Robot Systems}. Submitted, Under Review. 
     \item J. Castagno, M. Romano, P. Kuevor, and E. Atkins, ``Multi-UAV Wildire Boundary Estimation using a Semantic Segmentation Neural Network,” \emph{Journal of Aerospace Information Systems}, vol. 18, no. 5, pp. 231–249, 2021, doi: 10.2514/1.I010912.
     \item J. Castagno and E. Atkins, ``Map-Based Planning for Small Unmanned Aircraft Rooftop Landing," in \emph{Handbook on Reinforcement Learning and Control}, Springer, 2021. doi:10.1007/978-3-030-60990-0.
     \item J. Castagno and E. Atkins, “Polylidar3D - Fast Polygon Extraction from 3D Data," \emph{Sensors}, vol. 20, no. 17, Art. no. 17, Jan. 2020, doi: 10.3390/s20174819.
-    \item J. Castagno and E. Atkins, “Polylidar - Polygons From Triangular Meshes," \emph{IEEE Robotics and Automation Letters}, vol. 5, no. 3, pp. 4634–4641, Jul. 2020, doi: 10.1109/LRA.2020.3002212.
+    \item J. Castagno and E. Atkins, “Polylidar - Polygons From Triangular Meshes," \emph{IEEE Robotics and Automation Letters}, vol. 5, no. 3, {\small pp. 4634–4641,  Jul. 2020, doi:  10.1109/LRA.2020.3002212.}
     \item J. Castagno and E. Atkins, “Roof Shape Classification from LiDAR and Satellite Image Data Fusion Using Supervised Learning," \emph{Sensors}, vol. 18, no. 11, Art. no. 11, Nov. 2018, doi: 10.3390/s18113960.
 \end{itemize}
 

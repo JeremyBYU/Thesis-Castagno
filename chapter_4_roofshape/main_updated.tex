@@ -161,7 +161,7 @@ Satellite, LiDAR, and building outline data sources have their own spatial refer
 A depth image representation of each building's roof shape is generated from a LiDAR point cloud.  However, many outlier points can inadvertently be present during  image generation leading to poor quality or misleading images.  To attenuate these effects, bulk preprocessing and per-building filtering steps are performed as described below.% \ref{section:lidar_preprocess} and \ref{section:lidar_filtering}.
 
 \subsubsection{Bulk Preprocessing}\label{section:lidar_preprocess}
-{LiDAR point cloud data are often stored and publicly released in an industry-standard LASer file binary format \cite{samberg2007implementation}. This specification not only details the storage of the $xyz$ coordinates of each point, but also supports data classification. If the LAS file's ground points have been classified previously, one can filter the ground points from the file leading to improve image generation.} However, if the ground points are not already classified, ground point removal per building can be performed as outlined in Section \ref{section:lidar_filtering}.
+LiDAR point cloud data are often stored and publicly released in an industry-standard LASer file binary format \cite{samberg2007implementation}. This specification not only details the storage of the $xyz$ coordinates of each point, but also supports data classification. If the LAS file's ground points have been classified previously, one can filter the ground points from the file to improve image generation. However, if the ground points are not already classified, ground point removal per building can be performed as outlined in Section \ref{section:lidar_filtering}.
 
 {Airborne LiDAR point clouds often include points from building wall surfaces that are not of interest for roof shape classification. These points appear as noise around the edges of the generated LiDAR image and can be removed by estimating the normal vectors for each 3D point and removing points that are nearly orthogonal to the unit vector $\boldsymbol{\hat{k}}$  facing up. Normal vectors may be estimated by gathering points in a configurable search radius, $r$, and then performing a least squares fit to a plane.  The authors chose to use the open source \emph{White Box Analysis Tools} for generating normal vectors in bulk \cite{lindsay_whitebox_2016}.  A search radius of one meter was chosen to generate a point normal, $\boldsymbol{\hat{n_i}}$ for each point $\boldsymbol{\hat{p_i}}$, with points stored that satisfy $\big| \boldsymbol{\hat{n_i}} \cdot \boldsymbol{\hat{\textbf{k}}}\big| > 0.3$. This ensures that only points with normals that are within \ang{72} of $\pm \hat{\textbf{k}}$ are kept for further use.   }
 
@@ -202,7 +202,7 @@ A final step of filtering will remove stray points often caused by overhanging t
         $B$ = $A$
     }
     return $B$
-    \caption{Filtering of airborne LiDAR point cloud}
+    \caption{Filtering of Airborne LiDAR Point Cloud}
     \label{alg:filter}
 \end{algorithm}
 \vspace{12PT}

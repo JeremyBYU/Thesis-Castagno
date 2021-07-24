@@ -198,7 +198,7 @@ Data structure initialization is shown in Algorithm \ref{alg:ch2_boundary_edges}
   \label{fig:ch2_algorithm1_visual} 
 \end{figure}
 
-The second data structure is a point index hash map, $PtE$, whose \emph{key} is a point index and \emph{value} is a \emph{list} of outgoing boundary half-edges from the keyed point index. This \emph{unordered} hash map is represented in Figure \ref{fig:ch2_algorithm1_visual}b; note the keyed point index 7 mapping to the single element list containing half-edge 84. The final data structure represents an extreme point in the triangle mesh, referring to the point farthest to the right on the $x$-axis. This point will be used as the starting point index when extracting the concave hull to help ensure extraction does not start on a hole edge. Multiple points may exist on the extreme edge;  the algorithm will track the first one found in this case. 
+The second data structure is a point index hash map, $PtE$, whose \emph{key} is a point index and \emph{value} is a \emph{list} of outgoing boundary half-edges from the keyed point index. This \emph{unordered} hash map is represented in Figure \ref{fig:ch2_algorithm1_visual}b; note the keyed point index 7 mapping to the single element list containing half-edge 84. The final data structure represents an extreme point in the triangle mesh, referring to the point farthest to the right on the $x$-axis. This point will be used as the starting point index when extracting the concave hull to help ensure extraction does not start on a hole edge. Multiple points may exist on the extreme edge;  the algorithm will track the first one found. 
 
 \begin{algorithm}[ht]
     \SetKwInOut{Input}{Input}
