@@ -88,7 +88,6 @@
 \@umich@listoftablestrue
 \@umich@listofalgorithmstrue
 \@umich@copyrighttrue
-\@umich@dedicationfalse
 
 % This makes an option for bibliography backrefs.
 \newif\if@umich@backref
