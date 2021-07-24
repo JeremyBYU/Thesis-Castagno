@@ -2,10 +2,7 @@
 
 This is contains all the source files for my completed thesis.
 
-## Possible Outline
-
-
-## Note for self
+## Notes for self
 
 ### Figures TOC
 
@@ -36,11 +33,13 @@ You can have custom short captions to be displayed in the table of contents. Sim
 Use an acronym for the first time with: `\acf{sUAS}`. Subsequent used can then be `\ac{sUAS}`. All acryonyms are defined in `misc\acronym_list.tex`
 
 
-## Notes
-
 ### Compression:
 
 When using Adobe, ONLY compress Images. Medium JPEG Compression. 250-300 PPI.
 Don't compress fonts.
+
+### List of Appendices
+
+I never could get a proper list of appendices to work. If you use this template, don't plan to have more than one appendix because then a separate page for "List of Appendices" will be required. In this dissertation I have one appendix with 3 sections (A.1, A.2, A.3).
 
 
