@@ -903,7 +903,7 @@
  \vspace{1ex} %
  % Start the automatic table of contents features.
  \begin{singlespace} %
-  \@starttoc{loap}\if@restonecol\twocolumn\fi %
+  \@starttoc{lap}\if@restonecol\twocolumn\fi %
  \end{singlespace} %
 }
 
@@ -940,10 +940,11 @@
  % Add a bookmark manually.
  \pdfbookmark[0]{#1}{#2} %
  % Add to the list of appendices rather than toc.
- \addcontentsline{lal}{chapter}{\protect\numberline{\thechapter}#1} %
+ \addcontentsline{lap}{chapter}{\protect\numberline{\thechapter}#1} %
  % Save the chapter number.
  \chaptermark{#1} %
  % Add extra space to the lists of figures and tables and maps.
+ \addtocontents{lal}{\protect\addvspace{8pt}} %
  \addtocontents{lof}{\protect\addvspace{8pt}} %
  \addtocontents{lot}{\protect\addvspace{8pt}} %
  \addtocontents{lom}{\protect\addvspace{8pt}} %
