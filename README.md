@@ -1,4 +1,4 @@
-# My Thesis
+# Mapping and Real-time Navigation with Application to Small UAS Urgent Landing
 
 This contains all the source files for my completed thesis.
 
