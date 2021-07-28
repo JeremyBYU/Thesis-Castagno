@@ -465,7 +465,8 @@
 % Command that holds the value text of the dedication
 \newcommand{\@dedication}{}
 % Command that sets the dedication style
-\newcommand{\@dedicationstyle}{\@frontpagestyle}
+% Jeremy Castagno 07/27/21 - Rackham says front matter (ack, ded, preface) must have not have italics, setting to bold non-italics sytle (4)
+\newcommand{\@dedicationstyle}{4}
 % Command that sets the width of the dedication text area
 \newcommand{\@dedication@width}{1}
 
@@ -493,7 +494,7 @@
  \phantomsection\addcontentsline{toc}{chapter}{Dedication}
  % Insert the text and formatting.
  \insertfront{\@dedication %
-  }{\@dedicationstyle}{Dedication}{\@dedication@width}
+  }{\@dedicationstyle}{DEDICATION}{\@dedication@width}
 }
 
 
@@ -501,7 +502,7 @@
 % Command that holds the value text of the acknowledgments
 \newcommand{\@acknowledgments}{}
 % Command that sets the acknowledgments style
-% \newcommand{\@acknowledgmentsstyle}{\@frontpagestyle} % JC - Previous formatting. Invalid according to Rackham.
+% Jeremy Castagno 07/27/21 - Rackham says front matter (ack, ded, preface) must have not have italics, setting to bold non-italics sytle (4)
 \newcommand{\@acknowledgmentsstyle}{4} % Jeremy Castagno 6/22/21. Make acknowledgement the new style of "4". Bold, Center (no italics). See Line 433.
 % Command that sets the width of the acknowledgments text area
 \newcommand{\@acknowledgments@width}{1}
@@ -541,7 +542,8 @@
 % Command that holds the value text of the preface
 \newcommand{\@preface}{}
 % Command that sets the preface style
-\newcommand{\@prefacestyle}{\@frontpagestyle}
+% Jeremy Castagno 07/27/21 - Rackham says front matter (ack, ded, preface) must have not have italics, setting to bold non-italics sytle (4)
+\newcommand{\@prefacestyle}{4}
 % Command that sets the width of the preface text area
 \newcommand{\@preface@width}{1}
 
@@ -572,7 +574,7 @@
  \phantomsection\addcontentsline{toc}{chapter}{Preface}
  % Insert the text and formatting.
  \insertfront{\@preface %
-  }{\@prefacestyle}{Preface}{\@preface@width}
+  }{\@prefacestyle}{PREFACE}{\@preface@width}
 }
 
 

@@ -12,3 +12,4 @@
 *.toc
 *.pdf
 *.fdb_latexmk
+!final_pdf/Thesis_Castagno_Compressed.pdf
